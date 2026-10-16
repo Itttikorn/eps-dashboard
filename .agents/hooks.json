@@ -1,0 +1,54 @@
+{
+  "version": 1,
+  "hooks": {
+    "SessionStart": [
+      {
+        "type": "command",
+        "command": "aidlc engine hook antigravity-adapter session-start",
+        "timeoutSec": 30
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "type": "command",
+        "command": "aidlc engine hook antigravity-adapter record-human-turn",
+        "timeoutSec": 30
+      }
+    ],
+    "PreToolUse": [
+      {
+        "type": "command",
+        "command": "aidlc engine hook antigravity-adapter guard-tool-call",
+        "timeoutSec": 30
+      }
+    ],
+    "PostToolUse": [
+      {
+        "type": "command",
+        "command": "aidlc engine hook antigravity-adapter post-tool",
+        "timeoutSec": 30
+      }
+    ],
+    "PreCompact": [
+      {
+        "type": "command",
+        "command": "aidlc engine hook antigravity-adapter validate-state",
+        "timeoutSec": 30
+      }
+    ],
+    "SubagentStop": [
+      {
+        "type": "command",
+        "command": "aidlc engine hook antigravity-adapter log-subagent",
+        "timeoutSec": 30
+      }
+    ],
+    "Stop": [
+      {
+        "type": "command",
+        "command": "aidlc engine hook antigravity-adapter continue-workflow",
+        "timeoutSec": 60
+      }
+    ]
+  }
+}
