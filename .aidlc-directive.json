@@ -1,0 +1,8 @@
+{
+  "kind": "run-stage",
+  "stage": "rough-mockups",
+  "phase": "ideation",
+  "collaborator": "aidlc-design-agent",
+  "gate": true,
+  "emitted_at": "2026-10-16T05:08:46.969Z"
+}
