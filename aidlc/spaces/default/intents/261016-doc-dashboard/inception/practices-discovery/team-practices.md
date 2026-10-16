@@ -1,32 +1,33 @@
 # Team Practices
 
-> Sourced from organizational knowledge (`aidlc/spaces/default/knowledge/aidlc-shared/`) and drafted by `aidlc-pipeline-deploy-agent` during Practices Discovery.
-> To be affirmed by the team and promoted to `memory/team.md`.
+> Affirmed team practices discovered during Practices Discovery (Inception Phase).
+> To be promoted to `aidlc/spaces/default/memory/team.md`.
 
 ## Way of Working
 
 We enforce the organizational **Linear Environment Promotion Pipeline** with non-fast-forward merge commits:
 
-- **Promotion Pipeline**: Changes advance through strict gates: **`type/scope` $\rightarrow$ `staging` $\rightarrow$ `dev` $\rightarrow$ `main`**.
-- **Merge Strategy**: All PR merges across every gate use **Create Merge Commit (`--no-ff`)** to preserve fine-grained history, maintain PR traceability, and enable single-step atomic rollbacks (`git revert -m 1 <hash>`).
+- **Promotion Pipeline**: All code changes advance through strict gates: **`type/scope` $\rightarrow$ `staging` $\rightarrow$ `dev` $\rightarrow$ `main`**.
+- **Merge Strategy**: All PR merges across every gate use **Create Merge Commit (`--no-ff`)** to preserve fine-grained commit history, maintain PR auditability, and enable single-step atomic rollbacks (`git revert -m 1 <hash>`).
 - **Branch Naming**: Working branches adhere to `<type>/<scope>-<short-description>` (e.g., `feat/ingest-csv-streaming`, `fix/overdue-date-calculation`).
 - **Commit Messages**: All commits must follow the **Conventional Commits 1.0.0** specification (`<type>(<scope>): <imperative-summary>`).
-- **Delivery Sequence**: Ingestion-first cadence for MVP — establish and verify the Go CSV streaming parser and PostgreSQL storage models before frontend dashboard integration.
+- **Delivery Sequence**: Ingestion-first cadence — build and verify the Go CSV streaming parser and PostgreSQL storage models before frontend dashboard integration.
 
 ## Walking Skeleton
 
-We **build a thin end-to-end slice first**. A walking skeleton is a minimal version that runs the whole way through, built first to prove the pieces connect before the real features go in.
+We **do not build a thin end-to-end slice**. We build layers in structured isolation:
 
-- **Scope of Slice**: Minimal Go streaming CSV ingestion endpoint, basic PostgreSQL persistence, Chi v5 REST API wrapping data in the Universal Response Envelope, and a minimal React dashboard view with a loading skeleton and basic table render.
-- **Verification**: Verifies architecture connectivity, container orchestration, and database performance before implementing complex analytical calculations, category metrics, and trend charts.
+- Implement the PostgreSQL database schema and high-performance Go streaming CSV ingestion pipeline first.
+- Implement the core QA/QC workflow domain engine, overdue calculations, and category aggregators second.
+- Implement the React dashboard frontend and visualizations last, connecting to the established backend APIs.
 
 ## Testing Posture
 
-We treat testing as a first-class deliverable in every deliverable unit:
+We treat automated testing as a first-class deliverable in every deliverable unit:
 
 - **Methodology**: test-after
 - **Ordering**: Implement each applicable testable layer, then write and run that layer's tests.
-- **Backend Testing**: Table-driven unit tests, in-memory fakes for domain interfaces, and mandatory race detector verification (`go test ./... -race -count=1`).
+- **Backend Testing**: Table-driven unit tests, in-memory fakes for domain repository interfaces, and mandatory race detector verification (`go test ./... -race -count=1`).
 - **Frontend Testing**: Vitest + React Testing Library for component rendering, user interactions, and custom hooks.
 - **Coverage Floor**: 80% line-coverage floor on core business logic (CSV parser, overdue calculation engine, discipline and category aggregators).
 - **CI Quality Gate**: Automated PR gate runs unit tests, race detector, linting (`gofmt`, `golangci-lint`), and coverage verification prior to `--no-ff` merge into `staging`.
@@ -50,7 +51,7 @@ We follow the organizational backend and frontend engineering standards:
   - Universal Envelope: All HTTP API responses strictly adhere to `internal/utils/envelope.go` (`status: { code, header, description }`, `result`, `total`, `search_params`).
   - Formatting & Linting: `gofmt` and `golangci-lint` enforced in CI.
   - Logging: Standard `log/slog` structured single-line JSON logging with `request_id`, `duration_ms`, and zero credentials/PII.
-  - Input & Security: Request body bound via `http.MaxBytesReader`; constant-time comparisons (`crypto/subtle.ConstantTimeCompare`) for secrets.
+  - Input & Security: Request body bounded via `http.MaxBytesReader`; constant-time comparisons (`crypto/subtle.ConstantTimeCompare`) for secrets.
 - **Frontend (TypeScript / React)**:
   - Language: TypeScript in strict mode (`noImplicitAny`, `noUncheckedIndexedAccess`).
   - Styling: Tailwind CSS v4 using semantic token variables; strict 4pt/8pt spatial rhythm.

@@ -1,7 +1,7 @@
 # Discovered Rules
 
-> Stamped hard constraints discovered during Practices Discovery from organizational knowledge (`aidlc/spaces/default/knowledge/aidlc-shared/`).
-> On affirmation, Mandated and Forbidden rules are promoted to `memory/project.md`.
+> Stamped hard constraints discovered during Practices Discovery from organizational knowledge and confirmed interview decisions.
+> On affirmation, Mandated and Forbidden rules are promoted to `aidlc/spaces/default/memory/project.md`.
 
 ## Mandated
 
@@ -13,6 +13,7 @@
 - ALWAYS enforce maximum request body limits via `http.MaxBytesReader` on all API ingestion endpoints.
 - ALWAYS implement the 4 mandatory interactive screen states (Loading skeleton, Empty, Error, Success) for all frontend views and data tables.
 - ALWAYS run `gofmt` and `golangci-lint` on Go backend code and Prettier/ESLint on TypeScript frontend code.
+- ALWAYS build layers in structured sequence: database schema & Go streaming ingestion first, followed by business logic and dashboard frontend.
 
 ## Forbidden
 

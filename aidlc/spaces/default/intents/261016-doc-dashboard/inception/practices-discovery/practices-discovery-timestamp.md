@@ -1,2 +1,1 @@
-Discovered: [DRAFT] 2026-10-16T13:40:00Z
-
+Discovered: 2026-10-16T14:03:00Z at commit fd520f61b4e332b7c80595204148c56a27a440c7
