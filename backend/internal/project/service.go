@@ -70,6 +70,13 @@ func ClassifyCategory(docNumber, title, status string) (category string, isClose
 		return CategoryChange, isClosed
 	}
 
+	// Complete: Punch List & Handover (e.g. -PL-, -PCL-, PUNCH LIST, HANDOVER)
+	if strings.Contains(upperNum, "-PL-") || strings.Contains(upperNum, "-PCL-") ||
+		strings.Contains(upperTitle, "PUNCH LIST") || strings.Contains(upperTitle, "PUNCHLIST") ||
+		strings.Contains(upperTitle, "HANDOVER") {
+		return CategoryComplete, isClosed
+	}
+
 	// Default: Baseline Drawings
 	return CategoryBaselineDrawings, isClosed
 }
@@ -161,11 +168,13 @@ func (s *Service) GetProjectMatrix(ctx context.Context, search, sortBy, sortDir 
 		}
 
 		var total, approved, underReview, overdue int
-		var baselineDrawings int
+		var baselineTotal, baselineApproved, baselineInReview, baselineOverdue int
 		var ctrlTotal, ctrlOpen, ctrlClosed int
 		var corrTotal, corrOpen, corrClosed int
 		var corrAgeSum float64
 		var chgTotal, chgOpen, chgClosed int
+		var disciplines DisciplinesBreakdown
+		var drawingTypesMap = make(map[string]bool)
 
 		for _, d := range docs {
 			total++
@@ -203,9 +212,82 @@ func (s *Service) GetProjectMatrix(ctx context.Context, search, sortBy, sortDir 
 					chgOpen++
 				}
 			default:
-				baselineDrawings++
+				baselineTotal++
+				if d.Status == "Approved" {
+					baselineApproved++
+				} else if d.Status == "Under Review" {
+					baselineInReview++
+				}
+				if d.IsOverdue {
+					baselineOverdue++
+				}
+
+				switch strings.ToUpper(d.Discipline) {
+				case "ME":
+					disciplines.ME.Total++
+					if d.Status == "Approved" {
+						disciplines.ME.Approved++
+					}
+				case "CE":
+					disciplines.CE.Total++
+					if d.Status == "Approved" {
+						disciplines.CE.Approved++
+					}
+				case "EE":
+					disciplines.EE.Total++
+					if d.Status == "Approved" {
+						disciplines.EE.Approved++
+					}
+				}
+
+				// Extract drawing type tag from DocNumber or Title
+				parts := strings.Split(strings.ReplaceAll(d.DocNumber, "_", "-"), "-")
+				for _, part := range parts {
+					pUpper := strings.ToUpper(strings.TrimSpace(part))
+					if pUpper == "FS" || pUpper == "ML" || pUpper == "PR" || pUpper == "GA" || pUpper == "LD" || pUpper == "FD" || pUpper == "GAD" || pUpper == "ISO" || pUpper == "PID" || pUpper == "DWG" {
+						drawingTypesMap[pUpper] = true
+					}
+				}
+				titleUpper := strings.ToUpper(d.Title)
+				if strings.Contains(titleUpper, "FLOWSHEET") {
+					drawingTypesMap["FS"] = true
+				}
+				if strings.Contains(titleUpper, "MACHINE LIST") {
+					drawingTypesMap["ML"] = true
+				}
+				if strings.Contains(titleUpper, "PROCUREMENT") {
+					drawingTypesMap["PR"] = true
+				}
+				if strings.Contains(titleUpper, "GENERAL ARRANGEMENT") {
+					drawingTypesMap["GA"] = true
+				}
+				if strings.Contains(titleUpper, "LOAD DATA") {
+					drawingTypesMap["LD"] = true
+				}
+				if strings.Contains(titleUpper, "FABRICATION") {
+					drawingTypesMap["FD"] = true
+				}
 			}
 		}
+
+		var baselinePendingPct float64
+		if baselineTotal > 0 {
+			baselinePendingPct = float64(baselineInReview) / float64(baselineTotal) * 100.0
+		}
+		baselineMetrics := BaselineMetrics{
+			Total:      baselineTotal,
+			Approved:   baselineApproved,
+			InReview:   baselineInReview,
+			Overdue:    baselineOverdue,
+			PendingPct: baselinePendingPct,
+			IsCritical: baselinePendingPct >= 45.0,
+		}
+
+		drawingTypes := make([]string, 0, len(drawingTypesMap))
+		for dt := range drawingTypesMap {
+			drawingTypes = append(drawingTypes, dt)
+		}
+		sort.Strings(drawingTypes)
 
 		calcCategoryMetrics := func(tot, op, cl int, avgAge float64) CategoryMetrics {
 			var pct float64
@@ -262,10 +344,14 @@ func (s *Service) GetProjectMatrix(ctx context.Context, search, sortBy, sortDir 
 			ProjectCode:          p.Code,
 			SiteCode:             siteCode,
 			ProjectName:          p.Name,
-			BaselineDrawings:     baselineDrawings,
+			BaselineDrawings:     baselineMetrics,
 			Control:              calcCategoryMetrics(ctrlTotal, ctrlOpen, ctrlClosed, 0),
 			Corrective:           calcCategoryMetrics(corrTotal, corrOpen, corrClosed, corrAvgAge),
 			Change:               calcCategoryMetrics(chgTotal, chgOpen, chgClosed, 0),
+			Complete:             calcCategoryMetrics(0, 0, 0, 0),
+			Disciplines:          disciplines,
+			DrawingTypes:         drawingTypes,
+			PendingAgingDays:     corrAvgAge,
 			OverdueCount:         overdue,
 			OverdueDocuments:     overdue,
 			NetChange:            netChange,

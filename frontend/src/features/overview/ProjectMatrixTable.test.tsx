@@ -1,6 +1,6 @@
 import React from 'react';
 import { describe, it, expect, vi } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { render, screen, fireEvent } from '@testing-library/react';
 import { ProjectMatrixTable } from './ProjectMatrixTable';
 import { ProjectMatrixRow } from '../../api/types';
 
@@ -32,7 +32,7 @@ const mockProjects: ProjectMatrixRow[] = [
       ce: { total: 300, approved: 270 },
       ee: { total: 300, approved: 270 },
     },
-    drawingTypes: ['GAD', 'ISO'],
+    drawingTypes: ['GAD', 'ISO', 'FS'],
     pendingAgingDays: 7,
   },
   {
@@ -62,7 +62,7 @@ const mockProjects: ProjectMatrixRow[] = [
       ce: { total: 600, approved: 300 },
       ee: { total: 600, approved: 300 },
     },
-    drawingTypes: ['GAD', 'PID'],
+    drawingTypes: ['GAD', 'PID', 'ML'],
     pendingAgingDays: 35,
   },
 ];
@@ -89,7 +89,18 @@ describe('ProjectMatrixTable Component', () => {
     expect(screen.getByText('No Matching Projects Found')).toBeInTheDocument();
   });
 
-  it('renders project cards filtered by search query', () => {
+  it('renders comparative matrix table headers correctly', () => {
+    render(<ProjectMatrixTable projects={mockProjects} />);
+    expect(screen.getByText('Project & Site')).toBeInTheDocument();
+    expect(screen.getByText('① Baseline')).toBeInTheDocument();
+    expect(screen.getByText('② Control')).toBeInTheDocument();
+    expect(screen.getByText('③ Corrective')).toBeInTheDocument();
+    expect(screen.getByText('④ Change')).toBeInTheDocument();
+    expect(screen.getByText('⑤ Complete')).toBeInTheDocument();
+    expect(screen.getByText('SLA Monitor')).toBeInTheDocument();
+  });
+
+  it('renders projects filtered by search query', () => {
     render(
       <ProjectMatrixTable
         projects={mockProjects}
@@ -100,10 +111,34 @@ describe('ProjectMatrixTable Component', () => {
     expect(screen.queryByText('Rayong Complex')).not.toBeInTheDocument();
   });
 
-  it('renders all projects when no search query is specified', () => {
+  it('opens ProjectDetailModal on row click and closes when clicking close button', () => {
     render(<ProjectMatrixTable projects={mockProjects} />);
-    expect(screen.getByText('Rayong Complex')).toBeInTheDocument();
-    expect(screen.getByText('Bangkok Center')).toBeInTheDocument();
+
+    // Click on Rayong Complex row
+    const row = screen.getByTestId('project-matrix-row-PRJ-01');
+    fireEvent.click(row);
+
+    // Modal should now be open
+    const modal = screen.getByTestId('project-detail-modal');
+    expect(modal).toBeInTheDocument();
+    expect(modal).toHaveTextContent('Rayong Complex');
+    expect(screen.getByText('① Baseline Drawings & Disciplines')).toBeInTheDocument();
+    expect(screen.getByText('② Quality Control & Inspections (ITP / RFI / ITR)')).toBeInTheDocument();
+
+    // Close the modal
+    const closeBtn = screen.getByTestId('close-project-modal-btn');
+    fireEvent.click(closeBtn);
+
+    // Modal should be dismissed
+    expect(screen.queryByTestId('project-detail-modal')).not.toBeInTheDocument();
+  });
+
+  it('sorts projects by total volume descending', () => {
+    const { container } = render(
+      <ProjectMatrixTable projects={mockProjects} sortField="total" sortDir="desc" />
+    );
+    const rows = container.querySelectorAll('tbody tr');
+    expect(rows[0]).toHaveTextContent('Bangkok Center'); // 2000 docs
+    expect(rows[1]).toHaveTextContent('Rayong Complex'); // 1000 docs
   });
 });
-
