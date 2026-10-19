@@ -1,6 +1,7 @@
 package ingest
 
 import (
+	"encoding/json"
 	"fmt"
 	"time"
 )
@@ -35,10 +36,36 @@ func (e ParseError) Error() string {
 
 // IngestResult details the outcome of a CSV document ingestion operation.
 type IngestResult struct {
-	ProjectCode    string       `json:"project_code"`
-	TotalRows      int          `json:"total_rows"`
-	ProcessedCount int          `json:"processed_count"`
-	SnapshotDate   time.Time    `json:"snapshot_date"`
-	Errors         []ParseError `json:"errors,omitempty"`
+	BatchID          string       `json:"batch_id"`
+	FileSHA256       string       `json:"file_sha256"`
+	Status           string       `json:"status"` // INGESTED, ALREADY_INGESTED
+	SnapshotDate     time.Time    `json:"-"`
+	TotalRows        int          `json:"total_rows"`
+	DeltasUpdated    int          `json:"deltas_updated"`
+	SkippedUnchanged int          `json:"skipped_unchanged"`
+	CreatedAt        time.Time    `json:"-"`
+	ProjectCode      string       `json:"project_code,omitempty"`
+	ProcessedCount   int          `json:"processed_count,omitempty"`
+	Errors           []ParseError `json:"errors,omitempty"`
 }
 
+func (r IngestResult) MarshalJSON() ([]byte, error) {
+	type Alias IngestResult
+	snapDate := ""
+	if !r.SnapshotDate.IsZero() {
+		snapDate = r.SnapshotDate.Format("2006-01-02")
+	}
+	created := ""
+	if !r.CreatedAt.IsZero() {
+		created = r.CreatedAt.UTC().Format(time.RFC3339)
+	}
+	return json.Marshal(&struct {
+		Alias
+		SnapshotDate string `json:"snapshot_date"`
+		CreatedAt    string `json:"created_at"`
+	}{
+		Alias:        Alias(r),
+		SnapshotDate: snapDate,
+		CreatedAt:    created,
+	})
+}

@@ -90,9 +90,19 @@ func (app *Application) Mount() http.Handler {
 		api.Use(middleware.Timeout(apiTimeout))
 
 		api.Get("/health", func(w http.ResponseWriter, r *http.Request) {
+			dbStatus := "CONNECTED"
+			if app.DB != nil {
+				if sqlDB, err := app.DB.DB(); err != nil || sqlDB.PingContext(r.Context()) != nil {
+					dbStatus = "DISCONNECTED"
+				}
+			}
+			now := time.Now().UTC().Format(time.RFC3339)
 			utils.WriteJSON(w, http.StatusOK, utils.SuccessResponse(map[string]string{
-				"status": "healthy",
-				"time":   time.Now().UTC().Format(time.RFC3339),
+				"service":   "UP",
+				"database":  dbStatus,
+				"timestamp": now,
+				"status":    "healthy", // backward compatibility
+				"time":      now,       // backward compatibility
 			}))
 		})
 
@@ -108,6 +118,7 @@ func (app *Application) Mount() http.Handler {
 
 		// Ingestion endpoint
 		api.Post("/ingest", ingestHandler.IngestCSV)
+		api.Post("/ingest/csv", ingestHandler.IngestCSV)
 
 		// Projects endpoints
 		api.Route("/projects", func(r chi.Router) {
@@ -174,4 +185,3 @@ func (app *Application) Run(ctx context.Context, h http.Handler) error {
 	slog.Info("Server stopped cleanly")
 	return nil
 }
-

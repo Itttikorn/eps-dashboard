@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"encoding/json"
 	"io"
 	"net/http"
 	"net/http/httptest"
@@ -130,6 +131,70 @@ func TestRunGracefulShutdown(t *testing.T) {
 		}
 	case <-time.After(3 * time.Second):
 		t.Fatal("Run timed out during graceful shutdown")
+	}
+}
+
+func TestMountWithRequestLogAndDefaultTimeout(t *testing.T) {
+	app := &Application{
+		Config: Config{
+			RequestLog:        true,
+			APIRequestTimeout: 0,
+			ShutdownGrace:     0,
+		},
+	}
+	handler := app.Mount()
+	if handler == nil {
+		t.Fatal("expected handler, got nil")
+	}
+}
+
+func TestRunError(t *testing.T) {
+	app := &Application{
+		Config: Config{
+			Addr: "invalid-host-definitely-fails:99999",
+		},
+	}
+	ctx := context.Background()
+	err := app.Run(ctx, app.Mount())
+	if err == nil {
+		t.Errorf("expected error running with invalid addr, got nil")
+	}
+}
+
+func TestHealthEndpointResultContract(t *testing.T) {
+	db := database.NewTestDB(t)
+	app := &Application{
+		Config: Config{},
+		DB:     db,
+	}
+	handler := app.Mount()
+
+	req := httptest.NewRequest(http.MethodGet, "/api/v1/health", nil)
+	rec := httptest.NewRecorder()
+	handler.ServeHTTP(rec, req)
+
+	if rec.Code != http.StatusOK {
+		t.Fatalf("expected 200, got %d", rec.Code)
+	}
+
+	var res struct {
+		Status struct {
+			Code int `json:"code"`
+		} `json:"status"`
+		Result map[string]string `json:"result"`
+	}
+	_ = json.Unmarshal(rec.Body.Bytes(), &res)
+	if res.Status.Code != 1000 {
+		t.Errorf("status code = %d, want 1000", res.Status.Code)
+	}
+	if res.Result["service"] != "UP" {
+		t.Errorf("result.service = %q, want 'UP'", res.Result["service"])
+	}
+	if res.Result["database"] != "CONNECTED" {
+		t.Errorf("result.database = %q, want 'CONNECTED'", res.Result["database"])
+	}
+	if res.Result["timestamp"] == "" {
+		t.Errorf("result.timestamp is empty")
 	}
 }
 

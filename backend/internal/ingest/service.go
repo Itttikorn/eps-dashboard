@@ -2,6 +2,9 @@ package ingest
 
 import (
 	"context"
+	"crypto/rand"
+	"crypto/sha256"
+	"encoding/hex"
 	"errors"
 	"fmt"
 	"io"
@@ -29,6 +32,15 @@ func CalculateAgingBracket(days int) string {
 	}
 }
 
+func generateUUID() string {
+	var buf [16]byte
+	_, _ = rand.Read(buf[:])
+	buf[6] = (buf[6] & 0x0f) | 0x40
+	buf[8] = (buf[8] & 0x3f) | 0x80
+	return fmt.Sprintf("%08x-%04x-%04x-%04x-%012x",
+		buf[0:4], buf[4:6], buf[6:8], buf[8:10], buf[10:16])
+}
+
 // Service coordinates the parsing, validation, and persistence of daily document snapshots.
 type Service struct {
 	repo Repository
@@ -41,7 +53,9 @@ func NewService(repo Repository) *Service {
 
 // IngestCSV parses a CSV stream and transactionally updates project deliverables and KPI metrics.
 func (s *Service) IngestCSV(ctx context.Context, r io.Reader, projectCodeOverride string, forceChronology bool) (*IngestResult, error) {
-	parsedRows, parseErrors, err := StreamParseCSV(r)
+	hasher := sha256.New()
+	tee := io.TeeReader(r, hasher)
+	parsedRows, parseErrors, err := StreamParseCSV(tee)
 	if err != nil {
 		return nil, fmt.Errorf("CSV parse failed: %w", err)
 	}
@@ -192,12 +206,19 @@ func (s *Service) IngestCSV(ctx context.Context, r io.Reader, projectCodeOverrid
 		return nil, txErr
 	}
 
+	fileHash := hex.EncodeToString(hasher.Sum(nil))
+
 	return &IngestResult{
-		ProjectCode:    projectCode,
-		TotalRows:      len(parsedRows) + len(parseErrors),
-		ProcessedCount: len(docs),
-		SnapshotDate:   snapshotDate,
-		Errors:         parseErrors,
+		BatchID:          generateUUID(),
+		FileSHA256:       fileHash,
+		Status:           "INGESTED",
+		SnapshotDate:     snapshotDate,
+		TotalRows:        len(parsedRows) + len(parseErrors),
+		DeltasUpdated:    len(docs),
+		SkippedUnchanged: 0,
+		CreatedAt:        now,
+		ProjectCode:      projectCode,
+		ProcessedCount:   len(docs),
+		Errors:           parseErrors,
 	}, nil
 }
-

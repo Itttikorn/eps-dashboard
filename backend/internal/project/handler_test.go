@@ -108,12 +108,48 @@ func TestProjectHandlerEndpoints(t *testing.T) {
 		t.Errorf("expected 200 OK, got %d", recDisc.Code)
 	}
 
-	// Trends
+	// Trends legacy
 	reqTrends := httptest.NewRequest(http.MethodGet, "/api/v1/analytics/trends?project_code=PRJ-01", nil)
 	recTrends := httptest.NewRecorder()
 	r.ServeHTTP(recTrends, reqTrends)
 	if recTrends.Code != http.StatusOK {
 		t.Errorf("expected 200 OK, got %d", recTrends.Code)
 	}
-}
 
+	// Matrix with pagination and sort
+	reqMatrixPaged := httptest.NewRequest(http.MethodGet, "/api/v1/projects?search=Alpha&page=1&page_size=10&sort_by=name&sort_dir=desc", nil)
+	recMatrixPaged := httptest.NewRecorder()
+	r.ServeHTTP(recMatrixPaged, reqMatrixPaged)
+	if recMatrixPaged.Code != http.StatusOK {
+		t.Errorf("expected 200 OK for paged matrix, got %d", recMatrixPaged.Code)
+	}
+
+	// Trends with project_ids, start_date, end_date, preset
+	reqTrendsContract := httptest.NewRequest(http.MethodGet, "/api/v1/analytics/trends?project_ids=PRJ-01&start_date=2026-01-01&end_date=2026-12-31&preset=all_time", nil)
+	recTrendsContract := httptest.NewRecorder()
+	r.ServeHTTP(recTrendsContract, reqTrendsContract)
+	if recTrendsContract.Code != http.StatusOK {
+		t.Errorf("expected 200 OK for contract trends, got %d", recTrendsContract.Code)
+	}
+
+	// Validation errors for missing projectCode
+	h, _, _ := setupTestProjectHandler(t)
+	reqEmpty := httptest.NewRequest(http.MethodGet, "/api/v1/projects//details", nil)
+	recEmpty := httptest.NewRecorder()
+	h.GetProjectDetails(recEmpty, reqEmpty)
+	if recEmpty.Code != http.StatusBadRequest {
+		t.Errorf("expected 400 for empty projectCode in details, got %d", recEmpty.Code)
+	}
+
+	recEmptyOverdue := httptest.NewRecorder()
+	h.GetProjectOverdue(recEmptyOverdue, reqEmpty)
+	if recEmptyOverdue.Code != http.StatusBadRequest {
+		t.Errorf("expected 400 for empty projectCode in overdue, got %d", recEmptyOverdue.Code)
+	}
+
+	recEmptyDisc := httptest.NewRecorder()
+	h.GetProjectDisciplines(recEmptyDisc, reqEmpty)
+	if recEmptyDisc.Code != http.StatusBadRequest {
+		t.Errorf("expected 400 for empty projectCode in disciplines, got %d", recEmptyDisc.Code)
+	}
+}

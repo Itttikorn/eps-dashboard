@@ -6,26 +6,57 @@ import (
 	"eps-dashboard/backend/internal/models"
 )
 
+// CategoryCounts holds aggregate counts across the 5 QA/QC category pillars.
+type CategoryCounts struct {
+	BaselineDrawings int `json:"baseline_drawings"`
+	Control          int `json:"control"`
+	Corrective       int `json:"corrective"`
+	Change           int `json:"change"`
+	Complete         int `json:"complete"`
+}
+
+// CategoryMetrics details deliverable volume, open/closed split, and delinquency percentage.
+type CategoryMetrics struct {
+	Total      int     `json:"total"`
+	Open       int     `json:"open"`
+	Closed     int     `json:"closed"`
+	PendingPct float64 `json:"pending_pct"`
+	IsCritical bool    `json:"is_critical"`
+	AvgAgeDays float64 `json:"avg_age_days"`
+}
+
 // GlobalSummary aggregates top-level executive KPIs across all active projects.
 type GlobalSummary struct {
-	TotalProjects        int     `json:"total_projects"`
-	TotalDocuments       int     `json:"total_documents"`
-	ApprovedDocuments    int     `json:"approved_documents"`
-	UnderReviewDocuments int     `json:"under_review_documents"`
-	OverdueDocuments     int     `json:"overdue_documents"`
-	GlobalApprovalRate   float64 `json:"global_approval_rate"`
+	TotalProjects        int            `json:"total_projects"`
+	TotalDocuments       int            `json:"total_documents"`
+	TotalOverdue         int            `json:"total_overdue"`
+	OverdueDocuments     int            `json:"overdue_documents"` // backward compatibility
+	CategoryCounts       CategoryCounts `json:"category_counts"`
+	LastUpdatedAt        string         `json:"last_updated_at"`
+	ApprovedDocuments    int            `json:"approved_documents"`
+	UnderReviewDocuments int            `json:"under_review_documents"`
+	GlobalApprovalRate   float64        `json:"global_approval_rate"`
 }
 
 // ProjectMatrixRow represents a single project's summarized status for the comparative matrix.
 type ProjectMatrixRow struct {
-	ProjectCode          string    `json:"project_code"`
-	ProjectName          string    `json:"project_name"`
-	TotalDocuments       int       `json:"total_documents"`
-	ApprovedDocuments    int       `json:"approved_documents"`
-	UnderReviewDocuments int       `json:"under_review_documents"`
-	OverdueDocuments     int       `json:"overdue_documents"`
-	ApprovalRate         float64   `json:"approval_rate"`
-	LastUpdated          time.Time `json:"last_updated"`
+	ProjectID            string          `json:"project_id"`
+	ProjectCode          string          `json:"project_code"` // backward compatibility
+	SiteCode             string          `json:"site_code"`
+	ProjectName          string          `json:"project_name"`
+	BaselineDrawings     int             `json:"baseline_drawings"`
+	Control              CategoryMetrics `json:"control"`
+	Corrective           CategoryMetrics `json:"corrective"`
+	Change               CategoryMetrics `json:"change"`
+	OverdueCount         int             `json:"overdue_count"`
+	OverdueDocuments     int             `json:"overdue_documents"` // backward compatibility
+	NetChange            string          `json:"net_change"`        // IMPROVING, DEGRADING, STABLE
+	LastSnapshotDate     string          `json:"last_snapshot_date"`
+	TotalDocuments       int             `json:"total_documents"`
+	ApprovedDocuments    int             `json:"approved_documents"`
+	UnderReviewDocuments int             `json:"under_review_documents"`
+	ApprovalRate         float64         `json:"approval_rate"`
+	LastUpdated          time.Time       `json:"last_updated"`
 }
 
 // DisciplineMetrics summarizes deliverable health for a specific engineering discipline.
@@ -39,15 +70,30 @@ type DisciplineMetrics struct {
 	ApprovalRate   float64 `json:"approval_rate"`
 }
 
-// TrendPoint represents a point in time for historical charts.
-type TrendPoint struct {
-	Date         string  `json:"date"`
-	Total        int     `json:"total"`
-	Approved     int     `json:"approved"`
-	UnderReview  int     `json:"under_review"`
-	Overdue      int     `json:"overdue"`
-	ApprovalRate float64 `json:"approval_rate"`
+// ProjectMetricPoint defines historical metrics for a specific project on a given date.
+type ProjectMetricPoint struct {
+	TotalDocuments int     `json:"total_documents"`
+	OverdueCount   int     `json:"overdue_count"`
+	Total          int     `json:"total,omitempty"`
+	Approved       int     `json:"approved,omitempty"`
+	UnderReview    int     `json:"under_review,omitempty"`
+	Overdue        int     `json:"overdue,omitempty"`
+	ApprovalRate   float64 `json:"approval_rate,omitempty"`
 }
+
+// DateMetricPoint represents multi-project time-series metrics on a specific calendar date.
+type DateMetricPoint struct {
+	Date           string                        `json:"date"`
+	ProjectMetrics map[string]ProjectMetricPoint `json:"project_metrics"`
+	Total          int                           `json:"total,omitempty"`
+	Approved       int                           `json:"approved,omitempty"`
+	UnderReview    int                           `json:"under_review,omitempty"`
+	Overdue        int                           `json:"overdue,omitempty"`
+	ApprovalRate   float64                       `json:"approval_rate,omitempty"`
+}
+
+// TrendPoint legacy alias for single project trend points.
+type TrendPoint = DateMetricPoint
 
 // OverdueItemDetail represents detailed information for a single overdue document.
 type OverdueItemDetail struct {
@@ -72,4 +118,3 @@ type ProjectDetailsResponse struct {
 	Project        *models.Project     `json:"project"`
 	LatestSnapshot *models.KPISnapshot `json:"latest_snapshot,omitempty"`
 }
-
