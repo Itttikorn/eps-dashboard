@@ -75,3 +75,4 @@ We follow the organizational backend and frontend engineering standards:
 ## Corrections
 
 <!-- Self-learning loop appends here. -->
+- NEVER use interactive modal questions (`ask_question` tool); ALWAYS present questions, options, and clarification requests in plain chat text for the user to answer in their own response. (learned 2026-10-19)

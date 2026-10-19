@@ -69,6 +69,15 @@ All handlers ingesting HTTP request bodies must enforce a maximum payload size b
 r.Body = http.MaxBytesReader(w, r.Body, 1048576) // 1MB limit for standard JSON payloads
 ```
 
+### 1.7 Mandatory Project Packaging & Directory Layout (wa-backend Standard)
+All Go backend services must strictly follow the canonical folder layout established by `wa-backend` / `eps-dashboard`:
+1. **Root Entrypoint**: `main.go` (runtime bootstrap & OS signal handling), `api.go` (`Application` struct, `Mount()` Chi router, and `Run()` graceful drain), and `api_test.go`.
+2. **Environment Configuration**: `internal/config/env.go` containing strongly typed helper functions (`String`, `Strings`, `Int`, `Int64`, `Duration`, `Bool`).
+3. **Database & Migrations**: `internal/database/db.go` containing connection pool tuning, `AutoMigrate`, and `NewTestDB(t)` for isolated in-memory SQLite unit testing.
+4. **Shared Database Models**: `internal/models/` holding GORM database entity structs and migration tags.
+5. **Corporate Envelope**: `internal/utils/envelope.go` containing the standard 4-field response envelope and JSON writers.
+6. **Feature Domain Packages**: `internal/<domain>/` as self-contained vertical slices containing `models.go` (DTOs), `repository.go` (DB queries & interfaces), `service.go` (business rules), `service_test.go` (service unit tests), `handler.go` (HTTP presentation), and `handler_test.go` (HTTP tests).
+
 ---
 
 ## 2. Input Validation at Gateway & Presentation Boundaries
@@ -413,10 +422,11 @@ The following must **NEVER** appear in logs:
 - PII: unmasked credit cards, personal identifiers, or phone numbers.
 
 ### 6.2 Testing Standards
-1. **Unit Testing**:
+1. **Unit Testing & In-Memory Database Harness**:
    - Co-located with implementation files (e.g., `service_test.go`, `handler_test.go`).
    - Use table-driven test patterns covering happy paths, validation edge cases, and unauthorized branches.
-   - Test against domain interfaces using in-memory fakes. No network or database I/O in unit tests.
+   - For repository and service layers requiring persistence testing, use `database.NewTestDB(t)` backed by pure-Go SQLite (`github.com/glebarez/sqlite`) with unique in-memory DSNs (`file:mem_%d?mode=memory&cache=shared`). This executes real schema migrations and SQL transactions with 100% test isolation, eliminating all dependencies on external running databases and ensuring deterministic CI/CD execution.
+   - Mandatory test coverage floor: $\ge 80.0\%$ line coverage across all business logic and transport packages.
 2. **Integration Testing**:
    - Run against transient, isolated test databases.
    - Execute actual database migrations prior to running test suites.
@@ -433,6 +443,7 @@ The following must **NEVER** appear in logs:
 
 Before opening a pull request or deploying an endpoint, verify:
 
+- [ ] **Directory Layout**: Conforms strictly to the canonical wa-backend / eps-dashboard structure (root `main.go`/`api.go`, `internal/config/env.go`, `internal/database/db.go`, `internal/models/`, `internal/utils/envelope.go`, and feature-contained `internal/<domain>/`).
 - [ ] **Route Segregation**: REST routes mounted under `/api/v1/...`; WebSockets strictly under `/ws/...`.
 - [ ] **Timeout Scoping**: Request timeout middleware is scoped to `/api` and does NOT wrap `/ws`.
 - [ ] **WebSocket Handshake Auth**: Handshake validates query parameter token before protocol upgrade; handles ping/pong.
@@ -449,4 +460,5 @@ Before opening a pull request or deploying an endpoint, verify:
 - [ ] **Migration Safety**: Schema changes use expand-and-contract migrations without long exclusive locks.
 - [ ] **Context & Timeouts**: Context cancellation propagated to all database queries and external calls.
 - [ ] **Logging & Observability**: Structured JSON logging; zero secrets, tokens, or PII logged.
-- [ ] **Testing Coverage**: Unit tests cover happy path, boundaries, and unauthorized branches. Race detector runs cleanly (`-race`).
+- [ ] **Testing Coverage**: Unit tests cover happy path, boundaries, and unauthorized branches with $\ge 80.0\%$ line coverage. Race detector runs cleanly (`-race`).
+

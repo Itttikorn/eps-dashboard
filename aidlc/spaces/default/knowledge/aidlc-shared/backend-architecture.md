@@ -364,3 +364,76 @@ sequenceDiagram
 | **Streaming Large Files Through App Compute** | Buffering multi-megabyte user file uploads in application memory before saving to storage. | Use the Pre-signed URL pattern to allow client direct uploads to Cloud Object Storage. |
 | **Single-Node In-Memory Real-Time Hubs** | Maintaining WebSocket client maps in local memory without a Pub/Sub backplane. | Integrate a distributed broker (Redis Pub/Sub) so multiple scaled instances synchronize broadcasts. |
 | **Direct Database Writes Under Spike Loads** | Hitting primary RDBMS with concurrent individual write queries during high-concurrency voting or reactions. | Implement Write-Behind buffering via in-memory queues and batched persistence workers. |
+
+---
+
+## 11. Canonical Go Backend Service Structure & Directory Blueprint
+
+To eliminate directory drift and maintain structural consistency across all Go services in the organization, all new backend services **MUST strictly adhere to the reference architecture established by `wa-backend` / `eps-dashboard`**.
+
+### 11.1 Directory Layout Hierarchy
+
+```
+<service-root>/
+├── main.go                     # Process entrypoint: logging, env loading, GC memory limit, DB connection, signal context
+├── api.go                      # Application & Config definitions, Mount() Chi v5 router, Run() graceful HTTP drain
+├── api_test.go                 # Root integration tests: /health, CORS, API subroutes, graceful drain
+├── Dockerfile                  # Multi-stage hardened build (golang:1.22 builder -> alpine:3.20 unprivileged runner)
+├── Makefile                    # Standard targets: build, run, test, test-race, cover, docker-build
+├── go.mod                      # Go module dependencies
+├── go.sum                      # Checksums
+├── internal/
+│   ├── config/
+│   │   ├── env.go              # Type-safe environment variable helpers (String, Strings, Int, Int64, Duration, Bool)
+│   │   └── env_test.go         # Comprehensive unit tests for environment parsing
+│   ├── database/
+│   │   ├── db.go               # GORM connection pool tuning, logger, AutoMigrate, NewTestDB in-memory SQLite runner
+│   │   └── db_test.go          # Database migration & seed verification
+│   ├── models/                 # Shared database entity definitions
+│   │   ├── <entity_a>.go       # GORM model with table name, column tags, composite indices
+│   │   ├── <entity_b>.go       # Related entity models
+│   │   └── models_test.go      # Model instantiation & validation tests
+│   ├── utils/
+│   │   ├── envelope.go         # SCG 4-field response envelope (StatusInfo, Response, constructors, WriteJSON)
+│   │   └── envelope_test.go    # Envelope serialization tests
+│   └── <feature_domain>/       # Feature package (e.g. project, ingest, auth, host, session)
+│       ├── models.go           # Domain DTOs, request payloads, response projections
+│       ├── repository.go       # Domain repository interface and GORM implementation
+│       ├── service.go          # Business rules, domain orchestration, and invariant enforcement
+│       ├── service_test.go     # Service unit tests using isolated in-memory SQLite runner
+│       ├── handler.go          # Presentation HTTP handlers with Chi URL binding and envelope serialization
+│       └── handler_test.go     # HTTP handler tests using net/http/httptest
+```
+
+### 11.2 Architectural Roles & Responsibilities
+
+1. **Root `main.go`**:
+   - Single responsibility: Bootstrap environment, initialize dependencies (Postgres, Redis, Firestore, etc.), tune runtime GC (`GOMEMLIMIT_BYTES`), bind `SIGTERM`/`SIGINT` signal trapping context, instantiate `Application`, and invoke `api.Run()`.
+   - Never contains HTTP route definitions or business logic.
+
+2. **Root `api.go`**:
+   - Encapsulates the `Application` struct (holding dependency references) and `Config` struct (containing write, read, idle timeouts, handler bounds, and shutdown grace periods).
+   - `Mount() http.Handler`: Configures Chi middleware (`RequestID`, `RealIP`, `Recoverer`, `Logger`, security headers, CORS), mounts public `/health`, and registers domain subrouters under `/api` (REST) and `/ws` (persistent WebSockets).
+   - `Run(ctx, handler) error`: Listens and serves on configured address. Upon `ctx.Done()`, initiates graceful draining within configured `ShutdownGrace` window, flushing active connections and stopping background workers cleanly.
+
+3. **`internal/config/env.go`**:
+   - Type-safe, default-fallback environment parsers (`String`, `Strings`, `Int`, `Int64`, `Duration`, `Bool`). Eliminates scattered, error-prone `os.Getenv` parsing calls throughout the codebase.
+
+4. **`internal/database/db.go`**:
+   - Configures production connection pools (`SetMaxOpenConns`, `SetMaxIdleConns`, `SetConnMaxLifetime`, `SetConnMaxIdleTime`).
+   - Exports `AutoMigrate(db *gorm.DB)` to execute declarative schema migrations on startup.
+   - Exports `InitInMemoryDB()` and `NewTestDB(t testingTB) *gorm.DB` backed by pure-Go SQLite (`github.com/glebarez/sqlite`) with unique in-memory DSNs (`file:mem_%d?mode=memory&cache=shared`). This allows all unit tests across the service to test real SQL queries and transactions with complete isolation without requiring an external PostgreSQL instance.
+
+5. **`internal/models/`**:
+   - Houses shared database entities across features. Models use GORM annotations for primary keys, foreign keys, and indexes.
+
+6. **`internal/utils/envelope.go`**:
+   - Strictly implements the organizational 4-field response envelope (`status: { code, header, description }`, `result`, `total`, `search_params`).
+   - Provides standardized constructors: `SuccessResponse`, `SuccessWithTotal`, `SuccessWithSearchParams`, `ValidationErrorResponse`, `NotFoundErrorResponse`, `ServerErrorResponse`, and `WriteJSON`.
+
+7. **Feature Packages (`internal/<feature>/`)**:
+   - Each domain capability lives in its own dedicated package under `internal/<feature>/`.
+   - **Self-Contained Vertical Slice**: Every feature package contains its own `models.go`, `repository.go`, `service.go`, `service_test.go`, `handler.go`, and `handler_test.go`.
+   - **Interface Segregation**: Handlers depend on Service structs; Services depend on Repository interfaces. Repositories implement the storage logic.
+   - **Zero Cross-Domain Mutation**: Domains communicate via exported service interfaces or shared models, never by querying or mutating another domain's database tables directly.
+

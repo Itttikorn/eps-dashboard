@@ -1,0 +1,12 @@
+.git
+.gitignore
+.aidlc/
+aidlc/
+bin/
+*.out
+*.exe
+.env
+.env.local
+coverage.out
+README.md
+

@@ -4431,7 +4431,7 @@
 **Timestamp**: 2026-10-16T08:27:47Z
 **Event**: STAGE_COMPLETED
 **Stage**: user-stories
-**Validation Basis**: {"graphContract":"sha256:c75f05406db1b9ac835b39d17823589395911112ecd624d831c9997726414fca","inputs":[{"artifact":"requirements","contentHash":"sha256:cb8961215b70ff5fd1ae8f1321019fdf3a7a5ea61f09c8406fa213ab25bd2655","instanceCount":1,"presentCount":1,"producer":"requirements-analysis","required":true,"structureHash":"sha256:d52f0fd0206181ea7c9724599f05aeec2cef796b3af8b1b11270cf7d8f964622"},{"artifact":"team-practices","contentHash":"sha256:7b3b5b73a263c2b1ea91e64047b57959b6af1615d20951ab9df2f5b9226074d8","instanceCount":1,"presentCount":1,"producer":"practices-discovery","required":false,"structureHash":"sha256:de2b19b12d8f1cbba59ba3d6fad1fbb61a80967031b3c00ac0c8a2de00909856"}],"outputs":[{"artifact":"personas","contentHash":"sha256:5335a0d4b716a789d1c3c84f2e20b1ccadc587b820c79e913df379b9b6c2a0d0","instanceCount":1,"presentCount":1,"producer":"user-stories","required":true,"structureHash":"sha256:a9dc31cb6ca8086f346f190e5adee65b4f6c299fe9509df2161d4c3a267d5d11"},{"artifact":"stories","contentHash":"sha256:96acef12974331a834c00b641cb155bbe2049e049beeac80e0a3cb04f1db48c1","instanceCount":1,"presentCount":1,"producer":"user-stories","required":true,"structureHash":"sha256:da6264ffad2a6c6d6f4d30bcc3a007686f6be9d7b7ddeca01668e7e0bb3af1ca"},{"artifact":"traceability","contentHash":"sha256:9403806453c32368faf042f342c7e891682630d32fc13b0eaa3ed073c5aa855f","instanceCount":1,"presentCount":1,"producer":"user-stories","required":true,"structureHash":"sha256:7c22eab330df00f453f9b1daf5c9da53e1914ff8612e3bf7e4e81740cb93824e"},{"artifact":"user-stories-assessment","contentHash":"sha256:b2cf321b4edc89f4d8afd56a20754257909f555bf0857e72f6e9579ce9a3177b","instanceCount":1,"presentCount":1,"producer":"user-stories","required":true,"structureHash":"sha256:2e4a7b2f3024353d0f19413a3c87ee8e00486c31cb86daba848bbf725e1d049f"}],"projectType":"greenfield","schema":3}
+**Validation Basis**: {"graphContract":"sha256:c75f05406db1b9ac835b39d17823589395911112ecd624d831c9997726414fca","inputs":[{"artifact":"requirements","contentHash":"sha256:cb8961215b70ff5fd1ae8f1321019fdf3a7a5ea61f09c8406fa213ab25bd2655","instanceCount":1,"presentCount":1,"producer":"requirements-analysis","required":true,"structureHash":"sha256:d52f0fd0206181ea7c9724599f05aeec2cef796b3af8b1b11270cf7d8f964622"},{"artifact":"team-practices","contentHash":"sha256:7b3b5b73a263c2b1ea91e64047b57959b6af1615d20951ab9df2f5b9226074d8","instanceCount":1,"presentCount":1,"producer":"practices-discovery","required":false,"structureHash":"sha256:de2b19b12d8f1cbba59ba3d6fad1fbb61a80967031b3c00ac0c8a2de00909856"}],"outputs":[{"artifact":"personas","contentHash":"sha256:5335a0d4b716a789d1c3c84f2e20b1ccadc587b820c79e913df379b9b6c2a0d0","instanceCount":1,"presentCount":1,"producer":"user-stories","required":true,"structureHash":"sha256:a9dc31cb6ca8086f346f190e5adee65b4f6c299fe9509df2161d4c3a267d5d11"},{"artifact":"stories","contentHash":"sha256:96acef12974331a834c00b641cb155bbe2049e049beeac80e0a3cb04f1db48c1","instanceCount":1,"presentCount":1,"producer":"user-stories","required":true,"structureHash":"sha256:da6264ffad2a6c6d6f4d30bcc3a007686f6be9d7b7ddeca01668e7e0bb3af1ca"},{"artifact":"traceability","contentHash":"sha256:f6a2096caa85d3b311de6587ec5f4fd274aba36f80fa61903b2d62256f75e5c6","instanceCount":1,"presentCount":1,"producer":"user-stories","required":true,"structureHash":"sha256:7c22eab330df00f453f9b1daf5c9da53e1914ff8612e3bf7e4e81740cb93824e"},{"artifact":"user-stories-assessment","contentHash":"sha256:b2cf321b4edc89f4d8afd56a20754257909f555bf0857e72f6e9579ce9a3177b","instanceCount":1,"presentCount":1,"producer":"user-stories","required":true,"structureHash":"sha256:2e4a7b2f3024353d0f19413a3c87ee8e00486c31cb86daba848bbf725e1d049f"}],"projectType":"greenfield","schema":3}
 **Details**: Stage User Stories approved by gate
 
 ---
@@ -7727,5 +7727,1813 @@
 **Event**: STAGE_STARTED
 **Stage**: functional-design
 **Agent**: aidlc-architect-agent
+
+---
+
+## Stage Jump
+**Timestamp**: 2026-10-16T10:18:49Z
+**Event**: STAGE_JUMPED
+**Direction**: REDO
+**Source**: functional-design
+**Target**: functional-design
+**Scope**: mvp
+**Details**: REDO jump from functional-design to functional-design (3.1). Scope: mvp.
+**Source Baseline**: sha256:806e5dfad5f3a72cb3c719a504d471edb3a15f8593265f70993044cc50b42a61
+
+---
+
+## Stage Start
+**Timestamp**: 2026-10-16T10:18:49Z
+**Event**: STAGE_STARTED
+**Stage**: functional-design
+**Agent**: aidlc-architect-agent
+**Source Baseline**: sha256:806e5dfad5f3a72cb3c719a504d471edb3a15f8593265f70993044cc50b42a61
+
+---
+
+## Autonomy Mode Set
+**Timestamp**: 2026-10-16T10:23:11Z
+**Event**: AUTONOMY_MODE_SET
+**Mode**: gated
+
+---
+
+## Error Logged
+**Timestamp**: 2026-10-16T10:24:48Z
+**Event**: ERROR_LOGGED
+**Tool**: aidlc-log
+**Command**: aidlc-log engine log decision --help
+**Error**: Cannot record this decision: "--help" is not an option of log decision, so it is probably part of a value that a bare double quote split. Run the command again with each value as one argument, in the person's exact words; in Windows PowerShell write each double quote inside a value as \" (for example --decision 'Run \"todo --help\" first'), or as a single quote ('') when the value also holds &, |, <, > or ^.
+
+---
+
+## Decision Recorded
+**Timestamp**: 2026-10-16T10:25:59Z
+**Event**: DECISION_RECORDED
+**Stage**: functional-design
+**Decision**: How would you like to answer the questions?
+**Options**: Guide me,I'll edit the file,Chat
+**Unit**: backend
+
+---
+
+## Error Logged
+**Timestamp**: 2026-10-16T10:26:28Z
+**Event**: ERROR_LOGGED
+**Tool**: aidlc-log
+**Command**: aidlc-log engine log answer --stage functional-design --unit backend --details Guide me
+**Error**: Cannot record this answer because no new human reply has arrived for the question. Wait for the human to type an answer, then try again. This needs a fresh human turn: wait for the person to reply, then record it again.
+
+---
+
+## Human Turn
+**Timestamp**: 2026-10-16T10:27:44Z
+**Event**: HUMAN_TURN
+**Session**: antigravity-session
+
+---
+
+## Question Answered
+**Timestamp**: 2026-10-16T10:27:49Z
+**Event**: QUESTION_ANSWERED
+**Stage**: functional-design
+**Details**: Guide me
+**Unit**: backend
+
+---
+
+## Decision Recorded
+**Timestamp**: 2026-10-16T10:27:59Z
+**Event**: DECISION_RECORDED
+**Stage**: functional-design
+**Decision**: Q1-Q3: Header mapping, Revision supersession, Overdue anchor
+**Options**: A,B,C
+**Unit**: backend
+
+---
+
+## Error Logged
+**Timestamp**: 2026-10-16T10:31:19Z
+**Event**: ERROR_LOGGED
+**Tool**: aidlc-log
+**Command**: aidlc-log engine log answer --stage functional-design --unit backend --details Q1: B. Resilient header mapping, Q2: A. Overwrite in-place with latest revision, Q3: A. Snapshot date as anchor
+**Error**: Cannot record this answer because no new human reply has arrived for the question. Wait for the human to type an answer, then try again. This needs a fresh human turn: wait for the person to reply, then record it again.
+
+---
+
+## Human Turn
+**Timestamp**: 2026-10-16T10:31:50Z
+**Event**: HUMAN_TURN
+**Session**: antigravity-session
+
+---
+
+## Question Answered
+**Timestamp**: 2026-10-16T10:31:57Z
+**Event**: QUESTION_ANSWERED
+**Stage**: functional-design
+**Details**: Q1: B, Q2: A, Q3: A
+**Unit**: backend
+
+---
+
+## Decision Recorded
+**Timestamp**: 2026-10-16T10:32:23Z
+**Event**: DECISION_RECORDED
+**Stage**: functional-design
+**Decision**: Q4: Corrective Actions Directional Flow Classification
+**Options**: A,B,C
+**Unit**: backend
+
+---
+
+## Human Turn
+**Timestamp**: 2026-10-16T10:34:56Z
+**Event**: HUMAN_TURN
+**Session**: antigravity-session
+
+---
+
+## Question Answered
+**Timestamp**: 2026-10-16T10:35:02Z
+**Event**: QUESTION_ANSWERED
+**Stage**: functional-design
+**Details**: Excluded - unified NCR/CAR tracking without directional splitting
+**Unit**: backend
+
+---
+
+## Decision Recorded
+**Timestamp**: 2026-10-16T10:35:16Z
+**Event**: DECISION_RECORDED
+**Stage**: functional-design
+**Decision**: Q5: Ingestion Transaction Atomicity & Row Validation Error Handling
+**Options**: A,B,C
+**Unit**: backend
+
+---
+
+## Human Turn
+**Timestamp**: 2026-10-16T10:36:31Z
+**Event**: HUMAN_TURN
+**Session**: antigravity-session
+
+---
+
+## Question Answered
+**Timestamp**: 2026-10-16T10:36:37Z
+**Event**: QUESTION_ANSWERED
+**Stage**: functional-design
+**Details**: A. Strict fail-fast all-or-nothing
+**Unit**: backend
+
+---
+
+## Error Logged
+**Timestamp**: 2026-10-16T10:37:07Z
+**Event**: ERROR_LOGGED
+**Tool**: aidlc-log
+**Command**: aidlc-log engine log decision --stage functional-design --unit backend --checkpoint summary-confirmation --questions-file aidlc/spaces/default/intents/261016-doc-dashboard/construction/backend/functional-design/functional-design-questions.md
+**Error**: Missing --decision <text>
+
+---
+
+## Error Logged
+**Timestamp**: 2026-10-16T10:37:13Z
+**Event**: ERROR_LOGGED
+**Tool**: aidlc-log
+**Command**: aidlc-log engine log decision --stage functional-design --unit backend --checkpoint summary-confirmation --questions-file aidlc/spaces/default/intents/261016-doc-dashboard/construction/backend/functional-design/functional-design-questions.md --decision Does this all look correct before I generate the artifact? --options Looks correct,Request changes
+**Error**: Summary confirmation questions file aidlc/spaces/default/intents/261016-doc-dashboard/construction/backend/functional-design/functional-design-questions.md is invalid: unsupported H3 heading "Summary of Decisions" after the consolidated summary; only Q<n>, "Requested Changes Feedback", or one "Assumption Confirmation" section may follow.
+
+---
+
+## Decision Recorded
+**Timestamp**: 2026-10-16T10:37:29Z
+**Event**: DECISION_RECORDED
+**Stage**: functional-design
+**Decision**: Does this all look correct before I generate the artifact?
+**Options**: Looks correct,Request changes
+**Checkpoint**: Consolidated Summary Confirmation
+**Questions File**: aidlc/spaces/default/intents/261016-doc-dashboard/construction/backend/functional-design/functional-design-questions.md
+**Unit**: backend
+
+---
+
+## Human Turn
+**Timestamp**: 2026-10-16T10:39:37Z
+**Event**: HUMAN_TURN
+**Session**: antigravity-session
+
+---
+
+## Summary Confirmation Recorded
+**Timestamp**: 2026-10-16T10:39:46Z
+**Event**: SUMMARY_CONFIRMATION_RECORDED
+**Stage**: functional-design
+**Details**: Looks correct
+**Checkpoint**: Consolidated Summary Confirmation
+**Questions File**: aidlc/spaces/default/intents/261016-doc-dashboard/construction/backend/functional-design/functional-design-questions.md
+**Questions SHA-256**: 459638106917543a1fc5d850532af0a4ee56149b5cc9f88e1d1536eef679861d
+**Hash Scope**: confirmed-content-v2
+**Unit**: backend
+**Summary Authorization Id**: b79866505fd44eeb3a871ed6bfa7ab453549f2e27d652983f15a8e898cbaa8ff
+
+---
+
+## Error Logged
+**Timestamp**: 2026-10-16T10:43:22Z
+**Event**: ERROR_LOGGED
+**Tool**: aidlc-log
+**Command**: aidlc-log engine log review --stage functional-design --reviewer aidlc-architecture-reviewer-agent --iteration 1 --unit backend
+**Error**: Cannot start review for "functional-design": this stage's output document <project-dir>\aidlc\spaces\default\intents\261016-doc-dashboard\construction\backend\functional-design\entities.md has no recorded write. Save the document again, so its write descends from the current confirmation, then continue.\n{"kind":"ask","ask_type":"guard-recovery","response_route":"execute-remedy","question":"The next action for \"functional-design\" would be refused. Choose one authority-preserving recovery action.","stage":"functional-design","unit":"backend","reason_codes":["SUMMARY_ARTIFACT_UNAUTHORIZED"],"remedies":[{"op":"reconfirm-summary","action":"Present the current consolidated summary and record it with the checkpoint flags (a plain decision or answer never counts): `aidlc engine log decision --checkpoint summary-confirmation --stage functional-design --unit backend --questions-file aidlc/spaces/default/intents/261016-doc-dashboard/construction/backend/functional-design/functional-design-questions.md --decision 'Does this all look correct?' --options 'Looks correct,Request changes'`, with exactly one blank `[Answer]:` line in the summary section; end the turn; after the human's fresh reply run `aidlc engine log answer --checkpoint summary-confirmation --stage functional-design --unit backend --questions-file aidlc/spaces/default/intents/261016-doc-dashboard/construction/backend/functional-design/functional-design-questions.md --details 'Looks correct'`. Then regenerate or re-save the produced artifacts.","requiresHuman":true,"executableNow":true,"interaction":"human-input"},{"op":"request-changes","action":"Ask \"What should change?\" for stage \"functional-design\" and end the turn. After the human answers, submit Request Changes with their exact text unchanged as the report reason; that unlocks revision and a fresh review.","requiresHuman":true,"executableNow":true,"interaction":"human-input"}]}
+
+---
+
+## Artifact Created
+**Timestamp**: 2026-10-16T10:45:06Z
+**Event**: ARTIFACT_CREATED
+**Tool**: write_to_file
+**File**: <project-dir>/aidlc/spaces/default/intents/261016-doc-dashboard/construction/backend/functional-design/entities.md
+**Context**: construction > backend > functional-design > entities.md
+**Summary Authorization Id**: b79866505fd44eeb3a871ed6bfa7ab453549f2e27d652983f15a8e898cbaa8ff
+
+---
+
+## Artifact Created
+**Timestamp**: 2026-10-16T10:45:07Z
+**Event**: ARTIFACT_CREATED
+**Tool**: write_to_file
+**File**: <project-dir>/aidlc/spaces/default/intents/261016-doc-dashboard/construction/backend/functional-design/rules.md
+**Context**: construction > backend > functional-design > rules.md
+**Summary Authorization Id**: b79866505fd44eeb3a871ed6bfa7ab453549f2e27d652983f15a8e898cbaa8ff
+
+---
+
+## Artifact Created
+**Timestamp**: 2026-10-16T10:45:08Z
+**Event**: ARTIFACT_CREATED
+**Tool**: write_to_file
+**File**: <project-dir>/aidlc/spaces/default/intents/261016-doc-dashboard/construction/backend/functional-design/functional-spec.md
+**Context**: construction > backend > functional-design > functional-spec.md
+**Summary Authorization Id**: b79866505fd44eeb3a871ed6bfa7ab453549f2e27d652983f15a8e898cbaa8ff
+
+---
+
+## Artifact Created
+**Timestamp**: 2026-10-16T10:45:10Z
+**Event**: ARTIFACT_CREATED
+**Tool**: write_to_file
+**File**: <project-dir>/aidlc/spaces/default/intents/261016-doc-dashboard/construction/backend/functional-design/traceability.json
+**Context**: construction > backend > functional-design > traceability.json
+**Summary Authorization Id**: b79866505fd44eeb3a871ed6bfa7ab453549f2e27d652983f15a8e898cbaa8ff
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-10-16T10:45:11Z
+**Event**: SENSOR_FIRED
+**Fire id**: 6957c71c
+**Sensor ID**: traceability
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/261016-doc-dashboard/construction/backend/functional-design/traceability.json
+
+---
+
+## Sensor Failed
+**Timestamp**: 2026-10-16T10:45:11Z
+**Event**: SENSOR_FAILED
+**Fire id**: 6957c71c
+**Sensor ID**: traceability
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/261016-doc-dashboard/construction/backend/functional-design/traceability.json
+**Detail path**: aidlc/spaces/default/intents/261016-doc-dashboard/.aidlc-engine/sensors/functional-design/traceability-6957c71c.md
+**Findings count**: 3
+
+---
+
+## Review Requested
+**Timestamp**: 2026-10-16T10:45:39Z
+**Event**: REVIEW_REQUESTED
+**Stage**: functional-design
+**Reviewer**: aidlc-architecture-reviewer-agent
+**Unit**: backend
+**Iteration**: 1
+**Artifact Fingerprint**: sha256:b05b4b177000dc0336625d34b3834b7ceb49843733a26decb3a9a0d40caf37b6
+**Request Id**: review:5a6d6a433a37eb4c447f421042cc1f24
+
+---
+
+## Error Logged
+**Timestamp**: 2026-10-16T10:46:30Z
+**Event**: ERROR_LOGGED
+**Tool**: aidlc-log
+**Command**: aidlc-log engine log review --help
+**Error**: --help expects a value, got end of arguments.
+
+---
+
+## Review Completed
+**Timestamp**: 2026-10-16T10:48:09Z
+**Event**: REVIEW_COMPLETED
+**Stage**: functional-design
+**Reviewer**: aidlc-architecture-reviewer-agent
+**Unit**: backend
+**Iteration**: 1
+**Verdict**: READY
+**Request Fingerprint**: sha256:b05b4b177000dc0336625d34b3834b7ceb49843733a26decb3a9a0d40caf37b6
+**Artifact Fingerprint**: sha256:b05b4b177000dc0336625d34b3834b7ceb49843733a26decb3a9a0d40caf37b6
+**Request Id**: review:5a6d6a433a37eb4c447f421042cc1f24
+**Review Record**: .aidlc-engine/reviews/functional-design/units/backend/8843c1fe7bdb104e/1.json
+**Review Record Digest**: sha256:d6df388ec0cf9b82adb692d8b3ea8e6fd29ac1ed203d821c29441490c2f7c59e
+
+---
+
+## Error Logged
+**Timestamp**: 2026-10-16T10:48:16Z
+**Event**: ERROR_LOGGED
+**Tool**: aidlc-state
+**Command**: aidlc-state engine state unit complete --stage functional-design --unit backend
+**Error**: Refusing to complete unit "backend" for "functional-design": it is not the active unit (no unit is active — start it first).
+
+---
+
+## Unit Started
+**Timestamp**: 2026-10-16T10:49:18Z
+**Event**: UNIT_STARTED
+**Stage**: functional-design
+**Unit**: backend
+**Run floor**: STAGE_JUMPED:2026-10-16T10:18:49Z#2
+
+---
+
+## Unit Completed
+**Timestamp**: 2026-10-16T10:49:25Z
+**Event**: UNIT_COMPLETED
+**Stage**: functional-design
+**Unit**: backend
+**Run floor**: STAGE_JUMPED:2026-10-16T10:18:49Z#2
+
+---
+
+## Unit Started
+**Timestamp**: 2026-10-16T10:50:53Z
+**Event**: UNIT_STARTED
+**Stage**: nfr-requirements
+**Unit**: backend
+**Run floor**: STAGE_JUMPED:2026-10-16T10:18:49Z#2
+
+---
+
+## Human Turn
+**Timestamp**: 2026-10-16T11:04:12Z
+**Event**: HUMAN_TURN
+**Session**: antigravity-session
+
+---
+
+## Error Logged
+**Timestamp**: 2026-10-16T11:04:14Z
+**Event**: ERROR_LOGGED
+**Tool**: aidlc-log
+**Command**: aidlc-log engine log answer --stage nfr-requirements --unit backend
+**Error**: Missing --details <text>
+
+---
+
+## Question Answered
+**Timestamp**: 2026-10-16T11:04:23Z
+**Event**: QUESTION_ANSWERED
+**Stage**: nfr-requirements
+**Details**: Confirmed decisions for Q1-Q4
+**Unit**: backend
+
+---
+
+## Human Turn
+**Timestamp**: 2026-10-16T11:04:55Z
+**Event**: HUMAN_TURN
+**Session**: antigravity-session
+
+---
+
+## Question Answered
+**Timestamp**: 2026-10-16T11:04:57Z
+**Event**: QUESTION_ANSWERED
+**Stage**: nfr-requirements
+**Details**: Looks correct
+**Unit**: backend
+
+---
+
+## Human Turn
+**Timestamp**: 2026-10-16T11:05:35Z
+**Event**: HUMAN_TURN
+**Session**: antigravity-session
+
+---
+
+## Error Logged
+**Timestamp**: 2026-10-16T11:05:36Z
+**Event**: ERROR_LOGGED
+**Tool**: aidlc-log
+**Command**: aidlc-log engine log answer --stage nfr-requirements --unit backend --checkpoint summary-confirmation --details Looks correct
+**Error**: Summary confirmation requires --questions-file <path> so the receipt can bind to the reviewed answers.
+
+---
+
+## Human Turn
+**Timestamp**: 2026-10-16T11:05:43Z
+**Event**: HUMAN_TURN
+**Session**: antigravity-session
+
+---
+
+## Error Logged
+**Timestamp**: 2026-10-16T11:05:44Z
+**Event**: ERROR_LOGGED
+**Tool**: aidlc-log
+**Command**: aidlc-log engine log answer --stage nfr-requirements --unit backend --checkpoint summary-confirmation --questions-file aidlc/spaces/default/intents/261016-doc-dashboard/construction/backend/nfr-requirements/nfr-requirements-questions.md --details Looks correct
+**Error**: Cannot record the summary choice because no matching unanswered summary question exists for this stage and work item. Record the question before presenting it, then wait for the human's choice.
+
+---
+
+## Decision Recorded
+**Timestamp**: 2026-10-16T11:06:02Z
+**Event**: DECISION_RECORDED
+**Stage**: nfr-requirements
+**Decision**: Does this all look correct before I generate the artifacts?
+**Options**: Looks correct,Request changes
+**Checkpoint**: Consolidated Summary Confirmation
+**Questions File**: aidlc/spaces/default/intents/261016-doc-dashboard/construction/backend/nfr-requirements/nfr-requirements-questions.md
+**Unit**: backend
+
+---
+
+## Human Turn
+**Timestamp**: 2026-10-16T11:06:22Z
+**Event**: HUMAN_TURN
+**Session**: antigravity-session
+
+---
+
+## Summary Confirmation Recorded
+**Timestamp**: 2026-10-16T11:06:23Z
+**Event**: SUMMARY_CONFIRMATION_RECORDED
+**Stage**: nfr-requirements
+**Details**: Looks correct
+**Checkpoint**: Consolidated Summary Confirmation
+**Questions File**: aidlc/spaces/default/intents/261016-doc-dashboard/construction/backend/nfr-requirements/nfr-requirements-questions.md
+**Questions SHA-256**: 61bb0c06f1b48059c755fe9abfeb0a603b5429f2f4dd277498decd59768b1731
+**Hash Scope**: confirmed-content-v2
+**Unit**: backend
+**Summary Authorization Id**: 45c4724941c13018d772554ae6e4c20f522589863de6e2ecb0383bf47da9e65d
+
+---
+
+## Artifact Created
+**Timestamp**: 2026-10-16T11:08:21Z
+**Event**: ARTIFACT_CREATED
+**Tool**: write_to_file
+**File**: <project-dir>/aidlc/spaces/default/intents/261016-doc-dashboard/construction/backend/nfr-requirements/performance-requirements.md
+**Context**: construction > backend > nfr-requirements > performance-requirements.md
+**Summary Authorization Id**: 45c4724941c13018d772554ae6e4c20f522589863de6e2ecb0383bf47da9e65d
+
+---
+
+## Artifact Created
+**Timestamp**: 2026-10-16T11:08:22Z
+**Event**: ARTIFACT_CREATED
+**Tool**: write_to_file
+**File**: <project-dir>/aidlc/spaces/default/intents/261016-doc-dashboard/construction/backend/nfr-requirements/security-requirements.md
+**Context**: construction > backend > nfr-requirements > security-requirements.md
+**Summary Authorization Id**: 45c4724941c13018d772554ae6e4c20f522589863de6e2ecb0383bf47da9e65d
+
+---
+
+## Artifact Created
+**Timestamp**: 2026-10-16T11:08:23Z
+**Event**: ARTIFACT_CREATED
+**Tool**: write_to_file
+**File**: <project-dir>/aidlc/spaces/default/intents/261016-doc-dashboard/construction/backend/nfr-requirements/scalability-requirements.md
+**Context**: construction > backend > nfr-requirements > scalability-requirements.md
+**Summary Authorization Id**: 45c4724941c13018d772554ae6e4c20f522589863de6e2ecb0383bf47da9e65d
+
+---
+
+## Artifact Created
+**Timestamp**: 2026-10-16T11:08:24Z
+**Event**: ARTIFACT_CREATED
+**Tool**: write_to_file
+**File**: <project-dir>/aidlc/spaces/default/intents/261016-doc-dashboard/construction/backend/nfr-requirements/reliability-requirements.md
+**Context**: construction > backend > nfr-requirements > reliability-requirements.md
+**Summary Authorization Id**: 45c4724941c13018d772554ae6e4c20f522589863de6e2ecb0383bf47da9e65d
+
+---
+
+## Artifact Created
+**Timestamp**: 2026-10-16T11:08:25Z
+**Event**: ARTIFACT_CREATED
+**Tool**: write_to_file
+**File**: <project-dir>/aidlc/spaces/default/intents/261016-doc-dashboard/construction/backend/nfr-requirements/observability-requirements.md
+**Context**: construction > backend > nfr-requirements > observability-requirements.md
+**Summary Authorization Id**: 45c4724941c13018d772554ae6e4c20f522589863de6e2ecb0383bf47da9e65d
+
+---
+
+## Artifact Created
+**Timestamp**: 2026-10-16T11:08:27Z
+**Event**: ARTIFACT_CREATED
+**Tool**: write_to_file
+**File**: <project-dir>/aidlc/spaces/default/intents/261016-doc-dashboard/construction/backend/nfr-requirements/tech-stack-decisions.md
+**Context**: construction > backend > nfr-requirements > tech-stack-decisions.md
+**Summary Authorization Id**: 45c4724941c13018d772554ae6e4c20f522589863de6e2ecb0383bf47da9e65d
+
+---
+
+## Artifact Created
+**Timestamp**: 2026-10-16T11:08:28Z
+**Event**: ARTIFACT_CREATED
+**Tool**: write_to_file
+**File**: <project-dir>/aidlc/spaces/default/intents/261016-doc-dashboard/construction/backend/nfr-requirements/traceability.json
+**Context**: construction > backend > nfr-requirements > traceability.json
+**Summary Authorization Id**: 45c4724941c13018d772554ae6e4c20f522589863de6e2ecb0383bf47da9e65d
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-10-16T11:08:29Z
+**Event**: SENSOR_FIRED
+**Fire id**: 426b41e3
+**Sensor ID**: traceability
+**Stage slug**: nfr-requirements
+**Output path**: aidlc/spaces/default/intents/261016-doc-dashboard/construction/backend/nfr-requirements/traceability.json
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-10-16T11:08:30Z
+**Event**: SENSOR_PASSED
+**Fire id**: 426b41e3
+**Sensor ID**: traceability
+**Stage slug**: nfr-requirements
+**Output path**: aidlc/spaces/default/intents/261016-doc-dashboard/construction/backend/nfr-requirements/traceability.json
+**Duration ms**: 250
+
+---
+
+## Review Requested
+**Timestamp**: 2026-10-16T11:08:39Z
+**Event**: REVIEW_REQUESTED
+**Stage**: nfr-requirements
+**Reviewer**: aidlc-architecture-reviewer-agent
+**Unit**: backend
+**Iteration**: 1
+**Artifact Fingerprint**: sha256:1c2606c98692d7441dd94591cda7843394c9cf186e832f5ac67aded7296d681f
+**Request Id**: review:a00c092181e59aa2ef4000531f6208f9
+
+---
+
+## Review Completed
+**Timestamp**: 2026-10-16T11:09:06Z
+**Event**: REVIEW_COMPLETED
+**Stage**: nfr-requirements
+**Reviewer**: aidlc-architecture-reviewer-agent
+**Unit**: backend
+**Iteration**: 1
+**Verdict**: READY
+**Request Fingerprint**: sha256:1c2606c98692d7441dd94591cda7843394c9cf186e832f5ac67aded7296d681f
+**Artifact Fingerprint**: sha256:1c2606c98692d7441dd94591cda7843394c9cf186e832f5ac67aded7296d681f
+**Request Id**: review:a00c092181e59aa2ef4000531f6208f9
+**Review Record**: .aidlc-engine/reviews/nfr-requirements/units/backend/8843c1fe7bdb104e/1.json
+**Review Record Digest**: sha256:4245b055a12bf0722c9c8fa6f72d398f1f5869d47567f251cb7e9928b462409b
+
+---
+
+## Unit Completed
+**Timestamp**: 2026-10-16T11:09:11Z
+**Event**: UNIT_COMPLETED
+**Stage**: nfr-requirements
+**Unit**: backend
+**Run floor**: STAGE_JUMPED:2026-10-16T10:18:49Z#2
+
+---
+
+## Unit Started
+**Timestamp**: 2026-10-16T11:10:01Z
+**Event**: UNIT_STARTED
+**Stage**: nfr-design
+**Unit**: backend
+**Run floor**: STAGE_JUMPED:2026-10-16T10:18:49Z#2
+
+---
+
+## Decision Recorded
+**Timestamp**: 2026-10-16T11:15:37Z
+**Event**: DECISION_RECORDED
+**Stage**: nfr-design
+**Decision**: Does this all look correct before I generate the artifacts?
+**Options**: Looks correct,Request changes
+**Checkpoint**: Consolidated Summary Confirmation
+**Questions File**: aidlc/spaces/default/intents/261016-doc-dashboard/construction/backend/nfr-design/nfr-design-questions.md
+**Unit**: backend
+
+---
+
+## Human Turn
+**Timestamp**: 2026-10-16T11:16:34Z
+**Event**: HUMAN_TURN
+**Session**: antigravity-session
+
+---
+
+## Summary Confirmation Recorded
+**Timestamp**: 2026-10-16T11:16:36Z
+**Event**: SUMMARY_CONFIRMATION_RECORDED
+**Stage**: nfr-design
+**Details**: Looks correct
+**Checkpoint**: Consolidated Summary Confirmation
+**Questions File**: aidlc/spaces/default/intents/261016-doc-dashboard/construction/backend/nfr-design/nfr-design-questions.md
+**Questions SHA-256**: c295cca74aa8fd44c2d37987ec514165010c85fb8950b18f0fdd3901d8391258
+**Hash Scope**: confirmed-content-v2
+**Unit**: backend
+**Summary Authorization Id**: 8310caa7a9b57b62d675cc7370c322b031d6ce8f62a8161e9503a7218552192c
+
+---
+
+## Artifact Created
+**Timestamp**: 2026-10-16T11:18:16Z
+**Event**: ARTIFACT_CREATED
+**Tool**: write_to_file
+**File**: <project-dir>/aidlc/spaces/default/intents/261016-doc-dashboard/construction/backend/nfr-design/performance-design.md
+**Context**: construction > backend > nfr-design > performance-design.md
+**Summary Authorization Id**: 8310caa7a9b57b62d675cc7370c322b031d6ce8f62a8161e9503a7218552192c
+
+---
+
+## Artifact Created
+**Timestamp**: 2026-10-16T11:18:17Z
+**Event**: ARTIFACT_CREATED
+**Tool**: write_to_file
+**File**: <project-dir>/aidlc/spaces/default/intents/261016-doc-dashboard/construction/backend/nfr-design/security-design.md
+**Context**: construction > backend > nfr-design > security-design.md
+**Summary Authorization Id**: 8310caa7a9b57b62d675cc7370c322b031d6ce8f62a8161e9503a7218552192c
+
+---
+
+## Artifact Created
+**Timestamp**: 2026-10-16T11:18:19Z
+**Event**: ARTIFACT_CREATED
+**Tool**: write_to_file
+**File**: <project-dir>/aidlc/spaces/default/intents/261016-doc-dashboard/construction/backend/nfr-design/scalability-design.md
+**Context**: construction > backend > nfr-design > scalability-design.md
+**Summary Authorization Id**: 8310caa7a9b57b62d675cc7370c322b031d6ce8f62a8161e9503a7218552192c
+
+---
+
+## Artifact Created
+**Timestamp**: 2026-10-16T11:18:21Z
+**Event**: ARTIFACT_CREATED
+**Tool**: write_to_file
+**File**: <project-dir>/aidlc/spaces/default/intents/261016-doc-dashboard/construction/backend/nfr-design/reliability-design.md
+**Context**: construction > backend > nfr-design > reliability-design.md
+**Summary Authorization Id**: 8310caa7a9b57b62d675cc7370c322b031d6ce8f62a8161e9503a7218552192c
+
+---
+
+## Artifact Created
+**Timestamp**: 2026-10-16T11:18:22Z
+**Event**: ARTIFACT_CREATED
+**Tool**: write_to_file
+**File**: <project-dir>/aidlc/spaces/default/intents/261016-doc-dashboard/construction/backend/nfr-design/observability-design.md
+**Context**: construction > backend > nfr-design > observability-design.md
+**Summary Authorization Id**: 8310caa7a9b57b62d675cc7370c322b031d6ce8f62a8161e9503a7218552192c
+
+---
+
+## Artifact Created
+**Timestamp**: 2026-10-16T11:18:24Z
+**Event**: ARTIFACT_CREATED
+**Tool**: write_to_file
+**File**: <project-dir>/aidlc/spaces/default/intents/261016-doc-dashboard/construction/backend/nfr-design/logical-components.md
+**Context**: construction > backend > nfr-design > logical-components.md
+**Summary Authorization Id**: 8310caa7a9b57b62d675cc7370c322b031d6ce8f62a8161e9503a7218552192c
+
+---
+
+## Artifact Created
+**Timestamp**: 2026-10-16T11:18:25Z
+**Event**: ARTIFACT_CREATED
+**Tool**: write_to_file
+**File**: <project-dir>/aidlc/spaces/default/intents/261016-doc-dashboard/construction/backend/nfr-design/traceability.json
+**Context**: construction > backend > nfr-design > traceability.json
+**Summary Authorization Id**: 8310caa7a9b57b62d675cc7370c322b031d6ce8f62a8161e9503a7218552192c
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-10-16T11:18:26Z
+**Event**: SENSOR_FIRED
+**Fire id**: e966999a
+**Sensor ID**: traceability
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261016-doc-dashboard/construction/backend/nfr-design/traceability.json
+
+---
+
+## Sensor Failed
+**Timestamp**: 2026-10-16T11:18:27Z
+**Event**: SENSOR_FAILED
+**Fire id**: e966999a
+**Sensor ID**: traceability
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261016-doc-dashboard/construction/backend/nfr-design/traceability.json
+**Detail path**: aidlc/spaces/default/intents/261016-doc-dashboard/.aidlc-engine/sensors/nfr-design/traceability-e966999a.md
+**Findings count**: 3
+
+---
+
+## Artifact Updated
+**Timestamp**: 2026-10-16T11:20:22Z
+**Event**: ARTIFACT_UPDATED
+**Tool**: write_to_file
+**File**: <project-dir>/aidlc/spaces/default/intents/261016-doc-dashboard/construction/backend/nfr-design/traceability.json
+**Context**: construction > backend > nfr-design > traceability.json
+**Summary Authorization Id**: 8310caa7a9b57b62d675cc7370c322b031d6ce8f62a8161e9503a7218552192c
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-10-16T11:20:23Z
+**Event**: SENSOR_FIRED
+**Fire id**: f4eb4f1b
+**Sensor ID**: traceability
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261016-doc-dashboard/construction/backend/nfr-design/traceability.json
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-10-16T11:20:23Z
+**Event**: SENSOR_PASSED
+**Fire id**: f4eb4f1b
+**Sensor ID**: traceability
+**Stage slug**: nfr-design
+**Output path**: aidlc/spaces/default/intents/261016-doc-dashboard/construction/backend/nfr-design/traceability.json
+**Duration ms**: 272
+
+---
+
+## Review Requested
+**Timestamp**: 2026-10-16T11:20:32Z
+**Event**: REVIEW_REQUESTED
+**Stage**: nfr-design
+**Reviewer**: aidlc-architecture-reviewer-agent
+**Unit**: backend
+**Iteration**: 1
+**Artifact Fingerprint**: sha256:05da65ea9509ccbd6d1d0a48fbf00d3a63242f4bd9f393af678bba30fc760e5a
+**Request Id**: review:8e4695889e74406f5914474d9ecf98d8
+
+---
+
+## Review Completed
+**Timestamp**: 2026-10-16T11:20:56Z
+**Event**: REVIEW_COMPLETED
+**Stage**: nfr-design
+**Reviewer**: aidlc-architecture-reviewer-agent
+**Unit**: backend
+**Iteration**: 1
+**Verdict**: READY
+**Request Fingerprint**: sha256:05da65ea9509ccbd6d1d0a48fbf00d3a63242f4bd9f393af678bba30fc760e5a
+**Artifact Fingerprint**: sha256:05da65ea9509ccbd6d1d0a48fbf00d3a63242f4bd9f393af678bba30fc760e5a
+**Request Id**: review:8e4695889e74406f5914474d9ecf98d8
+**Review Record**: .aidlc-engine/reviews/nfr-design/units/backend/8843c1fe7bdb104e/1.json
+**Review Record Digest**: sha256:ed4a0a255dc8fc12ad8ebf675380edb01542715f62c30c48659940199cb4b2ac
+
+---
+
+## Unit Completed
+**Timestamp**: 2026-10-16T11:21:00Z
+**Event**: UNIT_COMPLETED
+**Stage**: nfr-design
+**Unit**: backend
+**Run floor**: STAGE_JUMPED:2026-10-16T10:18:49Z#2
+
+---
+
+## Unit Started
+**Timestamp**: 2026-10-16T11:23:53Z
+**Event**: UNIT_STARTED
+**Stage**: infrastructure-design
+**Unit**: backend
+**Run floor**: STAGE_JUMPED:2026-10-16T10:18:49Z#2
+
+---
+
+## Guardrail Loaded
+**Timestamp**: 2026-10-16T11:27:25Z
+**Event**: GUARDRAIL_LOADED
+**Scope**: all
+**Path**: .aidlc/rules/
+**Rule count**: 7
+
+---
+
+## Health Check
+**Timestamp**: 2026-10-16T11:27:25Z
+**Event**: HEALTH_CHECKED
+**Request**: /aidlc --doctor
+**Details**: 67 passed, 1 failed
+
+---
+
+## Memory Empty
+**Timestamp**: 2026-10-16T11:27:33Z
+**Event**: MEMORY_EMPTY
+**Stage**: rough-mockups
+
+---
+
+## Memory Empty
+**Timestamp**: 2026-10-16T11:27:33Z
+**Event**: MEMORY_EMPTY
+**Stage**: requirements-analysis
+
+---
+
+## Memory Empty
+**Timestamp**: 2026-10-16T11:27:33Z
+**Event**: MEMORY_EMPTY
+**Stage**: user-stories
+
+---
+
+## Memory Empty
+**Timestamp**: 2026-10-16T11:27:33Z
+**Event**: MEMORY_EMPTY
+**Stage**: refined-mockups
+
+---
+
+## Memory Empty
+**Timestamp**: 2026-10-16T11:27:33Z
+**Event**: MEMORY_EMPTY
+**Stage**: domain-design
+
+---
+
+## Memory Empty
+**Timestamp**: 2026-10-16T11:27:33Z
+**Event**: MEMORY_EMPTY
+**Stage**: units-generation
+
+---
+
+## Memory Empty
+**Timestamp**: 2026-10-16T11:27:33Z
+**Event**: MEMORY_EMPTY
+**Stage**: contract-design
+
+---
+
+## Guardrail Loaded
+**Timestamp**: 2026-10-16T11:28:02Z
+**Event**: GUARDRAIL_LOADED
+**Scope**: all
+**Path**: .aidlc/rules/
+**Rule count**: 7
+
+---
+
+## Health Check
+**Timestamp**: 2026-10-16T11:28:02Z
+**Event**: HEALTH_CHECKED
+**Request**: /aidlc --doctor
+**Details**: 67 passed, 1 failed
+
+---
+
+## Error Logged
+**Timestamp**: 2026-10-16T11:30:23Z
+**Event**: ERROR_LOGGED
+**Tool**: aidlc-log
+**Command**: aidlc-log engine log decision --stage infrastructure-design --unit backend --checkpoint Q1 --decision A. Explicit Docker Compose health checks with service_healthy condition (Recommended) --options A. Explicit Docker Compose health checks with service_healthy condition (Recommended),B. Pure application-level retry loop,C. External wait-for-it wrapper script
+**Error**: Unknown --checkpoint "Q1". Accepted: summary-confirmation, plan-approval, verification-command, construction-policy
+
+---
+
+## Decision Recorded
+**Timestamp**: 2026-10-16T11:31:56Z
+**Event**: DECISION_RECORDED
+**Stage**: infrastructure-design
+**Decision**: Does this all look correct before I generate the artifacts?
+**Options**: Looks correct,Request changes
+**Checkpoint**: Consolidated Summary Confirmation
+**Questions File**: aidlc/spaces/default/intents/261016-doc-dashboard/construction/backend/infrastructure-design/infrastructure-design-questions.md
+**Unit**: backend
+
+---
+
+## Human Turn
+**Timestamp**: 2026-10-16T11:32:27Z
+**Event**: HUMAN_TURN
+**Session**: antigravity-session
+
+---
+
+## Summary Confirmation Recorded
+**Timestamp**: 2026-10-16T11:32:34Z
+**Event**: SUMMARY_CONFIRMATION_RECORDED
+**Stage**: infrastructure-design
+**Details**: Looks correct
+**Checkpoint**: Consolidated Summary Confirmation
+**Questions File**: aidlc/spaces/default/intents/261016-doc-dashboard/construction/backend/infrastructure-design/infrastructure-design-questions.md
+**Questions SHA-256**: 8028b9c7aaacc127fa6152eed0d79c25ae3529d7739b02a6da6ce2e45253e290
+**Hash Scope**: confirmed-content-v2
+**Unit**: backend
+**Summary Authorization Id**: baf981c09517dd5c3117c60d0f9d82c1f8e9f40c3808465345199945f5b25e9f
+
+---
+
+## Artifact Created
+**Timestamp**: 2026-10-16T11:34:35Z
+**Event**: ARTIFACT_CREATED
+**Tool**: write_to_file
+**File**: <project-dir>/aidlc/spaces/default/intents/261016-doc-dashboard/construction/backend/infrastructure-design/infrastructure-specification.md
+**Context**: construction > backend > infrastructure-design > infrastructure-specification.md
+**Summary Authorization Id**: baf981c09517dd5c3117c60d0f9d82c1f8e9f40c3808465345199945f5b25e9f
+
+---
+
+## Artifact Created
+**Timestamp**: 2026-10-16T11:34:36Z
+**Event**: ARTIFACT_CREATED
+**Tool**: write_to_file
+**File**: <project-dir>/aidlc/spaces/default/intents/261016-doc-dashboard/construction/backend/infrastructure-design/monitoring-design.md
+**Context**: construction > backend > infrastructure-design > monitoring-design.md
+**Summary Authorization Id**: baf981c09517dd5c3117c60d0f9d82c1f8e9f40c3808465345199945f5b25e9f
+
+---
+
+## Artifact Created
+**Timestamp**: 2026-10-16T11:34:38Z
+**Event**: ARTIFACT_CREATED
+**Tool**: write_to_file
+**File**: <project-dir>/aidlc/spaces/default/intents/261016-doc-dashboard/construction/backend/infrastructure-design/cicd-pipeline.md
+**Context**: construction > backend > infrastructure-design > cicd-pipeline.md
+**Summary Authorization Id**: baf981c09517dd5c3117c60d0f9d82c1f8e9f40c3808465345199945f5b25e9f
+
+---
+
+## Artifact Created
+**Timestamp**: 2026-10-16T11:34:40Z
+**Event**: ARTIFACT_CREATED
+**Tool**: write_to_file
+**File**: <project-dir>/aidlc/spaces/default/intents/261016-doc-dashboard/construction/backend/infrastructure-design/traceability.json
+**Context**: construction > backend > infrastructure-design > traceability.json
+**Summary Authorization Id**: baf981c09517dd5c3117c60d0f9d82c1f8e9f40c3808465345199945f5b25e9f
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-10-16T11:34:40Z
+**Event**: SENSOR_FIRED
+**Fire id**: b1cbfa02
+**Sensor ID**: traceability
+**Stage slug**: infrastructure-design
+**Output path**: aidlc/spaces/default/intents/261016-doc-dashboard/construction/backend/infrastructure-design/traceability.json
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-10-16T11:34:41Z
+**Event**: SENSOR_PASSED
+**Fire id**: b1cbfa02
+**Sensor ID**: traceability
+**Stage slug**: infrastructure-design
+**Output path**: aidlc/spaces/default/intents/261016-doc-dashboard/construction/backend/infrastructure-design/traceability.json
+**Duration ms**: 280
+
+---
+
+## Review Requested
+**Timestamp**: 2026-10-16T11:34:53Z
+**Event**: REVIEW_REQUESTED
+**Stage**: infrastructure-design
+**Reviewer**: aidlc-architecture-reviewer-agent
+**Unit**: backend
+**Iteration**: 1
+**Artifact Fingerprint**: sha256:9d01ee794febb38b98193c42f2818834ad042c1662b2106e19d1773762921bc7
+**Request Id**: review:e08db0232b5119f1fe41c33547348f37
+
+---
+
+## Review Completed
+**Timestamp**: 2026-10-16T11:35:09Z
+**Event**: REVIEW_COMPLETED
+**Stage**: infrastructure-design
+**Reviewer**: aidlc-architecture-reviewer-agent
+**Unit**: backend
+**Iteration**: 1
+**Verdict**: READY
+**Request Fingerprint**: sha256:9d01ee794febb38b98193c42f2818834ad042c1662b2106e19d1773762921bc7
+**Artifact Fingerprint**: sha256:9d01ee794febb38b98193c42f2818834ad042c1662b2106e19d1773762921bc7
+**Request Id**: review:e08db0232b5119f1fe41c33547348f37
+**Review Record**: .aidlc-engine/reviews/infrastructure-design/units/backend/8843c1fe7bdb104e/1.json
+**Review Record Digest**: sha256:c80337427654d96fe5448361ee6050b1606755283b91a4dec72b6122ffcb395c
+
+---
+
+## Unit Completed
+**Timestamp**: 2026-10-16T11:35:14Z
+**Event**: UNIT_COMPLETED
+**Stage**: infrastructure-design
+**Unit**: backend
+**Run floor**: STAGE_JUMPED:2026-10-16T10:18:49Z#2
+
+---
+
+## Workflow Parked
+**Timestamp**: 2026-10-16T11:37:52Z
+**Event**: WORKFLOW_PARKED
+**Stage**: functional-design
+
+---
+
+## Guardrail Loaded
+**Timestamp**: 2026-10-16T11:42:20Z
+**Event**: GUARDRAIL_LOADED
+**Scope**: all
+**Path**: .aidlc/rules/
+**Rule count**: 7
+
+---
+
+## Health Check
+**Timestamp**: 2026-10-16T11:42:20Z
+**Event**: HEALTH_CHECKED
+**Request**: /aidlc --doctor
+**Details**: 67 passed, 1 failed
+
+---
+
+## Workflow Unparked
+**Timestamp**: 2026-10-19T02:49:44Z
+**Event**: WORKFLOW_UNPARKED
+
+---
+
+## Unit Started
+**Timestamp**: 2026-10-19T02:50:29Z
+**Event**: UNIT_STARTED
+**Stage**: code-generation
+**Unit**: backend
+**Run floor**: STAGE_JUMPED:2026-10-16T10:18:49Z#2
+
+---
+
+## Guard Stood Aside
+**Timestamp**: 2026-10-19T02:56:46Z
+**Event**: GUARD_STOOD_ASIDE
+**Guard**: state-transition
+**Authority**: none
+**Grant**: none
+**Actor**: main
+**Tool**: aidlc-state.ts
+**Details**: aidlc-state.ts approve
+
+---
+
+## Error Logged
+**Timestamp**: 2026-10-19T02:56:46Z
+**Event**: ERROR_LOGGED
+**Tool**: aidlc-state
+**Command**: aidlc-state engine state approve --help
+**Error**: Unknown stage: --help
+
+---
+
+## Human Turn
+**Timestamp**: 2026-10-19T02:57:00Z
+**Event**: HUMAN_TURN
+
+---
+
+## Plan Approval Recorded
+**Timestamp**: 2026-10-19T02:57:00Z
+**Event**: PLAN_APPROVAL_RECORDED
+**Stage**: code-generation
+**Details**: Approve Plan
+**Checkpoint**: plan-approval
+**Plan Target**: unit:backend
+**Intent**: 01a142c8-9227-7e22-aa32-c814df12715c
+**Directive Epoch**: sha256:e024ff15275ed72c40889cb576f919dadce635b02de71734afd8fbb645bee72e
+**Run floor**: STAGE_JUMPED:2026-10-16T10:18:49Z#2
+**Approval Fingerprint**: sha256:v3:0d89cffe7303da400b392724497f880b6b17472fbb44088a7019815d72c5453f
+**Questions File**: aidlc/spaces/default/intents/261016-doc-dashboard/construction/backend/code-generation/code-generation-questions.md
+**Questions SHA-256**: 3c329f39354dbf95aba54bf7035db3c9ba8b16a0812df68e6afbd04d255f64a9
+**Prompt SHA-256**: 27bc271843a374d59f01d157d8d81498ee4c989f5baa00c495c5856888bf9178
+**Session**: unidentified-session
+**Asked By**: engine
+**Unit**: backend
+
+---
+
+## Error Logged
+**Timestamp**: 2026-10-19T03:22:33Z
+**Event**: ERROR_LOGGED
+**Tool**: aidlc-log
+**Command**: aidlc-log engine log review --help
+**Error**: --help expects a value, got end of arguments.
+
+---
+
+## Error Logged
+**Timestamp**: 2026-10-19T04:13:54Z
+**Event**: ERROR_LOGGED
+**Tool**: aidlc-bolt
+**Command**: aidlc-bolt engine bolt complete --help
+**Error**: --help expects a value, got end of arguments.
+
+---
+
+## Error Logged
+**Timestamp**: 2026-10-19T04:14:01Z
+**Event**: ERROR_LOGGED
+**Tool**: aidlc-bolt
+**Command**: aidlc-bolt engine bolt complete
+**Error**: Missing --name <bolt-name or csv>
+
+---
+
+## Error Logged
+**Timestamp**: 2026-10-19T04:14:30Z
+**Event**: ERROR_LOGGED
+**Tool**: aidlc-bolt
+**Command**: aidlc-bolt engine bolt checkpoint
+**Error**: checkpoint requires --unit <name>
+
+---
+
+## Error Logged
+**Timestamp**: 2026-10-19T04:15:37Z
+**Event**: ERROR_LOGGED
+**Tool**: aidlc-state
+**Command**: aidlc-state engine state set-construction-verification-command
+**Error**: Usage: aidlc-state.ts set-construction-verification-command --command-file <record-relative path> (or one positional command argument).
+
+---
+
+## Error Logged
+**Timestamp**: 2026-10-19T04:16:05Z
+**Event**: ERROR_LOGGED
+**Tool**: aidlc-state
+**Command**: aidlc-state engine state set-construction-verification-command go test -C backend -v -count=1 ./...
+**Error**: No current VERIFICATION_COMMAND_RECORDED with matching Command SHA-256 and User Input: Approve authorizes this command. Write the proposed command to <record>/verification-command.txt with the harness file-write tool (never shell echo or a heredoc); never interpolate repo-derived command text into a shell line. Record the human choice with aidlc-log.ts decision --stage "<stage>" --checkpoint verification-command --command-file verification-command.txt --session "<session ID>" --decision "Use this command to verify each completed Unit?" --options "Approve,Request Changes", then wait for the human's offered choice in that session and run aidlc-log.ts answer --stage "<stage>" --checkpoint verification-command --command-file verification-command.txt --session "<session ID>" --details "Approve". Use the invoking SessionStart session ID. Apply the receipt with aidlc-state.ts set-construction-verification-command --command-file verification-command.txt.
+
+---
+
+## Decision Recorded
+**Timestamp**: 2026-10-19T04:16:43Z
+**Event**: DECISION_RECORDED
+**Stage**: code-generation
+**Decision**: Use this command to verify each completed Unit?
+**Options**: Approve,Request Changes
+**Checkpoint**: Construction Verification Command
+**Command SHA-256**: a1f5664560a1f4e4bf8be961e5bf2910dd0c42e555148e85f3178f5bd0cee9ea
+**Command Label**: go test -C backend -v -count=1 ./...
+**Session**: sessionless:af6ba375168eeca9
+
+---
+
+## Error Logged
+**Timestamp**: 2026-10-19T04:16:50Z
+**Event**: ERROR_LOGGED
+**Tool**: aidlc-log
+**Command**: aidlc-log engine log answer --stage code-generation --checkpoint verification-command --command-file verification-command.txt --session sessionless:af6ba375168eeca9 --details Approve
+**Error**: verification-command requires the actual offered choice: a matching protected question, current target digest, and hook-recorded response for this session. Write the proposed command to <record>/verification-command.txt with the harness file-write tool (never shell echo or a heredoc); never interpolate repo-derived command text into a shell line. Record the human choice with aidlc-log.ts decision --stage "<stage>" --checkpoint verification-command --command-file verification-command.txt --session "<session ID>" --decision "Use this command to verify each completed Unit?" --options "Approve,Request Changes", then wait for the human's offered choice in that session and run aidlc-log.ts answer --stage "<stage>" --checkpoint verification-command --command-file verification-command.txt --session "<session ID>" --details "Approve". Use the invoking SessionStart session ID. Apply the receipt with aidlc-state.ts set-construction-verification-command --command-file verification-command.txt.
+
+---
+
+## Error Logged
+**Timestamp**: 2026-10-19T04:17:26Z
+**Event**: ERROR_LOGGED
+**Tool**: aidlc-log
+**Command**: aidlc-log engine log answer --stage code-generation --checkpoint verification-command --command-file verification-command.txt --session sessionless:af6ba375168eeca9 --details Approve
+**Error**: verification-command requires the actual offered choice: a matching protected question, current target digest, and hook-recorded response for this session. Write the proposed command to <record>/verification-command.txt with the harness file-write tool (never shell echo or a heredoc); never interpolate repo-derived command text into a shell line. Record the human choice with aidlc-log.ts decision --stage "<stage>" --checkpoint verification-command --command-file verification-command.txt --session "<session ID>" --decision "Use this command to verify each completed Unit?" --options "Approve,Request Changes", then wait for the human's offered choice in that session and run aidlc-log.ts answer --stage "<stage>" --checkpoint verification-command --command-file verification-command.txt --session "<session ID>" --details "Approve". Use the invoking SessionStart session ID. Apply the receipt with aidlc-state.ts set-construction-verification-command --command-file verification-command.txt.
+
+---
+
+## Verification Command Recorded
+**Timestamp**: 2026-10-19T04:18:47Z
+**Event**: VERIFICATION_COMMAND_RECORDED
+**Stage**: code-generation
+**Details**: Approve
+**Checkpoint**: Construction Verification Command
+**Command SHA-256**: a1f5664560a1f4e4bf8be961e5bf2910dd0c42e555148e85f3178f5bd0cee9ea
+**Command Label**: go test -C backend -v -count=1 ./...
+**User Input**: Approve
+**Session**: sessionless:af6ba375168eeca9
+
+---
+
+## Error Logged
+**Timestamp**: 2026-10-19T04:19:07Z
+**Event**: ERROR_LOGGED
+**Tool**: aidlc-bolt
+**Command**: aidlc-bolt engine bolt checkpoint --action verify --unit backend --kind unit
+**Error**: Construction checkpoint is not ready: functional-design: current artifact/source-bound terminal review evidence is required. nfr-requirements: current artifact/source-bound terminal review evidence is required. nfr-design: current artifact/source-bound terminal review evidence is required. infrastructure-design: current artifact/source-bound terminal review evidence is required. code-generation: current Unit completion evidence is missing or stale. code-generation: current artifact/source-bound terminal review evidence is required.
+
+---
+
+## Error Logged
+**Timestamp**: 2026-10-19T04:19:13Z
+**Event**: ERROR_LOGGED
+**Tool**: aidlc-log
+**Command**: aidlc-log engine log review
+**Error**: Missing --stage <slug>
+
+---
+
+## Error Logged
+**Timestamp**: 2026-10-19T04:19:21Z
+**Event**: ERROR_LOGGED
+**Tool**: aidlc-log
+**Command**: aidlc-log engine log review --help
+**Error**: --help expects a value, got end of arguments.
+
+---
+
+## Review Class Change
+**Timestamp**: 2026-10-19T04:20:24Z
+**Event**: REVIEW_CLASS_CHANGED
+**Old Override**: none set
+**New Override**: none
+
+---
+
+## Unit Completed
+**Timestamp**: 2026-10-19T04:21:27Z
+**Event**: UNIT_COMPLETED
+**Stage**: code-generation
+**Unit**: backend
+**Run floor**: STAGE_JUMPED:2026-10-16T10:18:49Z#2
+
+---
+
+## Checkpoint Verification Recorded
+**Timestamp**: 2026-10-19T04:21:52Z
+**Event**: CHECKPOINT_VERIFICATION_RECORDED
+**Unit**: backend
+**Kind**: unit
+**Stage**: code-generation
+**Stages**: functional-design, nfr-requirements, nfr-design, infrastructure-design, code-generation
+**Verification Id**: ca64bb1a-60ed-4273-a1ae-eae00fb09eac
+**Fingerprint**: sha256:7b97f0ae2d989f32af62be055be02d33f62cfeb650910220673ffd3417a481cf
+**Command SHA-256**: a1f5664560a1f4e4bf8be961e5bf2910dd0c42e555148e85f3178f5bd0cee9ea
+**Exit Code**: 0
+**Verified**: true
+**Run floor**: STAGE_JUMPED:2026-10-16T10:18:49Z#2
+
+---
+
+## Error Logged
+**Timestamp**: 2026-10-19T04:24:05Z
+**Event**: ERROR_LOGGED
+**Tool**: aidlc-bolt
+**Command**: aidlc-bolt engine bolt checkpoint --help
+**Error**: --help expects a value, got end of arguments.
+
+---
+
+## Error Logged
+**Timestamp**: 2026-10-19T04:24:10Z
+**Event**: ERROR_LOGGED
+**Tool**: aidlc-bolt
+**Command**: aidlc-bolt engine bolt checkpoint
+**Error**: checkpoint requires --unit <name>
+
+---
+
+## Error Logged
+**Timestamp**: 2026-10-19T04:24:19Z
+**Event**: ERROR_LOGGED
+**Tool**: aidlc-bolt
+**Command**: aidlc-bolt engine bolt checkpoint --action approve --unit backend
+**Error**: Construction checkpoint approval needs a reply that approves; "(empty)" does not.
+
+---
+
+## Error Logged
+**Timestamp**: 2026-10-19T04:24:23Z
+**Event**: ERROR_LOGGED
+**Tool**: aidlc-bolt
+**Command**: aidlc-bolt engine bolt checkpoint --action approve --unit backend --reply approve
+**Error**: Construction checkpoint approval needs a reply that approves; "(empty)" does not.
+
+---
+
+## Decision Recorded
+**Timestamp**: 2026-10-19T04:24:55Z
+**Event**: DECISION_RECORDED
+**Checkpoint**: Construction Unit Approval
+**Unit**: backend
+**Kind**: unit
+**Stage**: code-generation
+**Fingerprint**: sha256:7b97f0ae2d989f32af62be055be02d33f62cfeb650910220673ffd3417a481cf
+**Session**: f7790741-0b3d-4461-bf5f-66500e96d5c1
+**Options**: Approve,Request Changes
+
+---
+
+## Human Turn
+**Timestamp**: 2026-10-19T04:27:38Z
+**Event**: HUMAN_TURN
+**Session**: f7790741-0b3d-4461-bf5f-66500e96d5c1
+
+---
+
+## Gate Approved
+**Timestamp**: 2026-10-19T04:27:58Z
+**Event**: GATE_APPROVED
+**Unit**: backend
+**Stage**: code-generation
+**Stages**: functional-design, nfr-requirements, nfr-design, infrastructure-design, code-generation
+**Gate Stages**: functional-design, nfr-requirements, nfr-design, infrastructure-design, code-generation
+**Gate Scope**: unit-end
+**Checkpoint**: construction-unit
+**Fingerprint**: sha256:7b97f0ae2d989f32af62be055be02d33f62cfeb650910220673ffd3417a481cf
+**Run floor**: STAGE_JUMPED:2026-10-16T10:18:49Z#2
+**Run floors**: {"functional-design":"STAGE_JUMPED:2026-10-16T10:18:49Z#2","nfr-requirements":"STAGE_JUMPED:2026-10-16T10:18:49Z#2","nfr-design":"STAGE_JUMPED:2026-10-16T10:18:49Z#2","infrastructure-design":"STAGE_JUMPED:2026-10-16T10:18:49Z#2","code-generation":"STAGE_JUMPED:2026-10-16T10:18:49Z#2"}
+**Verification Command SHA-256**: a1f5664560a1f4e4bf8be961e5bf2910dd0c42e555148e85f3178f5bd0cee9ea
+**Verification Id**: ca64bb1a-60ed-4273-a1ae-eae00fb09eac
+**Session**: f7790741-0b3d-4461-bf5f-66500e96d5c1
+**User Input**: Approve
+
+---
+
+## Error Logged
+**Timestamp**: 2026-10-19T04:35:58Z
+**Event**: ERROR_LOGGED
+**Tool**: aidlc-log
+**Command**: aidlc-log engine log answer --stage functional-design --checkpoint summary-confirmation --details Looks correct
+**Error**: Summary confirmation requires --questions-file <path> so the receipt can bind to the reviewed answers.
+
+---
+
+## Error Logged
+**Timestamp**: 2026-10-19T04:36:02Z
+**Event**: ERROR_LOGGED
+**Tool**: aidlc-log
+**Command**: aidlc-log engine log answer --stage functional-design --checkpoint summary-confirmation --details Looks correct --questions-file aidlc/spaces/default/intents/261016-doc-dashboard/construction/frontend/functional-design/functional-design-questions.md
+**Error**: Cannot record the summary choice because no matching unanswered summary question exists for this stage and work item. Record the question before presenting it, then wait for the human's choice.
+
+---
+
+## Error Logged
+**Timestamp**: 2026-10-19T04:36:35Z
+**Event**: ERROR_LOGGED
+**Tool**: aidlc-log
+**Command**: aidlc-log engine log decision --stage functional-design --unit frontend --checkpoint summary-confirmation --questions-file aidlc/spaces/default/intents/261016-doc-dashboard/construction/frontend/functional-design/functional-design-questions.md --decision Summary Confirmation --options Looks correct,Request changes
+**Error**: Summary confirmation section in aidlc/spaces/default/intents/261016-doc-dashboard/construction/frontend/functional-design/functional-design-questions.md must contain exactly one `[Answer]:` line with a blank value before this command runs.
+
+---
+
+## Decision Recorded
+**Timestamp**: 2026-10-19T04:36:46Z
+**Event**: DECISION_RECORDED
+**Stage**: functional-design
+**Decision**: Summary Confirmation
+**Options**: Looks correct,Request changes
+**Checkpoint**: Consolidated Summary Confirmation
+**Questions File**: aidlc/spaces/default/intents/261016-doc-dashboard/construction/frontend/functional-design/functional-design-questions.md
+**Unit**: frontend
+
+---
+
+## Human Turn
+**Timestamp**: 2026-10-19T04:37:02Z
+**Event**: HUMAN_TURN
+**Session**: f7790741-0b3d-4461-bf5f-66500e96d5c1
+
+---
+
+## Summary Confirmation Recorded
+**Timestamp**: 2026-10-19T04:37:18Z
+**Event**: SUMMARY_CONFIRMATION_RECORDED
+**Stage**: functional-design
+**Details**: Looks correct
+**Checkpoint**: Consolidated Summary Confirmation
+**Questions File**: aidlc/spaces/default/intents/261016-doc-dashboard/construction/frontend/functional-design/functional-design-questions.md
+**Questions SHA-256**: 0df6c584f0533ffe6f6f1c3fcf35502065b04854c64fa2f43282c3148c28eb32
+**Hash Scope**: confirmed-content-v2
+**Unit**: frontend
+**Summary Authorization Id**: 5b176945cf5adb8f192b1a78968ea992b88b9fbc634aa7acffe3b52ed1f12444
+
+---
+
+## Error Logged
+**Timestamp**: 2026-10-19T04:37:54Z
+**Event**: ERROR_LOGGED
+**Tool**: aidlc-state
+**Command**: aidlc-state engine state unit complete --stage functional-design --unit frontend
+**Error**: Refusing to complete unit "frontend" for "functional-design": it is not the active unit (no unit is active — start it first).
+
+---
+
+## Unit Started
+**Timestamp**: 2026-10-19T04:38:08Z
+**Event**: UNIT_STARTED
+**Stage**: functional-design
+**Unit**: frontend
+**Run floor**: STAGE_JUMPED:2026-10-16T10:18:49Z#2
+
+---
+
+## Unit Completed
+**Timestamp**: 2026-10-19T04:38:12Z
+**Event**: UNIT_COMPLETED
+**Stage**: functional-design
+**Unit**: frontend
+**Run floor**: STAGE_JUMPED:2026-10-16T10:18:49Z#2
+
+---
+
+## Artifact Updated
+**Timestamp**: 2026-10-19T04:40:11Z
+**Event**: ARTIFACT_UPDATED
+**Tool**: Write
+**File**: <project-dir>/aidlc/spaces/default/intents/261016-doc-dashboard/construction/frontend/functional-design/functional-spec.md
+**Context**: construction > frontend > functional-design > functional-spec.md
+**Summary Authorization Id**: 5b176945cf5adb8f192b1a78968ea992b88b9fbc634aa7acffe3b52ed1f12444
+
+---
+
+## Artifact Updated
+**Timestamp**: 2026-10-19T04:40:12Z
+**Event**: ARTIFACT_UPDATED
+**Tool**: Write
+**File**: <project-dir>/aidlc/spaces/default/intents/261016-doc-dashboard/construction/frontend/functional-design/rules.md
+**Context**: construction > frontend > functional-design > rules.md
+**Summary Authorization Id**: 5b176945cf5adb8f192b1a78968ea992b88b9fbc634aa7acffe3b52ed1f12444
+
+---
+
+## Artifact Updated
+**Timestamp**: 2026-10-19T04:40:12Z
+**Event**: ARTIFACT_UPDATED
+**Tool**: Write
+**File**: <project-dir>/aidlc/spaces/default/intents/261016-doc-dashboard/construction/frontend/functional-design/frontend-components.md
+**Context**: construction > frontend > functional-design > frontend-components.md
+**Summary Authorization Id**: 5b176945cf5adb8f192b1a78968ea992b88b9fbc634aa7acffe3b52ed1f12444
+
+---
+
+## Artifact Updated
+**Timestamp**: 2026-10-19T04:40:13Z
+**Event**: ARTIFACT_UPDATED
+**Tool**: Write
+**File**: <project-dir>/aidlc/spaces/default/intents/261016-doc-dashboard/construction/frontend/functional-design/traceability.json
+**Context**: construction > frontend > functional-design > traceability.json
+**Summary Authorization Id**: 5b176945cf5adb8f192b1a78968ea992b88b9fbc634aa7acffe3b52ed1f12444
+
+---
+
+## Decision Recorded
+**Timestamp**: 2026-10-19T04:45:27Z
+**Event**: DECISION_RECORDED
+**Stage**: nfr-requirements
+**Decision**: Summary Confirmation
+**Options**: Looks correct,Request changes
+**Checkpoint**: Consolidated Summary Confirmation
+**Questions File**: aidlc/spaces/default/intents/261016-doc-dashboard/construction/frontend/nfr-requirements/nfr-requirements-questions.md
+**Unit**: frontend
+
+---
+
+## Human Turn
+**Timestamp**: 2026-10-19T04:45:36Z
+**Event**: HUMAN_TURN
+**Session**: f7790741-0b3d-4461-bf5f-66500e96d5c1
+
+---
+
+## Summary Confirmation Recorded
+**Timestamp**: 2026-10-19T04:45:44Z
+**Event**: SUMMARY_CONFIRMATION_RECORDED
+**Stage**: nfr-requirements
+**Details**: Looks correct
+**Checkpoint**: Consolidated Summary Confirmation
+**Questions File**: aidlc/spaces/default/intents/261016-doc-dashboard/construction/frontend/nfr-requirements/nfr-requirements-questions.md
+**Questions SHA-256**: e492c15b24fbed8558d25e0c6ea522bd94f3a90cd587c538a891726f622baa25
+**Hash Scope**: confirmed-content-v2
+**Unit**: frontend
+**Summary Authorization Id**: 4b33539574e052b98d38095f10d45f9371e1da82f73ea2659a121c35b8259b37
+
+---
+
+## Artifact Created
+**Timestamp**: 2026-10-19T04:47:05Z
+**Event**: ARTIFACT_CREATED
+**Tool**: Write
+**File**: <project-dir>/aidlc/spaces/default/intents/261016-doc-dashboard/construction/frontend/nfr-requirements/performance-requirements.md
+**Context**: construction > frontend > nfr-requirements > performance-requirements.md
+**Summary Authorization Id**: 4b33539574e052b98d38095f10d45f9371e1da82f73ea2659a121c35b8259b37
+
+---
+
+## Artifact Created
+**Timestamp**: 2026-10-19T04:47:06Z
+**Event**: ARTIFACT_CREATED
+**Tool**: Write
+**File**: <project-dir>/aidlc/spaces/default/intents/261016-doc-dashboard/construction/frontend/nfr-requirements/security-requirements.md
+**Context**: construction > frontend > nfr-requirements > security-requirements.md
+**Summary Authorization Id**: 4b33539574e052b98d38095f10d45f9371e1da82f73ea2659a121c35b8259b37
+
+---
+
+## Artifact Created
+**Timestamp**: 2026-10-19T04:47:06Z
+**Event**: ARTIFACT_CREATED
+**Tool**: Write
+**File**: <project-dir>/aidlc/spaces/default/intents/261016-doc-dashboard/construction/frontend/nfr-requirements/tech-stack-decisions.md
+**Context**: construction > frontend > nfr-requirements > tech-stack-decisions.md
+**Summary Authorization Id**: 4b33539574e052b98d38095f10d45f9371e1da82f73ea2659a121c35b8259b37
+
+---
+
+## Artifact Created
+**Timestamp**: 2026-10-19T04:47:07Z
+**Event**: ARTIFACT_CREATED
+**Tool**: Write
+**File**: <project-dir>/aidlc/spaces/default/intents/261016-doc-dashboard/construction/frontend/nfr-requirements/traceability.json
+**Context**: construction > frontend > nfr-requirements > traceability.json
+**Summary Authorization Id**: 4b33539574e052b98d38095f10d45f9371e1da82f73ea2659a121c35b8259b37
+
+---
+
+## Unit Started
+**Timestamp**: 2026-10-19T04:47:18Z
+**Event**: UNIT_STARTED
+**Stage**: nfr-requirements
+**Unit**: frontend
+**Run floor**: STAGE_JUMPED:2026-10-16T10:18:49Z#2
+
+---
+
+## Unit Completed
+**Timestamp**: 2026-10-19T04:47:22Z
+**Event**: UNIT_COMPLETED
+**Stage**: nfr-requirements
+**Unit**: frontend
+**Run floor**: STAGE_JUMPED:2026-10-16T10:18:49Z#2
+
+---
+
+## Decision Recorded
+**Timestamp**: 2026-10-19T04:52:06Z
+**Event**: DECISION_RECORDED
+**Stage**: nfr-design
+**Decision**: Summary Confirmation
+**Options**: Looks correct,Request changes
+**Checkpoint**: Consolidated Summary Confirmation
+**Questions File**: aidlc/spaces/default/intents/261016-doc-dashboard/construction/frontend/nfr-design/nfr-design-questions.md
+**Unit**: frontend
+
+---
+
+## Human Turn
+**Timestamp**: 2026-10-19T04:52:17Z
+**Event**: HUMAN_TURN
+**Session**: f7790741-0b3d-4461-bf5f-66500e96d5c1
+
+---
+
+## Summary Confirmation Recorded
+**Timestamp**: 2026-10-19T04:52:22Z
+**Event**: SUMMARY_CONFIRMATION_RECORDED
+**Stage**: nfr-design
+**Details**: Looks correct
+**Checkpoint**: Consolidated Summary Confirmation
+**Questions File**: aidlc/spaces/default/intents/261016-doc-dashboard/construction/frontend/nfr-design/nfr-design-questions.md
+**Questions SHA-256**: 4a1652b6eda667b1f6661da6e175eec5968ba23d3a5500685a1b2ae1f0329e44
+**Hash Scope**: confirmed-content-v2
+**Unit**: frontend
+**Summary Authorization Id**: 0b5d7b6e06710d15106a6d5d6f4e5ee4b84a9351ded1a1a6647d2c75c331c916
+
+---
+
+## Artifact Updated
+**Timestamp**: 2026-10-19T04:53:27Z
+**Event**: ARTIFACT_UPDATED
+**Tool**: Write
+**File**: <project-dir>/aidlc/spaces/default/intents/261016-doc-dashboard/construction/frontend/nfr-design/nfr-design-questions.md
+**Context**: construction > frontend > nfr-design > nfr-design-questions.md
+**Summary Authorization Id**: 0b5d7b6e06710d15106a6d5d6f4e5ee4b84a9351ded1a1a6647d2c75c331c916
+
+---
+
+## Artifact Created
+**Timestamp**: 2026-10-19T04:53:28Z
+**Event**: ARTIFACT_CREATED
+**Tool**: Write
+**File**: <project-dir>/aidlc/spaces/default/intents/261016-doc-dashboard/construction/frontend/nfr-design/performance-design.md
+**Context**: construction > frontend > nfr-design > performance-design.md
+**Summary Authorization Id**: 0b5d7b6e06710d15106a6d5d6f4e5ee4b84a9351ded1a1a6647d2c75c331c916
+
+---
+
+## Artifact Created
+**Timestamp**: 2026-10-19T04:53:28Z
+**Event**: ARTIFACT_CREATED
+**Tool**: Write
+**File**: <project-dir>/aidlc/spaces/default/intents/261016-doc-dashboard/construction/frontend/nfr-design/security-design.md
+**Context**: construction > frontend > nfr-design > security-design.md
+**Summary Authorization Id**: 0b5d7b6e06710d15106a6d5d6f4e5ee4b84a9351ded1a1a6647d2c75c331c916
+
+---
+
+## Artifact Created
+**Timestamp**: 2026-10-19T04:53:29Z
+**Event**: ARTIFACT_CREATED
+**Tool**: Write
+**File**: <project-dir>/aidlc/spaces/default/intents/261016-doc-dashboard/construction/frontend/nfr-design/logical-components.md
+**Context**: construction > frontend > nfr-design > logical-components.md
+**Summary Authorization Id**: 0b5d7b6e06710d15106a6d5d6f4e5ee4b84a9351ded1a1a6647d2c75c331c916
+
+---
+
+## Artifact Created
+**Timestamp**: 2026-10-19T04:53:30Z
+**Event**: ARTIFACT_CREATED
+**Tool**: Write
+**File**: <project-dir>/aidlc/spaces/default/intents/261016-doc-dashboard/construction/frontend/nfr-design/traceability.json
+**Context**: construction > frontend > nfr-design > traceability.json
+**Summary Authorization Id**: 0b5d7b6e06710d15106a6d5d6f4e5ee4b84a9351ded1a1a6647d2c75c331c916
+
+---
+
+## Unit Started
+**Timestamp**: 2026-10-19T04:53:38Z
+**Event**: UNIT_STARTED
+**Stage**: nfr-design
+**Unit**: frontend
+**Run floor**: STAGE_JUMPED:2026-10-16T10:18:49Z#2
+
+---
+
+## Unit Completed
+**Timestamp**: 2026-10-19T04:53:43Z
+**Event**: UNIT_COMPLETED
+**Stage**: nfr-design
+**Unit**: frontend
+**Run floor**: STAGE_JUMPED:2026-10-16T10:18:49Z#2
+
+---
+
+## Error Logged
+**Timestamp**: 2026-10-19T04:55:26Z
+**Event**: ERROR_LOGGED
+**Tool**: aidlc-state
+**Command**: aidlc-state engine state get
+**Error**: Usage: aidlc-state.ts get <field>
+
+---
+
+## Guard Stood Aside
+**Timestamp**: 2026-10-19T04:55:44Z
+**Event**: GUARD_STOOD_ASIDE
+**Guard**: state-transition
+**Authority**: instruction
+**Grant**: none
+**Actor**: main
+**Tool**: aidlc-state.ts
+**Details**: aidlc-state.ts refresh-unit-progress
+
+---
+
+## Decision Recorded
+**Timestamp**: 2026-10-19T04:56:51Z
+**Event**: DECISION_RECORDED
+**Stage**: infrastructure-design
+**Decision**: Summary Confirmation
+**Options**: Looks correct,Request changes
+**Checkpoint**: Consolidated Summary Confirmation
+**Questions File**: aidlc/spaces/default/intents/261016-doc-dashboard/construction/frontend/infrastructure-design/infrastructure-design-questions.md
+**Unit**: frontend
+
+---
+
+## Human Turn
+**Timestamp**: 2026-10-19T04:57:09Z
+**Event**: HUMAN_TURN
+**Session**: f7790741-0b3d-4461-bf5f-66500e96d5c1
+
+---
+
+## Summary Confirmation Recorded
+**Timestamp**: 2026-10-19T04:57:13Z
+**Event**: SUMMARY_CONFIRMATION_RECORDED
+**Stage**: infrastructure-design
+**Details**: Looks correct
+**Checkpoint**: Consolidated Summary Confirmation
+**Questions File**: aidlc/spaces/default/intents/261016-doc-dashboard/construction/frontend/infrastructure-design/infrastructure-design-questions.md
+**Questions SHA-256**: 989451d60764e50c95b1a29e8829cec2ab956eb01785dcf658b98c13b6fa6d0d
+**Hash Scope**: confirmed-content-v2
+**Unit**: frontend
+**Summary Authorization Id**: 3998960aca4e64cee5b1c944285b46b1b30ffff2a73c62b9b435e787cb073f1c
+
+---
+
+## Artifact Updated
+**Timestamp**: 2026-10-19T04:58:19Z
+**Event**: ARTIFACT_UPDATED
+**Tool**: Write
+**File**: <project-dir>/aidlc/spaces/default/intents/261016-doc-dashboard/construction/frontend/infrastructure-design/infrastructure-design-questions.md
+**Context**: construction > frontend > infrastructure-design > infrastructure-design-questions.md
+**Summary Authorization Id**: 3998960aca4e64cee5b1c944285b46b1b30ffff2a73c62b9b435e787cb073f1c
+
+---
+
+## Artifact Created
+**Timestamp**: 2026-10-19T04:58:19Z
+**Event**: ARTIFACT_CREATED
+**Tool**: Write
+**File**: <project-dir>/aidlc/spaces/default/intents/261016-doc-dashboard/construction/frontend/infrastructure-design/infrastructure-specification.md
+**Context**: construction > frontend > infrastructure-design > infrastructure-specification.md
+**Summary Authorization Id**: 3998960aca4e64cee5b1c944285b46b1b30ffff2a73c62b9b435e787cb073f1c
+
+---
+
+## Artifact Created
+**Timestamp**: 2026-10-19T04:58:20Z
+**Event**: ARTIFACT_CREATED
+**Tool**: Write
+**File**: <project-dir>/aidlc/spaces/default/intents/261016-doc-dashboard/construction/frontend/infrastructure-design/monitoring-design.md
+**Context**: construction > frontend > infrastructure-design > monitoring-design.md
+**Summary Authorization Id**: 3998960aca4e64cee5b1c944285b46b1b30ffff2a73c62b9b435e787cb073f1c
+
+---
+
+## Artifact Created
+**Timestamp**: 2026-10-19T04:58:21Z
+**Event**: ARTIFACT_CREATED
+**Tool**: Write
+**File**: <project-dir>/aidlc/spaces/default/intents/261016-doc-dashboard/construction/frontend/infrastructure-design/cicd-pipeline.md
+**Context**: construction > frontend > infrastructure-design > cicd-pipeline.md
+**Summary Authorization Id**: 3998960aca4e64cee5b1c944285b46b1b30ffff2a73c62b9b435e787cb073f1c
+
+---
+
+## Artifact Created
+**Timestamp**: 2026-10-19T04:58:22Z
+**Event**: ARTIFACT_CREATED
+**Tool**: Write
+**File**: <project-dir>/aidlc/spaces/default/intents/261016-doc-dashboard/construction/frontend/infrastructure-design/traceability.json
+**Context**: construction > frontend > infrastructure-design > traceability.json
+**Summary Authorization Id**: 3998960aca4e64cee5b1c944285b46b1b30ffff2a73c62b9b435e787cb073f1c
+
+---
+
+## Unit Started
+**Timestamp**: 2026-10-19T04:58:32Z
+**Event**: UNIT_STARTED
+**Stage**: infrastructure-design
+**Unit**: frontend
+**Run floor**: STAGE_JUMPED:2026-10-16T10:18:49Z#2
+
+---
+
+## Unit Completed
+**Timestamp**: 2026-10-19T04:58:37Z
+**Event**: UNIT_COMPLETED
+**Stage**: infrastructure-design
+**Unit**: frontend
+**Run floor**: STAGE_JUMPED:2026-10-16T10:18:49Z#2
+
+---
+
+## Workflow Parked
+**Timestamp**: 2026-10-19T04:58:48Z
+**Event**: WORKFLOW_PARKED
+**Stage**: functional-design
+
+---
+
+## Guard Stood Aside
+**Timestamp**: 2026-10-19T04:59:05Z
+**Event**: GUARD_STOOD_ASIDE
+**Guard**: state-transition
+**Authority**: none
+**Grant**: none
+**Actor**: main
+**Tool**: aidlc-state.ts
+**Details**: aidlc-state.ts park
+
+---
+
+## Workflow Parked
+**Timestamp**: 2026-10-19T04:59:05Z
+**Event**: WORKFLOW_PARKED
+**Stage**: functional-design
 
 ---

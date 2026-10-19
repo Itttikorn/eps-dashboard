@@ -1,0 +1,93 @@
+{
+  "stage": "nfr-design",
+  "unit": "frontend",
+  "upstream_ids": [
+    "NFR1.1",
+    "NFR1.4",
+    "NFR1.5",
+    "NFR1.6",
+    "NFR1.7",
+    "NFR3.1",
+    "NFR3.2",
+    "NFR5.1",
+    "NFR5.2",
+    "NFR6.1",
+    "NFR6.2",
+    "NFR6.3",
+    "NFR6.4",
+    "NFR6.5"
+  ],
+  "coverage": [
+    {
+      "id": "NFR1.1",
+      "status": "OK",
+      "target": "performance-design.md#21-dom-reconciliation--sub-50ms-latency-nfr11"
+    },
+    {
+      "id": "NFR1.4",
+      "status": "OK",
+      "target": "performance-design.md#31-recharts-canvas-sizing--slicing"
+    },
+    {
+      "id": "NFR1.5",
+      "status": "OK",
+      "target": "performance-design.md#41-tanstack-query-v5-tiered-cache-policy"
+    },
+    {
+      "id": "NFR1.6",
+      "status": "OK",
+      "target": "performance-design.md#51-code-splitting--vendor-chunk-distribution"
+    },
+    {
+      "id": "NFR1.7",
+      "status": "OK",
+      "target": "performance-design.md#52-core-web-vitals-targets"
+    },
+    {
+      "id": "NFR3.1",
+      "status": "OK",
+      "target": "security-design.md#41-universal-envelope-unwrapping--sanitization"
+    },
+    {
+      "id": "NFR3.2",
+      "status": "OK",
+      "target": "security-design.md#63-code-quality--branch-promotion-standards-nfr32"
+    },
+    {
+      "id": "NFR5.1",
+      "status": "OK",
+      "target": "security-design.md#61-four-mandatory-screen-states-nfr51"
+    },
+    {
+      "id": "NFR5.2",
+      "status": "OK",
+      "target": "security-design.md#62-dual-theme-css-token-architecture-nfr52"
+    },
+    {
+      "id": "NFR6.1",
+      "status": "OK",
+      "target": "security-design.md#21-open-corporate-access-boundary"
+    },
+    {
+      "id": "NFR6.2",
+      "status": "OK",
+      "target": "security-design.md#42-information-leakage-shield-nfr62"
+    },
+    {
+      "id": "NFR6.3",
+      "status": "OK",
+      "target": "security-design.md#31-strict-jsx-output-encoding"
+    },
+    {
+      "id": "NFR6.4",
+      "status": "OK",
+      "target": "security-design.md#32-content-security-policy-csp-directives"
+    },
+    {
+      "id": "NFR6.5",
+      "status": "OK",
+      "target": "security-design.md#51-pre-flight-file-inspection"
+    }
+  ]
+}
+

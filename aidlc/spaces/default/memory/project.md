@@ -113,3 +113,4 @@
 <!-- Project-specific corrections from human feedback. -->
 <!-- Format: NEVER/ALWAYS [behavior] (learned [date]) -->
 - Executive users are the primary target persona; simplicity and high-level readability take precedence over raw technical document table inspection. (learned 2026-10-16) <!-- cid:261016-doc-dashboard:intent-capture:912bf420d56fec98e19fa88373f58dc4884557c15808937549d53f1437051906 -->
+- NEVER use interactive modal questions (`ask_question` tool); ALWAYS present questions, options, and clarification requests in plain chat text for the user to answer in their own response. (learned 2026-10-19)

@@ -1,0 +1,132 @@
+{
+  "stage": "nfr-requirements",
+  "unit": "frontend",
+  "upstream_ids": [
+    "NFR1",
+    "NFR1.1",
+    "NFR1.2",
+    "NFR1.3",
+    "NFR1.4",
+    "NFR2",
+    "NFR2.1",
+    "NFR3",
+    "NFR3.1",
+    "NFR3.2",
+    "NFR4",
+    "NFR4.1",
+    "NFR4.2",
+    "NFR4.3",
+    "NFR5",
+    "NFR5.1",
+    "NFR5.2",
+    "NFR6",
+    "NFR6.1"
+  ],
+  "coverage": [
+    {
+      "id": "NFR1",
+      "status": "OK",
+      "target": "NFR1.1, NFR1.4, NFR1.5, NFR1.6, NFR1.7"
+    },
+    {
+      "id": "NFR1.1",
+      "status": "OK",
+      "target": "NFR1.1"
+    },
+    {
+      "id": "NFR1.2",
+      "status": "N/A",
+      "target": "out-of-scope-for-frontend",
+      "justification": "Backend database indexing and query latency (< 5ms) is implemented exclusively in Go service"
+    },
+    {
+      "id": "NFR1.3",
+      "status": "N/A",
+      "target": "out-of-scope-for-frontend",
+      "justification": "Backend CSV streaming ingestion throughput (< 500ms for 2,000 rows) is owned by backend service"
+    },
+    {
+      "id": "NFR1.4",
+      "status": "OK",
+      "target": "NFR1.4"
+    },
+    {
+      "id": "NFR2",
+      "status": "N/A",
+      "target": "out-of-scope-for-frontend",
+      "justification": "Storage and database growth capping (active revisions and delta logs) is owned by PostgreSQL storage layer"
+    },
+    {
+      "id": "NFR2.1",
+      "status": "N/A",
+      "target": "out-of-scope-for-frontend",
+      "justification": "Active document revision in-place upserting is handled by backend GORM service"
+    },
+    {
+      "id": "NFR3",
+      "status": "OK",
+      "target": "NFR3.1, NFR3.2"
+    },
+    {
+      "id": "NFR3.1",
+      "status": "OK",
+      "target": "NFR3.1"
+    },
+    {
+      "id": "NFR3.2",
+      "status": "OK",
+      "target": "NFR3.2"
+    },
+    {
+      "id": "NFR4",
+      "status": "N/A",
+      "target": "out-of-scope-for-frontend",
+      "justification": "Go backend testing floor, race detector, and database transaction atomicity are backend responsibilities"
+    },
+    {
+      "id": "NFR4.1",
+      "status": "N/A",
+      "target": "out-of-scope-for-frontend",
+      "justification": "Go test line coverage >= 80% is owned by backend unit; frontend enforces separate Vitest suite"
+    },
+    {
+      "id": "NFR4.2",
+      "status": "N/A",
+      "target": "out-of-scope-for-frontend",
+      "justification": "Go concurrency race detector (go test -race) is owned by Go backend"
+    },
+    {
+      "id": "NFR4.3",
+      "status": "N/A",
+      "target": "out-of-scope-for-frontend",
+      "justification": "Database atomic transaction rollback is owned by PostgreSQL transaction manager"
+    },
+    {
+      "id": "NFR5",
+      "status": "OK",
+      "target": "NFR5.1, NFR5.2"
+    },
+    {
+      "id": "NFR5.1",
+      "status": "OK",
+      "target": "NFR5.1"
+    },
+    {
+      "id": "NFR5.2",
+      "status": "OK",
+      "target": "NFR5.2"
+    },
+    {
+      "id": "NFR6",
+      "status": "OK",
+      "target": "NFR6.1, NFR6.2, NFR6.3, NFR6.4, NFR6.5"
+    },
+    {
+      "id": "NFR6.1",
+      "status": "OK",
+      "target": "NFR6.1"
+    }
+  ],
+  "reverse": []
+}
+

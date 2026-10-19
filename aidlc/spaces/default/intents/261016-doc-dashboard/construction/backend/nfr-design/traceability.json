@@ -1,0 +1,36 @@
+{
+  "stage": "nfr-design",
+  "unit": "backend",
+  "upstream_ids": [
+    "NFR1.1", "NFR1.2", "NFR1.3", "NFR1.4", "NFR1.5", "NFR1.6", "NFR1.7",
+    "NFR2.1", "NFR2.2", "NFR2.3",
+    "NFR3.1", "NFR3.2", "NFR3.3",
+    "NFR4.1", "NFR4.2", "NFR4.3", "NFR4.4", "NFR4.5",
+    "NFR6.1", "NFR6.2", "NFR6.3", "NFR6.4", "NFR6.5"
+  ],
+  "coverage": [
+    { "id": "NFR1.1", "status": "OK", "target": "performance-design.md#31-global-summary-query-optimization" },
+    { "id": "NFR1.2", "status": "OK", "target": "performance-design.md#4-connection-pool--concurrency-design" },
+    { "id": "NFR1.3", "status": "OK", "target": "performance-design.md#5-streaming-csv-ingestion--memory-budget" },
+    { "id": "NFR1.4", "status": "OK", "target": "performance-design.md#32-historical-trends-query-optimization" },
+    { "id": "NFR1.5", "status": "OK", "target": "performance-design.md#5-streaming-csv-ingestion--memory-budget" },
+    { "id": "NFR1.6", "status": "OK", "target": "performance-design.md#5-streaming-csv-ingestion--memory-budget" },
+    { "id": "NFR1.7", "status": "OK", "target": "reliability-design.md#5-health-check--readiness-probe-architecture" },
+    { "id": "NFR2.1", "status": "OK", "target": "scalability-design.md#2-decoupled-3-tier-storage-architecture" },
+    { "id": "NFR2.2", "status": "OK", "target": "scalability-design.md#2-decoupled-3-tier-storage-architecture" },
+    { "id": "NFR2.3", "status": "OK", "target": "scalability-design.md#2-decoupled-3-tier-storage-architecture" },
+    { "id": "NFR3.1", "status": "OK", "target": "security-design.md#4-error-sanitization--information-leakage-shield" },
+    { "id": "NFR3.2", "status": "OK", "target": "security-design.md#4-error-sanitization--information-leakage-shield" },
+    { "id": "NFR3.3", "status": "OK", "target": "logical-components.md#2-logical-component-topology" },
+    { "id": "NFR4.1", "status": "OK", "target": "logical-components.md#3-component-master-register" },
+    { "id": "NFR4.2", "status": "OK", "target": "reliability-design.md#2-ingestion-concurrency--project-isolation-pattern" },
+    { "id": "NFR4.3", "status": "OK", "target": "reliability-design.md#4-fail-fast-transaction-rollback-mechanics" },
+    { "id": "NFR4.4", "status": "OK", "target": "reliability-design.md#3-startup-resilience--migration-lifecycle" },
+    { "id": "NFR4.5", "status": "OK", "target": "reliability-design.md#5-health-check--readiness-probe-architecture" },
+    { "id": "NFR6.1", "status": "OK", "target": "security-design.md#21-permissive-intranet-cors-configuration" },
+    { "id": "NFR6.2", "status": "OK", "target": "security-design.md#3-csv-ingestion-sanitization-architecture" },
+    { "id": "NFR6.3", "status": "OK", "target": "security-design.md#31-cell-formula-sanitization-routine" },
+    { "id": "NFR6.4", "status": "OK", "target": "security-design.md#4-error-sanitization--information-leakage-shield" },
+    { "id": "NFR6.5", "status": "OK", "target": "security-design.md#5-container--secret-hardening" }
+  ]
+}

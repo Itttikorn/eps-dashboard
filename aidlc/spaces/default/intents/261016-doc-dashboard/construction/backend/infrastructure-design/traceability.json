@@ -1,0 +1,30 @@
+{
+  "stage": "infrastructure-design",
+  "unit": "backend",
+  "upstream_ids": [
+    "NFR1.1", "NFR1.2", "NFR1.3", "NFR1.4", "NFR1.7",
+    "NFR2.1", "NFR2.2", "NFR2.3",
+    "NFR4.1", "NFR4.3", "NFR4.4", "NFR4.5",
+    "NFR6.1", "NFR6.2", "NFR6.3", "NFR6.4", "NFR6.5"
+  ],
+  "coverage": [
+    { "id": "NFR1.1", "status": "OK", "target": "monitoring-design.md#2-metrics--key-performance-indicators-kpis" },
+    { "id": "NFR1.2", "status": "OK", "target": "infrastructure-specification.md#2-deployment-architecture" },
+    { "id": "NFR1.3", "status": "OK", "target": "monitoring-design.md#2-metrics--key-performance-indicators-kpis" },
+    { "id": "NFR1.4", "status": "OK", "target": "monitoring-design.md#2-metrics--key-performance-indicators-kpis" },
+    { "id": "NFR1.7", "status": "OK", "target": "infrastructure-specification.md#3-infrastructure-services" },
+    { "id": "NFR2.1", "status": "OK", "target": "infrastructure-specification.md#3-infrastructure-services" },
+    { "id": "NFR2.2", "status": "OK", "target": "infrastructure-specification.md#2-deployment-architecture" },
+    { "id": "NFR2.3", "status": "OK", "target": "infrastructure-specification.md#2-deployment-architecture" },
+    { "id": "NFR4.1", "status": "OK", "target": "infrastructure-specification.md#3-infrastructure-services" },
+    { "id": "NFR4.3", "status": "OK", "target": "cicd-pipeline.md#4-environment-promotion--branching-strategy" },
+    { "id": "NFR4.4", "status": "OK", "target": "infrastructure-specification.md#3-infrastructure-services" },
+    { "id": "NFR4.5", "status": "OK", "target": "monitoring-design.md#3-alerts--incident-routing" },
+    { "id": "NFR6.1", "status": "OK", "target": "infrastructure-specification.md#2-deployment-architecture" },
+    { "id": "NFR6.2", "status": "OK", "target": "infrastructure-specification.md#5-container-hardening--environment-variables" },
+    { "id": "NFR6.3", "status": "OK", "target": "infrastructure-specification.md#2-deployment-architecture" },
+    { "id": "NFR6.4", "status": "OK", "target": "monitoring-design.md#5-log-aggregation--tracing-architecture" },
+    { "id": "NFR6.5", "status": "OK", "target": "infrastructure-specification.md#5-container-hardening--environment-variables" }
+  ]
+}
+
