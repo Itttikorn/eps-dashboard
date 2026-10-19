@@ -67,13 +67,29 @@ func (r *GormRepository) BatchUpsertDocuments(ctx context.Context, docs []models
 	if len(docs) == 0 {
 		return nil
 	}
+
+	// Defensive deduplication by (ProjectCode, DocNumber) preserving last occurrence
+	uniqueMap := make(map[string]models.Document, len(docs))
+	order := make([]string, 0, len(docs))
+	for _, doc := range docs {
+		key := doc.ProjectCode + "::" + doc.DocNumber
+		if _, exists := uniqueMap[key]; !exists {
+			order = append(order, key)
+		}
+		uniqueMap[key] = doc
+	}
+	deduped := make([]models.Document, 0, len(order))
+	for _, k := range order {
+		deduped = append(deduped, uniqueMap[k])
+	}
+
 	return r.db.WithContext(ctx).Clauses(clause.OnConflict{
 		Columns: []clause.Column{{Name: "project_code"}, {Name: "doc_number"}},
 		DoUpdates: clause.AssignmentColumns([]string{
 			"title", "discipline", "status", "revision", "issue_date",
 			"target_date", "actual_date", "is_overdue", "overdue_days", "updated_at",
 		}),
-	}).CreateInBatches(docs, 250).Error
+	}).CreateInBatches(deduped, 250).Error
 }
 
 // SaveSnapshot records a point-in-time KPI snapshot for trend analytics.

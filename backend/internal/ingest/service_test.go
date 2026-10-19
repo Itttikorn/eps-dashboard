@@ -1,8 +1,10 @@
 package ingest
 
 import (
+	"bytes"
 	"context"
 	"errors"
+	"os"
 	"strings"
 	"testing"
 
@@ -221,3 +223,131 @@ PRJ-ORIGINAL,DOC-100,Test Doc,ME,Approved,0,2026-03-01,2026-03-15
 		t.Errorf("doc.ProjectCode = %q, want 'PRJ-OVERRIDE'", doc.ProjectCode)
 	}
 }
+
+func TestIngestService_ActualDataDirectoryFiles(t *testing.T) {
+	files := []struct {
+		path               string
+		wantProjectCode    string
+		totalRows          int
+		expectedUniqueDocs int
+	}{
+		{
+			path:               "../../../data/AUTOEMAIL_FILE_06_SKK-IM-CM-26002_2026-09-25 150903 (1) 1.csv",
+			wantProjectCode:    "SKK-IM-CM-26002",
+			totalRows:          67,
+			expectedUniqueDocs: 36,
+		},
+		{
+			path:               "../../../data/AUTOEMAIL_FILE_06_STS-CN-PP-26001_2026-09-25 151017 (1).csv",
+			wantProjectCode:    "STS-CN-PP-26001",
+			totalRows:          480,
+			expectedUniqueDocs: 304,
+		},
+		{
+			path:               "../../../data/AUTOEMAIL_FILE_06_STS-EN-PP-26001_2026-09-25 151024.csv",
+			wantProjectCode:    "STS-EN-PP-26001",
+			totalRows:          1928,
+			expectedUniqueDocs: 827,
+		},
+	}
+
+	for _, tt := range files {
+		t.Run(tt.wantProjectCode, func(t *testing.T) {
+			data, err := os.ReadFile(tt.path)
+			if err != nil {
+				t.Skipf("File not accessible: %v", err)
+			}
+
+			db := database.NewTestDB(t)
+			repo := NewRepository(db)
+			svc := NewService(repo)
+			ctx := context.Background()
+
+			result, err := svc.IngestCSV(ctx, bytes.NewReader(data), "", true)
+			if err != nil {
+				t.Fatalf("IngestCSV failed on %s: %v", tt.path, err)
+			}
+
+			if result.ProjectCode != tt.wantProjectCode {
+				t.Errorf("result.ProjectCode = %q, want %q", result.ProjectCode, tt.wantProjectCode)
+			}
+			if result.ProcessedCount != tt.totalRows {
+				t.Errorf("result.ProcessedCount = %d, want %d", result.ProcessedCount, tt.totalRows)
+			}
+
+			// Verify project exists in DB
+			var prj models.Project
+			if err := db.Where("code = ?", tt.wantProjectCode).First(&prj).Error; err != nil {
+				t.Fatalf("Project record not created in DB: %v", err)
+			}
+
+			// Verify unique documents were saved in DB
+			var docCount int64
+			if err := db.Model(&models.Document{}).Where("project_code = ?", tt.wantProjectCode).Count(&docCount).Error; err != nil {
+				t.Fatalf("Failed counting documents: %v", err)
+			}
+			if int(docCount) != tt.expectedUniqueDocs {
+				t.Errorf("Document DB count = %d, want %d", docCount, tt.expectedUniqueDocs)
+			}
+
+			// Verify KPI snapshot exists
+			var snapCount int64
+			if err := db.Model(&models.KPISnapshot{}).Where("project_code = ?", tt.wantProjectCode).Count(&snapCount).Error; err != nil {
+				t.Fatalf("Failed counting snapshots: %v", err)
+			}
+			if snapCount == 0 {
+				t.Errorf("Expected at least 1 KPI snapshot, got 0")
+			}
+		})
+	}
+}
+
+func TestIngestService_DuplicateDocumentRowsInSingleSnapshot(t *testing.T) {
+	db := database.NewTestDB(t)
+	repo := NewRepository(db)
+	svc := NewService(repo)
+	ctx := context.Background()
+
+	// 4 rows for DOC-001 with varying revisions and transmittal dates, 1 row for DOC-002
+	csvContent := `project_code,doc_number,title,discipline,status,revision,issue_date,target_date
+PRJ-DEDUP,DOC-001,Piping Layout Initial,ME,Approved,00,2026-03-01,2026-03-10
+PRJ-DEDUP,DOC-001,Piping Layout IFA,ME,Under Review,01,2026-03-15,2026-03-25
+PRJ-DEDUP,DOC-001,Piping Layout IFC,ME,Approved,02,2026-04-01,2026-04-15
+PRJ-DEDUP,DOC-001,Piping Layout IFC Package 2,ME,Approved,02,2026-04-01,2026-04-15
+PRJ-DEDUP,DOC-002,Electrical Diagram,EE,Under Review,A,2026-04-01,2026-04-10
+`
+
+	result, err := svc.IngestCSV(ctx, strings.NewReader(csvContent), "", false)
+	if err != nil {
+		t.Fatalf("IngestCSV failed with duplicates: %v", err)
+	}
+
+	if result.TotalRows != 5 {
+		t.Errorf("result.TotalRows = %d, want 5", result.TotalRows)
+	}
+	if result.DeltasUpdated != 2 {
+		t.Errorf("result.DeltasUpdated = %d, want 2 (2 unique documents)", result.DeltasUpdated)
+	}
+	if result.SkippedUnchanged != 3 {
+		t.Errorf("result.SkippedUnchanged = %d, want 3 (3 superseded rows)", result.SkippedUnchanged)
+	}
+
+	var docs []models.Document
+	if err := db.Where("project_code = ?", "PRJ-DEDUP").Order("doc_number asc").Find(&docs).Error; err != nil {
+		t.Fatalf("failed to query docs: %v", err)
+	}
+
+	if len(docs) != 2 {
+		t.Fatalf("expected 2 unique documents in DB, got %d", len(docs))
+	}
+
+	// DOC-001 should have the highest revision (02) and latest title
+	if docs[0].Revision != "02" {
+		t.Errorf("DOC-001 revision = %q, want '02'", docs[0].Revision)
+	}
+	if docs[0].Status != "Approved" {
+		t.Errorf("DOC-001 status = %q, want 'Approved'", docs[0].Status)
+	}
+}
+
+

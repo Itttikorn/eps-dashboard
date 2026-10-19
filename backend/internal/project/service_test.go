@@ -172,6 +172,9 @@ func TestClassifyCategory(t *testing.T) {
 		{"DOC-VOR-02", "Variation Order", "Closed", CategoryChange, true},
 		{"DOC-DWG-001", "General Arrangement", "Approved", CategoryBaselineDrawings, true},
 		{"DOC-DWG-002", "Structural Layout", "In Progress", CategoryBaselineDrawings, false},
+		{"STSBPP-FS-RFI-CE-001-031", "Roofing Works - Inspection & Punch List", "Approved", CategoryControl, true},
+		{"DOC-PL-001", "Punch List Set A", "Approved", CategoryComplete, true},
+		{"DOC-PCL-002", "Punch List Set B", "Open", CategoryComplete, false},
 	}
 
 	for _, tt := range tests {

@@ -38,25 +38,52 @@ type GlobalSummary struct {
 	GlobalApprovalRate   float64        `json:"global_approval_rate"`
 }
 
+// BaselineMetrics details deliverable volume, approval and delinquency status for drawings.
+type BaselineMetrics struct {
+	Total      int     `json:"total"`
+	Approved   int     `json:"approved"`
+	InReview   int     `json:"in_review"`
+	Overdue    int     `json:"overdue"`
+	PendingPct float64 `json:"pending_pct"`
+	IsCritical bool    `json:"is_critical"`
+}
+
+// DisciplineStat tracks total and approved document counts for a discipline.
+type DisciplineStat struct {
+	Total    int `json:"total"`
+	Approved int `json:"approved"`
+}
+
+// DisciplinesBreakdown breaks down engineering drawings across ME, CE, and EE.
+type DisciplinesBreakdown struct {
+	ME DisciplineStat `json:"me"`
+	CE DisciplineStat `json:"ce"`
+	EE DisciplineStat `json:"ee"`
+}
+
 // ProjectMatrixRow represents a single project's summarized status for the comparative matrix.
 type ProjectMatrixRow struct {
-	ProjectID            string          `json:"project_id"`
-	ProjectCode          string          `json:"project_code"` // backward compatibility
-	SiteCode             string          `json:"site_code"`
-	ProjectName          string          `json:"project_name"`
-	BaselineDrawings     int             `json:"baseline_drawings"`
-	Control              CategoryMetrics `json:"control"`
-	Corrective           CategoryMetrics `json:"corrective"`
-	Change               CategoryMetrics `json:"change"`
-	OverdueCount         int             `json:"overdue_count"`
-	OverdueDocuments     int             `json:"overdue_documents"` // backward compatibility
-	NetChange            string          `json:"net_change"`        // IMPROVING, DEGRADING, STABLE
-	LastSnapshotDate     string          `json:"last_snapshot_date"`
-	TotalDocuments       int             `json:"total_documents"`
-	ApprovedDocuments    int             `json:"approved_documents"`
-	UnderReviewDocuments int             `json:"under_review_documents"`
-	ApprovalRate         float64         `json:"approval_rate"`
-	LastUpdated          time.Time       `json:"last_updated"`
+	ProjectID            string               `json:"project_id"`
+	ProjectCode          string               `json:"project_code"` // backward compatibility
+	SiteCode             string               `json:"site_code"`
+	ProjectName          string               `json:"project_name"`
+	BaselineDrawings     BaselineMetrics      `json:"baseline_drawings"`
+	Control              CategoryMetrics      `json:"control"`
+	Corrective           CategoryMetrics      `json:"corrective"`
+	Change               CategoryMetrics      `json:"change"`
+	Complete             CategoryMetrics      `json:"complete"`
+	Disciplines          DisciplinesBreakdown `json:"disciplines"`
+	DrawingTypes         []string             `json:"drawing_types"`
+	PendingAgingDays     float64              `json:"pending_aging_days"`
+	OverdueCount         int                  `json:"overdue_count"`
+	OverdueDocuments     int                  `json:"overdue_documents"` // backward compatibility
+	NetChange            string               `json:"net_change"`        // IMPROVING, DEGRADING, STABLE
+	LastSnapshotDate     string               `json:"last_snapshot_date"`
+	TotalDocuments       int                  `json:"total_documents"`
+	ApprovedDocuments    int                  `json:"approved_documents"`
+	UnderReviewDocuments int                  `json:"under_review_documents"`
+	ApprovalRate         float64              `json:"approval_rate"`
+	LastUpdated          time.Time            `json:"last_updated"`
 }
 
 // DisciplineMetrics summarizes deliverable health for a specific engineering discipline.

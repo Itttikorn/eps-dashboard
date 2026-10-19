@@ -17,6 +17,9 @@ import (
 
 // InitDB opens the Postgres connection pool with production-safe pool tuning.
 func InitDB(dsn string) (*gorm.DB, error) {
+	if dsn == "" {
+		return nil, fmt.Errorf("database connection string is empty: configure DATABASE_URL or DB_HOST in environment")
+	}
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{
 		Logger: logger.Default.LogMode(logger.Warn),
 	})

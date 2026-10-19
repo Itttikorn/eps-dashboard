@@ -1,0 +1,137 @@
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { request, uploadFile } from './client';
+import {
+  normalizeGlobalSummary,
+  normalizeHistoricalTrends,
+  normalizeIngestionResult,
+  normalizeProjectMatrixRow,
+} from './normalizers';
+import {
+  GlobalSummaryContract,
+  GlobalSummaryData,
+  HealthCheckContract,
+  IngestionBatchRecord,
+  IngestionResultContract,
+  ProjectContractRow,
+  ProjectMatrixRow,
+  TrendMetricType,
+  TrendPointContract,
+  DailyTrendDataPoint,
+} from './types';
+
+// Query Keys
+export const queryKeys = {
+  health: ['health'] as const,
+  summary: ['summary'] as const,
+  projects: (search?: string) => ['projects', { search }] as const,
+  trends: (projectIds: string[], preset: string, metric: TrendMetricType) =>
+    ['trends', { projectIds, preset, metric }] as const,
+  ingestionHistory: ['ingestion', 'history'] as const,
+};
+
+// 1. Health Check (polls every 30s)
+export function useHealthCheck() {
+  return useQuery<HealthCheckContract>({
+    queryKey: queryKeys.health,
+    queryFn: () => request<HealthCheckContract>('/health'),
+    refetchInterval: 30000,
+    staleTime: 15000,
+  });
+}
+
+// 2. Global Macro Summary
+export function useGlobalSummary() {
+  return useQuery<GlobalSummaryData>({
+    queryKey: queryKeys.summary,
+    queryFn: async () => {
+      const contract = await request<GlobalSummaryContract>('/projects/summary');
+      return normalizeGlobalSummary(contract);
+    },
+    staleTime: 60000,
+    gcTime: 10 * 60 * 1000,
+  });
+}
+
+// 3. Project Matrix
+export function useProjectMatrix(search?: string) {
+  return useQuery<ProjectMatrixRow[]>({
+    queryKey: queryKeys.projects(search),
+    queryFn: async () => {
+      const queryParams = new URLSearchParams();
+      if (search) queryParams.set('search', search);
+      const url = `/projects${queryParams.toString() ? `?${queryParams.toString()}` : ''}`;
+      const contractRows = await request<ProjectContractRow[]>(url);
+      return Array.isArray(contractRows) ? contractRows.map(normalizeProjectMatrixRow) : [];
+    },
+    staleTime: 30000,
+    gcTime: 5 * 60 * 1000,
+    placeholderData: (previousData) => previousData,
+  });
+}
+
+// 4. Historical Trends
+export function useHistoricalTrends(
+  projectIds: string[],
+  preset: string,
+  metric: TrendMetricType
+) {
+  return useQuery<DailyTrendDataPoint[]>({
+    queryKey: queryKeys.trends(projectIds, preset, metric),
+    queryFn: async () => {
+      if (projectIds.length === 0) return [];
+      const queryParams = new URLSearchParams();
+      queryParams.set('project_ids', projectIds.join(','));
+      queryParams.set('preset', preset);
+      const url = `/analytics/trends?${queryParams.toString()}`;
+      const points = await request<TrendPointContract[]>(url);
+      return normalizeHistoricalTrends(points, metric);
+    },
+    staleTime: 120000,
+    gcTime: 15 * 60 * 1000,
+    enabled: projectIds.length > 0,
+  });
+}
+
+// 5. Upload Snapshot Mutation
+export function useUploadSnapshot() {
+  const qc = useQueryClient();
+
+  return useMutation<IngestionBatchRecord, Error, { file: File; signal?: AbortSignal }>({
+    mutationFn: async ({ file, signal }) => {
+      const formData = new FormData();
+      formData.append('file', file);
+      const res = await uploadFile<IngestionResultContract>('/ingest', formData, signal);
+      return normalizeIngestionResult(res);
+    },
+    onSuccess: (newRecord) => {
+      // Invalidate relevant query caches
+      qc.invalidateQueries({ queryKey: ['projects'] });
+      qc.invalidateQueries({ queryKey: queryKeys.summary });
+      qc.invalidateQueries({ queryKey: ['trends'] });
+
+      // Prepend to optimistic local ingestion history
+      qc.setQueryData<IngestionBatchRecord[]>(queryKeys.ingestionHistory, (old = []) => [
+        newRecord,
+        ...old,
+      ]);
+    },
+  });
+}
+
+// 6. Ingestion History Ledger
+export function useIngestionHistory() {
+  return useQuery<IngestionBatchRecord[]>({
+    queryKey: queryKeys.ingestionHistory,
+    queryFn: async () => {
+      // In MVP, we fetch existing history or return mock records if endpoint is purely on-upload
+      try {
+        const rows = await request<IngestionResultContract[]>('/ingest/history');
+        return Array.isArray(rows) ? rows.map(normalizeIngestionResult) : [];
+      } catch {
+        return [];
+      }
+    },
+    staleTime: 30000,
+  });
+}
+

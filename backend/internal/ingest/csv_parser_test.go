@@ -2,6 +2,7 @@ package ingest
 
 import (
 	"bytes"
+	"os"
 	"strings"
 	"testing"
 	"time"
@@ -230,4 +231,35 @@ func TestStreamParseCSV(t *testing.T) {
 		}
 	})
 }
+
+func TestParseActualDataDirectoryFiles(t *testing.T) {
+	files := []string{
+		"../../../data/AUTOEMAIL_FILE_06_SKK-IM-CM-26002_2026-09-25 150903 (1) 1.csv",
+		"../../../data/AUTOEMAIL_FILE_06_STS-CN-PP-26001_2026-09-25 151017 (1).csv",
+		"../../../data/AUTOEMAIL_FILE_06_STS-EN-PP-26001_2026-09-25 151024.csv",
+	}
+
+	for _, fPath := range files {
+		t.Run(fPath, func(t *testing.T) {
+			data, err := os.ReadFile(fPath)
+			if err != nil {
+				t.Skipf("File not accessible: %v", err)
+			}
+
+			rows, parseErrs, err := StreamParseCSV(bytes.NewReader(data))
+			t.Logf("File: %s -> err=%v, rows=%d, parseErrors=%d", fPath, err, len(rows), len(parseErrs))
+			if err != nil {
+				t.Errorf("Failed parsing: %v", err)
+			}
+			if len(parseErrs) > 0 {
+				for i, pe := range parseErrs {
+					if i < 10 {
+						t.Logf("Parse error sample: line %d col %s: %s", pe.LineNumber, pe.Column, pe.Message)
+					}
+				}
+			}
+		})
+	}
+}
+
 

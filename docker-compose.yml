@@ -1,4 +1,4 @@
-version: '3.8'
+name: eps-dashboard
 
 services:
   postgres:
@@ -31,6 +31,7 @@ services:
       - "8080:8080"
     environment:
       PORT: "8080"
+      DATABASE_URL: postgres://${DB_USER:-postgres}:${DB_PASSWORD:-postgres}@postgres:5432/${DB_NAME:-eps_db}?sslmode=disable
       DB_HOST: postgres
       DB_PORT: "5432"
       DB_USER: ${DB_USER:-postgres}
@@ -44,6 +45,19 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+    networks:
+      - eps-net
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: eps-frontend
+    restart: unless-stopped
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
     networks:
       - eps-net
 

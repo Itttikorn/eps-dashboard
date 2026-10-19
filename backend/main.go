@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"log/slog"
 	"os"
 	"os/signal"
@@ -39,6 +40,17 @@ func main() {
 
 	port := config.String("PORT", "8080")
 	dbURL := config.String("DATABASE_URL", config.String("DB_DSN", ""))
+	if dbURL == "" {
+		host := config.String("DB_HOST", "")
+		if host != "" {
+			dbPort := config.String("DB_PORT", "5432")
+			user := config.String("DB_USER", "postgres")
+			password := config.String("DB_PASSWORD", "postgres")
+			dbname := config.String("DB_NAME", "eps_db")
+			sslmode := config.String("DB_SSLMODE", "disable")
+			dbURL = fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=%s", user, password, host, dbPort, dbname, sslmode)
+		}
+	}
 
 	db, err := database.InitDB(dbURL)
 	if err != nil {

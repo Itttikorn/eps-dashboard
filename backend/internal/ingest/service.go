@@ -8,6 +8,8 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"strconv"
+	"strings"
 	"time"
 
 	"eps-dashboard/backend/internal/models"
@@ -30,6 +32,97 @@ func CalculateAgingBracket(days int) string {
 	default:
 		return ">90"
 	}
+}
+
+// isMoreRecentRow determines if candidate represents a more current state than current for the same document.
+func isMoreRecentRow(current, candidate ParsedRow) bool {
+	// 1. Prefer later IssueDate (transmittal date)
+	if candidate.IssueDate.After(current.IssueDate) {
+		return true
+	}
+	if candidate.IssueDate.Before(current.IssueDate) {
+		return false
+	}
+
+	// 2. Prefer higher revision if issue dates are identical
+	if candidate.Revision != current.Revision {
+		cInt, cErr := strconv.Atoi(strings.TrimSpace(candidate.Revision))
+		curInt, curErr := strconv.Atoi(strings.TrimSpace(current.Revision))
+		if cErr == nil && curErr == nil {
+			if cInt > curInt {
+				return true
+			}
+			if cInt < curInt {
+				return false
+			}
+		} else {
+			if len(candidate.Revision) > len(current.Revision) {
+				return true
+			}
+			if len(candidate.Revision) < len(current.Revision) {
+				return false
+			}
+			if candidate.Revision > current.Revision {
+				return true
+			}
+			if candidate.Revision < current.Revision {
+				return false
+			}
+		}
+	}
+
+	// 3. Prefer completed/approved status if one has completion date and the other does not
+	if candidate.ActualDate != nil && current.ActualDate == nil {
+		return true
+	}
+	if current.ActualDate != nil && candidate.ActualDate == nil {
+		return false
+	}
+	if candidate.Status == "Approved" && current.Status != "Approved" {
+		return true
+	}
+	if current.Status == "Approved" && candidate.Status != "Approved" {
+		return false
+	}
+
+	// 4. Conzol export sequence: later lines in file reflect subsequent transmittal events
+	return candidate.LineNumber >= current.LineNumber
+}
+
+// deduplicateParsedRows folds multiple transmittal/revision rows for the same document into a single active state.
+func deduplicateParsedRows(rows []ParsedRow, projectCodeOverride string) []ParsedRow {
+	type docKey struct {
+		projectCode string
+		docNumber   string
+	}
+
+	bestMap := make(map[docKey]ParsedRow, len(rows))
+	keys := make([]docKey, 0, len(rows))
+
+	for _, row := range rows {
+		pCode := projectCodeOverride
+		if pCode == "" {
+			pCode = row.ProjectCode
+		}
+		key := docKey{projectCode: pCode, docNumber: row.DocNumber}
+
+		current, exists := bestMap[key]
+		if !exists {
+			bestMap[key] = row
+			keys = append(keys, key)
+			continue
+		}
+
+		if isMoreRecentRow(current, row) {
+			bestMap[key] = row
+		}
+	}
+
+	result := make([]ParsedRow, 0, len(keys))
+	for _, k := range keys {
+		result = append(result, bestMap[k])
+	}
+	return result
 }
 
 func generateUUID() string {
@@ -93,17 +186,20 @@ func (s *Service) IngestCSV(ctx context.Context, r io.Reader, projectCodeOverrid
 		}
 	}
 
-	// Transform rows into documents, evaluating overdue status relative to snapshotDate
-	docs := make([]models.Document, 0, len(parsedRows))
+	// Deduplicate rows for the same document to maintain lean, active current state
+	uniqueRows := deduplicateParsedRows(parsedRows, projectCodeOverride)
+
+	// Transform unique rows into documents, evaluating overdue status relative to snapshotDate
+	docs := make([]models.Document, 0, len(uniqueRows))
 	var overdueLogs []models.OverdueLog
 
-	totalDocs := len(parsedRows)
+	totalDocs := len(uniqueRows)
 	approvedDocs := 0
 	underReviewDocs := 0
 	overdueDocs := 0
 
 	now := time.Now().UTC()
-	for _, row := range parsedRows {
+	for _, row := range uniqueRows {
 		rowProject := projectCode
 		if projectCodeOverride == "" && row.ProjectCode != "" {
 			rowProject = row.ProjectCode
@@ -172,14 +268,30 @@ func (s *Service) IngestCSV(ctx context.Context, r io.Reader, projectCodeOverrid
 
 	// Perform all DB operations inside a transaction
 	txErr := s.repo.WithTransaction(ctx, func(txRepo Repository) error {
-		// Ensure project exists
-		prj := &models.Project{
-			Code:      projectCode,
-			Name:      fmt.Sprintf("Project %s", projectCode),
-			UpdatedAt: now,
+		// Ensure all projects in the CSV exist
+		distinctProjects := make(map[string]struct{})
+		for _, row := range parsedRows {
+			p := row.ProjectCode
+			if projectCodeOverride != "" {
+				p = projectCodeOverride
+			}
+			if p != "" {
+				distinctProjects[p] = struct{}{}
+			}
 		}
-		if err := txRepo.UpsertProject(ctx, prj); err != nil {
-			return fmt.Errorf("failed to upsert project: %w", err)
+		if len(distinctProjects) == 0 && projectCode != "" {
+			distinctProjects[projectCode] = struct{}{}
+		}
+
+		for pCode := range distinctProjects {
+			prj := &models.Project{
+				Code:      pCode,
+				Name:      fmt.Sprintf("Project %s", pCode),
+				UpdatedAt: now,
+			}
+			if err := txRepo.UpsertProject(ctx, prj); err != nil {
+				return fmt.Errorf("failed to upsert project %s: %w", pCode, err)
+			}
 		}
 
 		// Batch upsert documents
@@ -215,10 +327,10 @@ func (s *Service) IngestCSV(ctx context.Context, r io.Reader, projectCodeOverrid
 		SnapshotDate:     snapshotDate,
 		TotalRows:        len(parsedRows) + len(parseErrors),
 		DeltasUpdated:    len(docs),
-		SkippedUnchanged: 0,
+		SkippedUnchanged: len(parsedRows) - len(docs),
 		CreatedAt:        now,
 		ProjectCode:      projectCode,
-		ProcessedCount:   len(docs),
+		ProcessedCount:   len(parsedRows),
 		Errors:           parseErrors,
 	}, nil
 }

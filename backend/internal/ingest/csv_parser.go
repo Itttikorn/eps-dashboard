@@ -7,6 +7,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"regexp"
 	"strings"
 	"time"
 )
@@ -48,10 +49,15 @@ func ParseDate(dateStr string) (time.Time, error) {
 
 	formats := []string{
 		"2006-01-02",
-		"02/01/2006",
 		"2006/01/02",
+		"02/01/2006",
 		"02-01-2006",
+		"02/01/06",
+		"02-01-06",
 		"02-Jan-2006",
+		"02-Jan-06",
+		"2006-01-02 15:04:05",
+		"2006/01/02 15:04:05",
 		"2006-01-02T15:04:05Z07:00",
 		time.RFC3339,
 	}
@@ -62,7 +68,7 @@ func ParseDate(dateStr string) (time.Time, error) {
 		}
 	}
 
-	return time.Time{}, fmt.Errorf("unable to parse date %q (supported formats: YYYY-MM-DD, DD/MM/YYYY, DD-Mon-YYYY)", trimmed)
+	return time.Time{}, fmt.Errorf("unable to parse date %q (supported formats: YYYY-MM-DD, YYYY/MM/DD, DD/MM/YYYY, DD/MM/YY)", trimmed)
 }
 
 // ExtractDiscipline extracts or normalizes the discipline code.
@@ -94,10 +100,33 @@ func StripBOM(r io.Reader) (io.Reader, error) {
 	return br, nil
 }
 
+var trailingDoubleQuoteRegex = regexp.MustCompile(`([^,])""\s*,`)
+
+// SanitizeCSVStream strips UTF-8 BOM if present and repairs common Conzol export anomalies,
+// such as unescaped trailing double-quotes before commas.
+func SanitizeCSVStream(r io.Reader) (io.Reader, error) {
+	cleanReader, err := StripBOM(r)
+	if err != nil {
+		return nil, err
+	}
+
+	content, err := io.ReadAll(cleanReader)
+	if err != nil {
+		return nil, err
+	}
+
+	if bytes.Contains(content, []byte(`"",`)) || bytes.Contains(content, []byte(`"" ,`)) {
+		sanitized := trailingDoubleQuoteRegex.ReplaceAll(content, []byte(`${1}",`))
+		return bytes.NewReader(sanitized), nil
+	}
+
+	return bytes.NewReader(content), nil
+}
+
 // StreamParseCSV reads CSV records sequentially from the reader, sanitizes values,
 // and returns parsed rows along with non-fatal parse errors.
 func StreamParseCSV(r io.Reader) ([]ParsedRow, []ParseError, error) {
-	cleanReader, err := StripBOM(r)
+	cleanReader, err := SanitizeCSVStream(r)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -105,6 +134,7 @@ func StreamParseCSV(r io.Reader) ([]ParsedRow, []ParseError, error) {
 	csvReader := csv.NewReader(cleanReader)
 	csvReader.TrimLeadingSpace = true
 	csvReader.FieldsPerRecord = -1
+	csvReader.LazyQuotes = true
 
 	headers, err := csvReader.Read()
 	if err != nil {
@@ -134,15 +164,24 @@ func StreamParseCSV(r io.Reader) ([]ParsedRow, []ParseError, error) {
 		return -1
 	}
 
-	prjIdx := findCol("projectcode", "project", "project_code", "projectid")
-	docNumIdx := findCol("docnumber", "documentnumber", "docno", "document_no", "document_number")
+	prjIdx := findCol("projectcode", "project", "project_code", "projectid", "project_id")
+	docNumIdx := findCol("docnumber", "documentnumber", "docno", "document_no", "document_number", "docid", "doc_id", "documentid", "document_id")
 	titleIdx := findCol("title", "documenttitle", "doc_title")
 	discIdx := findCol("discipline", "disc")
-	statusIdx := findCol("status", "docstatus", "workflow_status")
-	revIdx := findCol("revision", "rev")
+	discNameIdx := findCol("disciplinename", "discipline_name")
+	statusIdx := findCol("status", "workflow_status")
+	docStatusIdx := findCol("docstatus", "doc_status")
+	lastStatusIdx := findCol("laststatus", "last_status")
+	retIdx := findCol("ret", "ret_code", "retcode")
+	revIdx := findCol("revision", "rev", "revid", "rev_id", "revisionid", "revision_id")
 	issueDateIdx := findCol("issuedate", "issue_date", "date_issued")
-	targetDateIdx := findCol("targetdate", "target_date", "due_date")
+	transmitalDateIdx := findCol("transmitaldate", "transmittaldate", "transmital_date", "transmittal_date")
+	revDateIdx := findCol("revdate", "rev_date")
+	targetDateIdx := findCol("targetdate", "target_date", "duedate", "due_date")
+	planDateIdx := findCol("plandate", "plan_date")
 	actualDateIdx := findCol("actualdate", "actual_date", "completion_date")
+	returnDateIdx := findCol("returndate", "return_date")
+	responseDateIdx := findCol("responsedate", "response_date")
 
 	if docNumIdx == -1 || titleIdx == -1 {
 		return nil, nil, fmt.Errorf("%w: missing required doc_number or title column", ErrMissingHeaders)
@@ -202,11 +241,34 @@ func StreamParseCSV(r io.Reader) ([]ParsedRow, []ParseError, error) {
 		prjCode = SanitizeFormulaDefensive(prjCode)
 
 		rawDisc := getCol(discIdx)
+		if rawDisc == "" {
+			rawDisc = getCol(discNameIdx)
+		}
 		disc := ExtractDiscipline(rawDisc, docNum)
 
-		status := getCol(statusIdx)
-		if status == "" {
+		// Determine status according to Conzol rules & generic columns
+		rawStatus := getCol(statusIdx)
+		lastStatus := getCol(lastStatusIdx)
+		retCode := strings.ToUpper(getCol(retIdx))
+		docStatus := strings.ToUpper(getCol(docStatusIdx))
+		rawReturnDate := getCol(returnDateIdx)
+		rawResponseDate := getCol(responseDateIdx)
+
+		status := "Under Review"
+		if rawStatus != "" {
+			status = rawStatus
+		} else if strings.Contains(strings.ToUpper(lastStatus), "CANCEL") {
+			status = "Cancelled"
+		} else if strings.Contains(lastStatus, "50:RETURN") ||
+			retCode == "A" || retCode == "AC" || retCode == "RC" || retCode == "ACK" ||
+			rawReturnDate != "" || rawResponseDate != "" {
+			status = "Approved"
+		} else if strings.Contains(lastStatus, "40:WAIT") || strings.Contains(lastStatus, "00:NO FLOW") {
 			status = "Under Review"
+		} else if docStatus == "C" {
+			status = "Approved"
+		} else if docStatus == "A" && retCode != "" {
+			status = "Approved"
 		}
 
 		rev := getCol(revIdx)
@@ -215,9 +277,25 @@ func StreamParseCSV(r io.Reader) ([]ParsedRow, []ParseError, error) {
 		}
 
 		rawIssueDate := getCol(issueDateIdx)
+		if rawIssueDate == "" {
+			rawIssueDate = getCol(transmitalDateIdx)
+		}
+		if rawIssueDate == "" {
+			rawIssueDate = getCol(revDateIdx)
+		}
+
 		issueDate := time.Now().UTC()
 		if rawIssueDate != "" {
 			parsedDate, err := ParseDate(rawIssueDate)
+			if err != nil {
+				// Fallback to revDate if transmitalDate was shifted or non-standard
+				if alt := getCol(revDateIdx); alt != "" && alt != rawIssueDate {
+					if altDate, altErr := ParseDate(alt); altErr == nil {
+						parsedDate = altDate
+						err = nil
+					}
+				}
+			}
 			if err != nil {
 				parseErrors = append(parseErrors, ParseError{
 					LineNumber: line,
@@ -230,9 +308,20 @@ func StreamParseCSV(r io.Reader) ([]ParsedRow, []ParseError, error) {
 		}
 
 		rawTargetDate := getCol(targetDateIdx)
+		if rawTargetDate == "" {
+			rawTargetDate = getCol(planDateIdx)
+		}
 		targetDate := issueDate.AddDate(0, 0, 14)
 		if rawTargetDate != "" {
 			parsedDate, err := ParseDate(rawTargetDate)
+			if err != nil {
+				if alt := getCol(planDateIdx); alt != "" && alt != rawTargetDate {
+					if altDate, altErr := ParseDate(alt); altErr == nil {
+						parsedDate = altDate
+						err = nil
+					}
+				}
+			}
 			if err != nil {
 				parseErrors = append(parseErrors, ParseError{
 					LineNumber: line,
@@ -246,6 +335,12 @@ func StreamParseCSV(r io.Reader) ([]ParsedRow, []ParseError, error) {
 
 		var actualDate *time.Time
 		rawActualDate := getCol(actualDateIdx)
+		if rawActualDate == "" {
+			rawActualDate = getCol(returnDateIdx)
+		}
+		if rawActualDate == "" {
+			rawActualDate = getCol(responseDateIdx)
+		}
 		if rawActualDate != "" {
 			if parsedDate, err := ParseDate(rawActualDate); err == nil {
 				actualDate = &parsedDate
@@ -268,4 +363,3 @@ func StreamParseCSV(r io.Reader) ([]ParsedRow, []ParseError, error) {
 
 	return rows, parseErrors, nil
 }
-
