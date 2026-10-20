@@ -1,18 +1,22 @@
 import React, { useMemo, useState } from 'react';
-import { ProjectMatrixRow } from '../../api/types';
+import { ProjectMatrixRow, HealthStatus } from '../../api/types';
 import { TableSkeleton } from '../../components/ui/Skeletons';
 import { EmptyState } from '../../components/ui/EmptyState';
 import { ErrorAlert } from '../../components/ui/ErrorAlert';
 import { TrendTag } from '../../components/ui/Badges';
 import { ProjectDetailModal } from './ProjectDetailModal';
+import { SortField, HealthFilter } from './SearchToolbar';
 
 export interface ProjectMatrixTableProps {
   projects?: ProjectMatrixRow[];
   isLoading?: boolean;
   isError?: boolean;
   onRetry?: () => void;
+  selectedProjectIds?: string[];
   searchQuery?: string;
-  sortField?: 'total' | 'overdue' | 'pending';
+  healthFilter?: HealthFilter;
+  overdueOnly?: boolean;
+  sortField?: SortField;
   sortDir?: 'asc' | 'desc';
 }
 
@@ -21,7 +25,10 @@ export const ProjectMatrixTable: React.FC<ProjectMatrixTableProps> = ({
   isLoading = false,
   isError = false,
   onRetry,
+  selectedProjectIds = [],
   searchQuery = '',
+  healthFilter = 'all',
+  overdueOnly = false,
   sortField = 'total',
   sortDir = 'desc',
 }) => {
@@ -31,6 +38,13 @@ export const ProjectMatrixTable: React.FC<ProjectMatrixTableProps> = ({
   const filteredProjects = useMemo(() => {
     let result = [...projects];
 
+    // Filter by explicitly selected project IDs
+    if (selectedProjectIds.length > 0) {
+      const idSet = new Set(selectedProjectIds);
+      result = result.filter((p) => idSet.has(p.projectId));
+    }
+
+    // Filter by free text search query
     if (searchQuery.trim()) {
       const q = searchQuery.toLowerCase().trim();
       result = result.filter(
@@ -38,6 +52,16 @@ export const ProjectMatrixTable: React.FC<ProjectMatrixTableProps> = ({
           p.projectId.toLowerCase().includes(q) ||
           p.projectName.toLowerCase().includes(q)
       );
+    }
+
+    // Filter by health status
+    if (healthFilter !== 'all') {
+      result = result.filter((p) => p.healthStatus === healthFilter);
+    }
+
+    // Filter by overdue presence
+    if (overdueOnly) {
+      result = result.filter((p) => p.overdueCount > 0);
     }
 
     result.sort((a, b) => {
@@ -48,12 +72,17 @@ export const ProjectMatrixTable: React.FC<ProjectMatrixTableProps> = ({
         comparison = a.overdueCount - b.overdueCount;
       } else if (sortField === 'pending') {
         comparison = a.inReviewPercent - b.inReviewPercent;
+      } else if (sortField === 'name') {
+        comparison = a.projectName.localeCompare(b.projectName);
+      } else if (sortField === 'health') {
+        const score = (h: HealthStatus) => (h === 'CRITICAL' ? 3 : h === 'ATTENTION' ? 2 : 1);
+        comparison = score(a.healthStatus) - score(b.healthStatus);
       }
       return sortDir === 'asc' ? comparison : -comparison;
     });
 
     return result;
-  }, [projects, searchQuery, sortField, sortDir]);
+  }, [projects, selectedProjectIds, searchQuery, healthFilter, overdueOnly, sortField, sortDir]);
 
   if (isLoading) {
     return <TableSkeleton rows={6} />;
@@ -123,7 +152,7 @@ export const ProjectMatrixTable: React.FC<ProjectMatrixTableProps> = ({
         style={{ contain: 'layout paint' }}
         data-testid="project-matrix-container"
       >
-        <table className="w-full min-w-[1080px] text-left border-collapse text-xs">
+        <table className="w-full min-w-[1160px] text-left border-collapse text-xs">
           {/* Two-Tier Table Headers */}
           <thead>
             {/* Tier 1: Group Super-Headers */}
@@ -131,7 +160,7 @@ export const ProjectMatrixTable: React.FC<ProjectMatrixTableProps> = ({
               <th className="py-2.5 px-4 text-left bg-slate-100 dark:bg-[#252526] text-slate-700 dark:text-slate-300 w-[240px]">
                 Project
               </th>
-              <th className="py-2.5 px-3 bg-[#2f6fce] text-white w-[140px]">
+              <th className="py-2.5 px-3 bg-[#2f6fce] text-white w-[130px]">
                 ① Baseline
               </th>
               <th className="py-2.5 px-3 bg-[#12a4a0] text-white" colSpan={3}>
@@ -145,6 +174,9 @@ export const ProjectMatrixTable: React.FC<ProjectMatrixTableProps> = ({
               </th>
               <th className="py-2.5 px-3 bg-[#8b5cf6] text-white w-[90px]">
                 ⑤ Complete
+              </th>
+              <th className="py-2.5 px-3 bg-slate-800 text-white w-[95px] text-center">
+                Total
               </th>
               <th className="py-2.5 px-3 bg-slate-700 text-white w-[110px]">
                 SLA Monitor
@@ -185,6 +217,9 @@ export const ProjectMatrixTable: React.FC<ProjectMatrixTableProps> = ({
               </th>
               <th className="py-2.5 px-2 bg-purple-50 dark:bg-[#281b3d] text-purple-900 dark:text-purple-200">
                 Handover
+              </th>
+              <th className="py-2.5 px-2 bg-slate-100 dark:bg-[#26282b] text-slate-800 dark:text-slate-200 text-center font-bold">
+                Total
               </th>
               <th className="py-2.5 px-2 bg-slate-100 dark:bg-[#26282b] text-slate-800 dark:text-slate-200">
                 Overdue
@@ -304,6 +339,20 @@ export const ProjectMatrixTable: React.FC<ProjectMatrixTableProps> = ({
                   {/* Column: ⑤ Complete - Handover */}
                   <td className="py-3 px-2 text-center bg-purple-50/20 dark:bg-[#281b3d]/10">
                     {renderDelinquencyChip(comp.total, comp.pendingPercent, false, 'Handover Items')}
+                  </td>
+
+                  {/* Column: Total Deliverables Volume (Unframed) */}
+                  <td className="py-3 px-2 text-center bg-slate-50/40 dark:bg-[#26282b]/20">
+                    <span
+                      className="text-xs font-bold tabular-nums text-slate-800 dark:text-slate-200"
+                      title={`Total Project Deliverables: ${p.totalDocuments.toLocaleString()}`}
+                    >
+                      {p.totalDocuments > 0 ? (
+                        p.totalDocuments.toLocaleString()
+                      ) : (
+                        <span className="text-slate-400 dark:text-slate-600 font-mono text-xs">0</span>
+                      )}
+                    </span>
                   </td>
 
                   {/* Column: SLA Monitor - Overdue Breaches */}

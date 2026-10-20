@@ -96,6 +96,7 @@ describe('ProjectMatrixTable Component', () => {
   it('renders comparative matrix table headers correctly', () => {
     render(<ProjectMatrixTable projects={mockProjects} />);
     expect(screen.getAllByText('Project')[0]).toBeInTheDocument();
+    expect(screen.getAllByText('Total')[0]).toBeInTheDocument();
     expect(screen.getByText('① Baseline')).toBeInTheDocument();
     expect(screen.getByText('② Control')).toBeInTheDocument();
     expect(screen.getByText('③ Corrective')).toBeInTheDocument();
@@ -105,6 +106,10 @@ describe('ProjectMatrixTable Component', () => {
     expect(screen.getByText('VOR')).toBeInTheDocument();
     expect(screen.getByText('⑤ Complete')).toBeInTheDocument();
     expect(screen.getByText('SLA Monitor')).toBeInTheDocument();
+
+    // Verify Total volume is rendered in data rows
+    expect(screen.getByText('1,000')).toBeInTheDocument();
+    expect(screen.getByText('2,000')).toBeInTheDocument();
   });
 
   it('renders projects filtered by search query', () => {
