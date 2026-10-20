@@ -22,7 +22,7 @@ export const TrendTab: React.FC = () => {
     if (selectedProjectIds.length === 0 && availableProjects.length > 0) {
       setSelectedProjectIds(availableProjects.slice(0, 3).map((p) => p.id));
     }
-  }, [availableProjects, selectedProjectIds]);
+  }, [availableProjects, selectedProjectIds.length]);
 
   const {
     data: trendData = [],

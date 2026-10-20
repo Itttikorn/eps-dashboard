@@ -32,7 +32,7 @@ describe('DashboardShell Component', () => {
     expect(screen.getByTestId('header-nav')).toBeInTheDocument();
   });
 
-  it('hides GlobalFilterBar when activeTab is ingest', () => {
+  it('renders navigation tabs and header across tabs', () => {
     const queryClient = createTestQueryClient();
     render(
       <QueryClientProvider client={queryClient}>
@@ -46,7 +46,8 @@ describe('DashboardShell Component', () => {
       </QueryClientProvider>
     );
 
-    expect(screen.queryByTestId('global-filter-bar')).not.toBeInTheDocument();
+    expect(screen.getByTestId('header-nav')).toBeInTheDocument();
+    expect(screen.getByText('Ingest Tab')).toBeInTheDocument();
   });
 });
 

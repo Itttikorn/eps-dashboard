@@ -73,15 +73,19 @@ export function useProjectMatrix(search?: string) {
 export function useHistoricalTrends(
   projectIds: string[],
   preset: string,
-  metric: TrendMetricType
+  metric: TrendMetricType,
+  endDate?: string
 ) {
   return useQuery<DailyTrendDataPoint[]>({
-    queryKey: queryKeys.trends(projectIds, preset, metric),
+    queryKey: ['trends', { projectIds, preset, metric, endDate }] as const,
     queryFn: async () => {
       if (projectIds.length === 0) return [];
       const queryParams = new URLSearchParams();
       queryParams.set('project_ids', projectIds.join(','));
       queryParams.set('preset', preset);
+      if (endDate) {
+        queryParams.set('end_date', endDate);
+      }
       const url = `/analytics/trends?${queryParams.toString()}`;
       const points = await request<TrendPointContract[]>(url);
       return normalizeHistoricalTrends(points, metric);
