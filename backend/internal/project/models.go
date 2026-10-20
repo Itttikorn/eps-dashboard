@@ -65,7 +65,6 @@ type DisciplinesBreakdown struct {
 type ProjectMatrixRow struct {
 	ProjectID            string               `json:"project_id"`
 	ProjectCode          string               `json:"project_code"` // backward compatibility
-	SiteCode             string               `json:"site_code"`
 	ProjectName          string               `json:"project_name"`
 	BaselineDrawings     BaselineMetrics      `json:"baseline_drawings"`
 	Control              CategoryMetrics      `json:"control"`

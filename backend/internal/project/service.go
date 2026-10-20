@@ -349,11 +349,6 @@ func (s *Service) GetProjectMatrix(ctx context.Context, search, sortBy, sortDir 
 			lastUpdated = time.Now().UTC()
 		}
 
-		siteCode := p.SiteCode
-		if siteCode == "" {
-			siteCode = p.Code
-		}
-
 		latestSnapshot, _ := s.repo.GetLatestSnapshot(ctx, p.Code)
 		lastSnapshotDate := lastUpdated.Format("2006-01-02")
 		netChange := "STABLE"
@@ -369,7 +364,6 @@ func (s *Service) GetProjectMatrix(ctx context.Context, search, sortBy, sortDir 
 		rows = append(rows, ProjectMatrixRow{
 			ProjectID:            p.Code,
 			ProjectCode:          p.Code,
-			SiteCode:             siteCode,
 			ProjectName:          p.Name,
 			BaselineDrawings:     baselineMetrics,
 			Control:              calcCategoryMetrics(ctrlTotal, ctrlOpen, ctrlClosed, 0),
@@ -399,8 +393,7 @@ func (s *Service) GetProjectMatrix(ctx context.Context, search, sortBy, sortDir 
 		var filtered []ProjectMatrixRow
 		for _, r := range rows {
 			if strings.Contains(strings.ToLower(r.ProjectCode), term) ||
-				strings.Contains(strings.ToLower(r.ProjectName), term) ||
-				strings.Contains(strings.ToLower(r.SiteCode), term) {
+				strings.Contains(strings.ToLower(r.ProjectName), term) {
 				filtered = append(filtered, r)
 			}
 		}

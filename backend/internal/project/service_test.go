@@ -190,8 +190,8 @@ func TestGetProjectMatrix_SortsAndNetChange(t *testing.T) {
 	svc, repo := setupTestService(t)
 	ctx := context.Background()
 
-	_ = repo.UpsertProject(ctx, &models.Project{Code: "PRJ-01", Name: "Alpha Plant", SiteCode: "SITE-A"})
-	_ = repo.UpsertProject(ctx, &models.Project{Code: "PRJ-02", Name: "Beta Hub", SiteCode: "SITE-B"})
+	_ = repo.UpsertProject(ctx, &models.Project{Code: "PRJ-01", Name: "Alpha Plant"})
+	_ = repo.UpsertProject(ctx, &models.Project{Code: "PRJ-02", Name: "Beta Hub"})
 
 	now := time.Now().UTC()
 	// PRJ-01 has 1 overdue document, previous snapshot had 2 -> IMPROVING
@@ -258,10 +258,10 @@ func TestGetProjectMatrix_SortsAndNetChange(t *testing.T) {
 		t.Errorf("expected positive approval rate first, got %f", sortedRate[0].ApprovalRate)
 	}
 
-	// Test search by site code
-	searchedSite, count, _ := svc.GetProjectMatrix(ctx, "SITE-B", "code", "asc", 1, 10)
-	if count != 1 || searchedSite[0].SiteCode != "SITE-B" {
-		t.Errorf("expected 1 result matching SITE-B, got %d", count)
+	// Test search by project name
+	searchedProject, count, _ := svc.GetProjectMatrix(ctx, "Beta Hub", "code", "asc", 1, 10)
+	if count != 1 || searchedProject[0].ProjectName != "Beta Hub" {
+		t.Errorf("expected 1 result matching Beta Hub, got %d", count)
 	}
 
 	// Test pagination start > totalCount
