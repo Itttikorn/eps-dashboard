@@ -77,7 +77,7 @@ export const HeaderNav: React.FC<HeaderNavProps> = ({
           <button
             type="button"
             onClick={onOpenUploadModal}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold shadow-xs transition-colors focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 focus:ring-offset-[#152444]"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold shadow-xs transition-colors focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 focus:ring-offset-[#152444] cursor-pointer"
             data-testid="header-upload-btn"
           >
             <UploadCloud className="w-4 h-4" />
