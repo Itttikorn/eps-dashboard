@@ -11,9 +11,10 @@ type KPISnapshot struct {
 	SnapshotDate         time.Time `gorm:"index;not null" json:"snapshot_date"`
 	TotalDocuments       int       `json:"total_documents"`
 	ApprovedDocuments    int       `json:"approved_documents"`
-	UnderReviewDocuments int       `json:"under_review_documents"`
-	OverdueDocuments     int       `json:"overdue_documents"`
-	ApprovalRate         float64   `json:"approval_rate"` // 0.0 to 100.0
+	UnderReviewDocuments  int       `json:"under_review_documents"`
+	OverdueDocuments      int       `json:"overdue_documents"`
+	LateApprovalDocuments int       `json:"late_approval_documents"`
+	ApprovalRate          float64   `json:"approval_rate"` // 0.0 to 100.0
 	CreatedAt            time.Time `json:"created_at"`
 }
 

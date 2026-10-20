@@ -174,6 +174,7 @@ func StreamParseCSV(r io.Reader) ([]ParsedRow, []ParseError, error) {
 	lastStatusIdx := findCol("laststatus", "last_status")
 	retIdx := findCol("ret", "ret_code", "retcode")
 	revIdx := findCol("revision", "rev", "revid", "rev_id", "revisionid", "revision_id")
+	issueForIdx := findCol("issuefor", "issue_for")
 	issueDateIdx := findCol("issuedate", "issue_date", "date_issued")
 	transmitalDateIdx := findCol("transmitaldate", "transmittaldate", "transmital_date", "transmittal_date")
 	revDateIdx := findCol("revdate", "rev_date")
@@ -253,22 +254,24 @@ func StreamParseCSV(r io.Reader) ([]ParsedRow, []ParseError, error) {
 		docStatus := strings.ToUpper(getCol(docStatusIdx))
 		rawReturnDate := getCol(returnDateIdx)
 		rawResponseDate := getCol(responseDateIdx)
+		rawIssueFor := strings.ToUpper(getCol(issueForIdx))
 
+		upperLast := strings.ToUpper(lastStatus)
 		status := "Under Review"
 		if rawStatus != "" {
 			status = rawStatus
-		} else if strings.Contains(strings.ToUpper(lastStatus), "CANCEL") {
+		} else if strings.Contains(upperLast, "CANCEL") || strings.Contains(upperLast, "INACTIVE") {
 			status = "Cancelled"
-		} else if strings.Contains(lastStatus, "50:RETURN") ||
+		} else if rawIssueFor == "IFI" {
+			// IFI (Issue For Information) deliverables require no approval cycle and are completed deliveries
+			status = "Approved"
+		} else if strings.Contains(upperLast, "50:RETURN") ||
 			retCode == "A" || retCode == "AC" || retCode == "RC" || retCode == "ACK" ||
-			rawReturnDate != "" || rawResponseDate != "" {
+			rawReturnDate != "" || rawResponseDate != "" ||
+			docStatus == "C" || (docStatus == "A" && retCode != "") {
 			status = "Approved"
-		} else if strings.Contains(lastStatus, "40:WAIT") || strings.Contains(lastStatus, "00:NO FLOW") {
+		} else if strings.Contains(upperLast, "40:WAIT") || (rawIssueFor != "IFI" && strings.Contains(upperLast, "00:NO FLOW")) {
 			status = "Under Review"
-		} else if docStatus == "C" {
-			status = "Approved"
-		} else if docStatus == "A" && retCode != "" {
-			status = "Approved"
 		}
 
 		rev := getCol(revIdx)
@@ -336,10 +339,10 @@ func StreamParseCSV(r io.Reader) ([]ParsedRow, []ParseError, error) {
 		var actualDate *time.Time
 		rawActualDate := getCol(actualDateIdx)
 		if rawActualDate == "" {
-			rawActualDate = getCol(returnDateIdx)
+			rawActualDate = getCol(responseDateIdx)
 		}
 		if rawActualDate == "" {
-			rawActualDate = getCol(responseDateIdx)
+			rawActualDate = getCol(returnDateIdx)
 		}
 		if rawActualDate != "" {
 			if parsedDate, err := ParseDate(rawActualDate); err == nil {
@@ -355,6 +358,9 @@ func StreamParseCSV(r io.Reader) ([]ParsedRow, []ParseError, error) {
 			Discipline:  disc,
 			Status:      status,
 			Revision:    rev,
+			IssueFor:    rawIssueFor,
+			DocStatus:   docStatus,
+			LastStatus:  lastStatus,
 			IssueDate:   issueDate,
 			TargetDate:  targetDate,
 			ActualDate:  actualDate,

@@ -230,6 +230,53 @@ func TestStreamParseCSV(t *testing.T) {
 			t.Errorf("expected error column 'issue_date', got %q", parseErrors[0].Column)
 		}
 	})
+	t.Run("conzol status classification new criteria", func(t *testing.T) {
+		csvContent := "doc_number,title,issuefor,laststatus,docstatus,ret,target_date,responsedate\n" +
+			"DOC-IFI-01,Manual ABB,IFI,00:NO FLOW,A,,2026-03-01,\n" +
+			"DOC-IFA-WAIT,P&ID For Approval,IFA,40:WAIT,A,,2026-03-25,\n" +
+			"DOC-IFA-NOFLOW,Motor Spec,IFA,00:NO FLOW,A,,2026-03-20,\n" +
+			"DOC-IFA-RETURN,Civil Layout,IFA,50:RETURN,A,A,2026-03-10,2026-03-12\n" +
+			"DOC-CANCEL,Old Layout,IFA,60:INACTIVE,I,,,,\n"
+
+		rows, parseErrors, err := StreamParseCSV(strings.NewReader(csvContent))
+		if err != nil {
+			t.Fatalf("unexpected parse error: %v", err)
+		}
+		if len(parseErrors) != 0 {
+			t.Fatalf("unexpected parse errors: %v", parseErrors)
+		}
+		if len(rows) != 5 {
+			t.Fatalf("expected 5 rows, got %d", len(rows))
+		}
+
+		// Row 0: IFI with 00:NO FLOW -> Approved
+		if rows[0].Status != "Approved" || rows[0].IssueFor != "IFI" {
+			t.Errorf("expected DOC-IFI-01 to be Approved, got status=%q, issueFor=%q", rows[0].Status, rows[0].IssueFor)
+		}
+
+		// Row 1: IFA with 40:WAIT -> Under Review
+		if rows[1].Status != "Under Review" || rows[1].IssueFor != "IFA" {
+			t.Errorf("expected DOC-IFA-WAIT to be Under Review, got status=%q", rows[1].Status)
+		}
+
+		// Row 2: IFA with 00:NO FLOW -> Under Review
+		if rows[2].Status != "Under Review" {
+			t.Errorf("expected DOC-IFA-NOFLOW to be Under Review, got status=%q", rows[2].Status)
+		}
+
+		// Row 3: IFA with 50:RETURN -> Approved with ActualDate
+		if rows[3].Status != "Approved" {
+			t.Errorf("expected DOC-IFA-RETURN to be Approved, got status=%q", rows[3].Status)
+		}
+		if rows[3].ActualDate == nil {
+			t.Errorf("expected DOC-IFA-RETURN to have ActualDate set from responsedate")
+		}
+
+		// Row 4: Cancelled
+		if rows[4].Status != "Cancelled" {
+			t.Errorf("expected DOC-CANCEL to be Cancelled, got status=%q", rows[4].Status)
+		}
+	})
 }
 
 func TestParseActualDataDirectoryFiles(t *testing.T) {
@@ -243,7 +290,12 @@ func TestParseActualDataDirectoryFiles(t *testing.T) {
 		t.Run(fPath, func(t *testing.T) {
 			data, err := os.ReadFile(fPath)
 			if err != nil {
-				t.Skipf("File not accessible: %v", err)
+				// Fallback if copied with different name
+				altPath := strings.Replace(fPath, ".csv", " - Copy.csv", 1)
+				data, err = os.ReadFile(altPath)
+				if err != nil {
+					t.Skipf("File not accessible: %v", err)
+				}
 			}
 
 			rows, parseErrs, err := StreamParseCSV(bytes.NewReader(data))

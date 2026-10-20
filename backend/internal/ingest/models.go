@@ -15,6 +15,9 @@ type ParsedRow struct {
 	Discipline  string
 	Status      string
 	Revision    string
+	IssueFor    string
+	DocStatus   string
+	LastStatus  string
 	IssueDate   time.Time
 	TargetDate  time.Time
 	ActualDate  *time.Time

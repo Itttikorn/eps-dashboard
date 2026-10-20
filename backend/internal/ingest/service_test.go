@@ -255,7 +255,11 @@ func TestIngestService_ActualDataDirectoryFiles(t *testing.T) {
 		t.Run(tt.wantProjectCode, func(t *testing.T) {
 			data, err := os.ReadFile(tt.path)
 			if err != nil {
-				t.Skipf("File not accessible: %v", err)
+				altPath := strings.Replace(tt.path, ".csv", " - Copy.csv", 1)
+				data, err = os.ReadFile(altPath)
+				if err != nil {
+					t.Skipf("File not accessible: %v", err)
+				}
 			}
 
 			db := database.NewTestDB(t)
@@ -290,13 +294,28 @@ func TestIngestService_ActualDataDirectoryFiles(t *testing.T) {
 				t.Errorf("Document DB count = %d, want %d", docCount, tt.expectedUniqueDocs)
 			}
 
-			// Verify KPI snapshot exists
-			var snapCount int64
-			if err := db.Model(&models.KPISnapshot{}).Where("project_code = ?", tt.wantProjectCode).Count(&snapCount).Error; err != nil {
-				t.Fatalf("Failed counting snapshots: %v", err)
+			// Verify KPI snapshot exists and reflects the new truthful overdue criteria
+			var snap models.KPISnapshot
+			if err := db.Where("project_code = ?", tt.wantProjectCode).First(&snap).Error; err != nil {
+				t.Fatalf("Failed querying snapshot: %v", err)
 			}
-			if snapCount == 0 {
-				t.Errorf("Expected at least 1 KPI snapshot, got 0")
+
+			switch tt.wantProjectCode {
+			case "STS-EN-PP-26001":
+				// STS-EN has 813 IFI vendor deliverables; new criteria correctly marks 0 overdue
+				if snap.OverdueDocuments != 0 {
+					t.Errorf("STS-EN OverdueDocuments = %d, want 0", snap.OverdueDocuments)
+				}
+			case "SKK-IM-CM-26002":
+				// Exactly 1 actionable IFA deliverable is overdue by 1 day (CM24045-SKK-EX00-MS-0001)
+				if snap.OverdueDocuments != 1 {
+					t.Errorf("SKK OverdueDocuments = %d, want 1", snap.OverdueDocuments)
+				}
+			case "STS-CN-PP-26001":
+				// 68 actionable open documents past due date
+				if snap.OverdueDocuments != 68 {
+					t.Errorf("STS-CN OverdueDocuments = %d, want 68", snap.OverdueDocuments)
+				}
 			}
 		})
 	}
@@ -347,6 +366,108 @@ PRJ-DEDUP,DOC-002,Electrical Diagram,EE,Under Review,A,2026-04-01,2026-04-10
 	}
 	if docs[0].Status != "Approved" {
 		t.Errorf("DOC-001 status = %q, want 'Approved'", docs[0].Status)
+	}
+}
+
+func TestIngestService_NewCriteria_IFI_NeverOverdue(t *testing.T) {
+	db := database.NewTestDB(t)
+	repo := NewRepository(db)
+	svc := NewService(repo)
+	ctx := context.Background()
+
+	// Snapshot date will be 2026-03-25 (latest issue date)
+	csvContent := `project_code,doc_number,title,discipline,issuefor,laststatus,docstatus,issue_date,target_date,responsedate
+PRJ-NEW,DOC-IFI-01,ABB Manual,ME,IFI,00:NO FLOW,A,2026-03-01,2026-03-05,
+PRJ-NEW,DOC-IFA-OVERDUE,Piping Approval,ME,IFA,40:WAIT,A,2026-03-01,2026-03-10,
+PRJ-NEW,DOC-IFA-OK,Electrical Dwg,EE,IFA,40:WAIT,A,2026-03-25,2026-04-10,
+PRJ-NEW,DOC-IFA-LATE,Civil Foundation,CE,IFA,50:RETURN,A,2026-03-01,2026-03-10,2026-03-15
+`
+
+	result, err := svc.IngestCSV(ctx, strings.NewReader(csvContent), "", false)
+	if err != nil {
+		t.Fatalf("IngestCSV failed: %v", err)
+	}
+	if result.ProcessedCount != 4 {
+		t.Errorf("ProcessedCount = %d, want 4", result.ProcessedCount)
+	}
+
+	var docs []models.Document
+	if err := db.Where("project_code = ?", "PRJ-NEW").Order("doc_number asc").Find(&docs).Error; err != nil {
+		t.Fatalf("failed querying docs: %v", err)
+	}
+	if len(docs) != 4 {
+		t.Fatalf("expected 4 docs, got %d", len(docs))
+	}
+
+	docMap := make(map[string]models.Document)
+	for _, d := range docs {
+		docMap[d.DocNumber] = d
+	}
+
+	// 1. DOC-IFI-01: TargetDate is 2026-03-05 (< 2026-03-25), but because it is IFI, it is Approved and NEVER overdue
+	ifiDoc := docMap["DOC-IFI-01"]
+	if ifiDoc.Status != "Approved" {
+		t.Errorf("DOC-IFI-01 status = %q, want 'Approved'", ifiDoc.Status)
+	}
+	if ifiDoc.IsOverdue {
+		t.Errorf("DOC-IFI-01 isOverdue = true, want false (IFI must never be overdue)")
+	}
+	if ifiDoc.OverdueDays != 0 {
+		t.Errorf("DOC-IFI-01 overdueDays = %d, want 0", ifiDoc.OverdueDays)
+	}
+
+	// 2. DOC-IFA-OVERDUE: Actionable IFA, 40:WAIT, target 2026-03-10 (< 2026-03-25) -> Under Review & Overdue
+	ifaOverdue := docMap["DOC-IFA-OVERDUE"]
+	if ifaOverdue.Status != "Under Review" {
+		t.Errorf("DOC-IFA-OVERDUE status = %q, want 'Under Review'", ifaOverdue.Status)
+	}
+	if !ifaOverdue.IsOverdue {
+		t.Errorf("DOC-IFA-OVERDUE isOverdue = false, want true")
+	}
+	if ifaOverdue.OverdueDays <= 0 {
+		t.Errorf("DOC-IFA-OVERDUE overdueDays = %d, want > 0", ifaOverdue.OverdueDays)
+	}
+
+	// 3. DOC-IFA-OK: Actionable IFA, 40:WAIT, target 2026-04-10 (> 2026-03-25) -> Under Review but NOT Overdue
+	ifaOk := docMap["DOC-IFA-OK"]
+	if ifaOk.Status != "Under Review" {
+		t.Errorf("DOC-IFA-OK status = %q, want 'Under Review'", ifaOk.Status)
+	}
+	if ifaOk.IsOverdue {
+		t.Errorf("DOC-IFA-OK isOverdue = true, want false")
+	}
+
+	// 4. DOC-IFA-LATE: Actionable IFA, returned 2026-03-15 after target 2026-03-10 -> Approved and Late Approval
+	ifaLate := docMap["DOC-IFA-LATE"]
+	if ifaLate.Status != "Approved" {
+		t.Errorf("DOC-IFA-LATE status = %q, want 'Approved'", ifaLate.Status)
+	}
+	if ifaLate.IsOverdue {
+		t.Errorf("DOC-IFA-LATE isOverdue = true, want false")
+	}
+	if !ifaLate.IsLateApproval {
+		t.Errorf("DOC-IFA-LATE isLateApproval = false, want true")
+	}
+
+	// Verify KPI snapshot totals
+	var snap models.KPISnapshot
+	if err := db.Where("project_code = ?", "PRJ-NEW").First(&snap).Error; err != nil {
+		t.Fatalf("failed querying snapshot: %v", err)
+	}
+	if snap.TotalDocuments != 4 {
+		t.Errorf("snap.TotalDocuments = %d, want 4", snap.TotalDocuments)
+	}
+	if snap.ApprovedDocuments != 2 { // DOC-IFI-01 and DOC-IFA-LATE
+		t.Errorf("snap.ApprovedDocuments = %d, want 2", snap.ApprovedDocuments)
+	}
+	if snap.UnderReviewDocuments != 2 { // DOC-IFA-OVERDUE and DOC-IFA-OK
+		t.Errorf("snap.UnderReviewDocuments = %d, want 2", snap.UnderReviewDocuments)
+	}
+	if snap.OverdueDocuments != 1 { // Only DOC-IFA-OVERDUE
+		t.Errorf("snap.OverdueDocuments = %d, want 1", snap.OverdueDocuments)
+	}
+	if snap.LateApprovalDocuments != 1 { // DOC-IFA-LATE
+		t.Errorf("snap.LateApprovalDocuments = %d, want 1", snap.LateApprovalDocuments)
 	}
 }
 

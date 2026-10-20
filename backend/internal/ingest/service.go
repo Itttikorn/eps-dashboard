@@ -197,6 +197,7 @@ func (s *Service) IngestCSV(ctx context.Context, r io.Reader, projectCodeOverrid
 	approvedDocs := 0
 	underReviewDocs := 0
 	overdueDocs := 0
+	lateApprovalDocs := 0
 
 	now := time.Now().UTC()
 	for _, row := range uniqueRows {
@@ -207,8 +208,13 @@ func (s *Service) IngestCSV(ctx context.Context, r io.Reader, projectCodeOverrid
 
 		isOverdue := false
 		overdueDays := 0
+		isLateApproval := false
 
-		if row.Status != "Approved" {
+		// New Criteria:
+		// 1. IFI deliverables are completed information deliverables and never overdue.
+		// 2. Only actionable documents (ISSUEFOR != "IFI") that remain open past TargetDate are overdue.
+		// 3. Approved documents returned after TargetDate are tracked as late approval.
+		if row.Status != "Approved" && row.Status != "Cancelled" && !strings.EqualFold(row.IssueFor, "IFI") {
 			if row.TargetDate.Before(snapshotDate) {
 				isOverdue = true
 				diff := snapshotDate.Sub(row.TargetDate)
@@ -230,23 +236,29 @@ func (s *Service) IngestCSV(ctx context.Context, r io.Reader, projectCodeOverrid
 			if row.Status == "Under Review" {
 				underReviewDocs++
 			}
-		} else {
+		} else if row.Status == "Approved" {
 			approvedDocs++
+			if row.ActualDate != nil && !row.TargetDate.IsZero() && row.ActualDate.After(row.TargetDate) {
+				isLateApproval = true
+				lateApprovalDocs++
+			}
 		}
 
 		docs = append(docs, models.Document{
-			ProjectCode: rowProject,
-			DocNumber:   row.DocNumber,
-			Title:       row.Title,
-			Discipline:  row.Discipline,
-			Status:      row.Status,
-			Revision:    row.Revision,
-			IssueDate:   row.IssueDate,
-			TargetDate:  row.TargetDate,
-			ActualDate:  row.ActualDate,
-			IsOverdue:   isOverdue,
-			OverdueDays: overdueDays,
-			UpdatedAt:   now,
+			ProjectCode:    rowProject,
+			DocNumber:      row.DocNumber,
+			Title:          row.Title,
+			Discipline:     row.Discipline,
+			Status:         row.Status,
+			Revision:       row.Revision,
+			IssueFor:       row.IssueFor,
+			IssueDate:      row.IssueDate,
+			TargetDate:     row.TargetDate,
+			ActualDate:     row.ActualDate,
+			IsOverdue:      isOverdue,
+			OverdueDays:    overdueDays,
+			IsLateApproval: isLateApproval,
+			UpdatedAt:      now,
 		})
 	}
 
@@ -256,14 +268,15 @@ func (s *Service) IngestCSV(ctx context.Context, r io.Reader, projectCodeOverrid
 	}
 
 	kpiSnapshot := &models.KPISnapshot{
-		ProjectCode:          projectCode,
-		SnapshotDate:         snapshotDate,
-		TotalDocuments:       totalDocs,
-		ApprovedDocuments:    approvedDocs,
-		UnderReviewDocuments: underReviewDocs,
-		OverdueDocuments:     overdueDocs,
-		ApprovalRate:         approvalRate,
-		CreatedAt:            now,
+		ProjectCode:           projectCode,
+		SnapshotDate:          snapshotDate,
+		TotalDocuments:        totalDocs,
+		ApprovedDocuments:     approvedDocs,
+		UnderReviewDocuments:  underReviewDocs,
+		OverdueDocuments:      overdueDocs,
+		LateApprovalDocuments: lateApprovalDocs,
+		ApprovalRate:          approvalRate,
+		CreatedAt:             now,
 	}
 
 	// Perform all DB operations inside a transaction

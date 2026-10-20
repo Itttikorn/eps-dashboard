@@ -86,8 +86,8 @@ func (r *GormRepository) BatchUpsertDocuments(ctx context.Context, docs []models
 	return r.db.WithContext(ctx).Clauses(clause.OnConflict{
 		Columns: []clause.Column{{Name: "project_code"}, {Name: "doc_number"}},
 		DoUpdates: clause.AssignmentColumns([]string{
-			"title", "discipline", "status", "revision", "issue_date",
-			"target_date", "actual_date", "is_overdue", "overdue_days", "updated_at",
+			"title", "discipline", "status", "revision", "issue_for", "issue_date",
+			"target_date", "actual_date", "is_overdue", "overdue_days", "is_late_approval", "updated_at",
 		}),
 	}).CreateInBatches(deduped, 250).Error
 }
