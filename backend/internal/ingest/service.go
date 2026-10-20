@@ -215,7 +215,7 @@ func (s *Service) IngestCSV(ctx context.Context, r io.Reader, projectCodeOverrid
 		// 2. Only actionable documents (ISSUEFOR != "IFI") that remain open past TargetDate are overdue.
 		// 3. Approved documents returned after TargetDate are tracked as late approval.
 		if row.Status != "Approved" && row.Status != "Cancelled" && !strings.EqualFold(row.IssueFor, "IFI") {
-			if row.TargetDate.Before(snapshotDate) {
+			if !row.TargetDate.IsZero() && row.TargetDate.Before(snapshotDate) {
 				isOverdue = true
 				diff := snapshotDate.Sub(row.TargetDate)
 				overdueDays = int(diff.Hours() / 24)

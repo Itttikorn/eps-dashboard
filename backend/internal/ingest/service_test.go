@@ -471,4 +471,58 @@ PRJ-NEW,DOC-IFA-LATE,Civil Foundation,CE,IFA,50:RETURN,A,2026-03-01,2026-03-10,2
 	}
 }
 
+func TestIngestService_NoDueDate_NeverOverdue(t *testing.T) {
+	db := database.NewTestDB(t)
+	repo := NewRepository(db)
+	svc := NewService(repo)
+	ctx := context.Background()
+
+	// Document has issue_date 2026-03-01, but completely omitted target_date.
+	// Previously, the system would arbitrarily add 14 days (target: 2026-03-15).
+	// Under the new criteria without 14-days fallback, TargetDate remains zero and the doc is NEVER overdue.
+	csvContent := `project_code,doc_number,title,discipline,issuefor,laststatus,docstatus,issue_date,target_date
+PRJ-NOSLA,DOC-NO-TARGET,General Memo,GEN,IFA,40:WAIT,A,2026-03-01,
+PRJ-NOSLA,DOC-WITH-TARGET,Technical Spec,GEN,IFA,40:WAIT,A,2026-03-25,2026-03-10
+`
+
+	result, err := svc.IngestCSV(ctx, strings.NewReader(csvContent), "", false)
+	if err != nil {
+		t.Fatalf("IngestCSV failed: %v", err)
+	}
+	if result.ProcessedCount != 2 {
+		t.Errorf("ProcessedCount = %d, want 2", result.ProcessedCount)
+	}
+
+	var docs []models.Document
+	if err := db.Where("project_code = ?", "PRJ-NOSLA").Order("doc_number asc").Find(&docs).Error; err != nil {
+		t.Fatalf("failed querying docs: %v", err)
+	}
+	if len(docs) != 2 {
+		t.Fatalf("expected 2 docs, got %d", len(docs))
+	}
+
+	// DOC-NO-TARGET has no target date -> TargetDate.IsZero() == true, isOverdue == false
+	docNoTarget := docs[0]
+	if !docNoTarget.TargetDate.IsZero() {
+		t.Errorf("expected DOC-NO-TARGET to have zero TargetDate, got %v", docNoTarget.TargetDate)
+	}
+	if docNoTarget.IsOverdue {
+		t.Errorf("DOC-NO-TARGET must NOT be overdue when target_date is not specified")
+	}
+
+	// DOC-WITH-TARGET has explicit target date 2026-03-10 (< snapshot 2026-03-25) -> isOverdue == true
+	docWithTarget := docs[1]
+	if !docWithTarget.IsOverdue {
+		t.Errorf("DOC-WITH-TARGET should be overdue")
+	}
+
+	var snap models.KPISnapshot
+	if err := db.Where("project_code = ?", "PRJ-NOSLA").First(&snap).Error; err != nil {
+		t.Fatalf("failed querying snapshot: %v", err)
+	}
+	if snap.OverdueDocuments != 1 {
+		t.Errorf("snap.OverdueDocuments = %d, want 1", snap.OverdueDocuments)
+	}
+}
+
 

@@ -310,11 +310,11 @@ func StreamParseCSV(r io.Reader) ([]ParsedRow, []ParseError, error) {
 			}
 		}
 
+		var targetDate time.Time
 		rawTargetDate := getCol(targetDateIdx)
 		if rawTargetDate == "" {
 			rawTargetDate = getCol(planDateIdx)
 		}
-		targetDate := issueDate.AddDate(0, 0, 14)
 		if rawTargetDate != "" {
 			parsedDate, err := ParseDate(rawTargetDate)
 			if err != nil {
