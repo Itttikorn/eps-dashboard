@@ -492,7 +492,7 @@ export const ProjectDetailModal: React.FC<ProjectDetailModalProps> = ({
               </span>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs mb-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
               <div className="bg-white dark:bg-[#252526] p-3 rounded-lg border border-slate-200 dark:border-[#3c3c3c]">
                 <span className="font-bold text-slate-700 dark:text-slate-200 block mb-1">
                   Handover & Commissioning
@@ -519,16 +519,6 @@ export const ProjectDetailModal: React.FC<ProjectDetailModalProps> = ({
                     ? `${project.overdueCount} transmittals exceed the 14-day standard turnaround SLA`
                     : '100% of transmittals within SLA response window'}
                 </span>
-              </div>
-            </div>
-
-            {/* Fair Comparison Formula Banner */}
-            <div className="flex items-start gap-2 p-2.5 rounded-lg bg-blue-50/60 dark:bg-blue-950/30 border border-blue-200/50 dark:border-blue-900/30 text-[11px] text-slate-600 dark:text-slate-300">
-              <Scale className="w-4 h-4 text-blue-500 shrink-0 mt-0.5" />
-              <div>
-                <strong>Fair Delinquency Standard:</strong> Delinquency % = Open ÷ (Open + Closed) × 100
-                (&lt;25% Normal, 25–44% Warning, &ge;45% Critical). Large-scale projects with hundreds of
-                transmittals are benchmarked fairly on closure rate rather than raw count alone.
               </div>
             </div>
           </div>
