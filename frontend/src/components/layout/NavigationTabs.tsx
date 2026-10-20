@@ -34,7 +34,7 @@ export const NavigationTabs: React.FC<NavigationTabsProps> = ({
   ];
 
   return (
-    <div className="border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/60 transition-colors">
+    <div className="border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/60">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <nav className="flex space-x-2 sm:space-x-8 -mb-px" aria-label="Dashboard Views">
           {tabs.map((tab) => {

@@ -20,7 +20,7 @@ export const HeaderNav: React.FC<HeaderNavProps> = ({
 
   return (
     <header
-      className="bg-[#152444] dark:bg-[#181818] text-white border-b border-slate-800 dark:border-[#333333] shadow-md sticky top-0 z-40 transition-colors"
+      className="bg-[#152444] dark:bg-[#181818] text-white border-b border-slate-800 dark:border-[#333333] shadow-md sticky top-0 z-40"
       data-testid="header-nav"
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">

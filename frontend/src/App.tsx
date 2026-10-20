@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { ConfigProvider } from 'antd';
 import { getAntdTheme } from './theme/antdTheme';
+import { applyTheme, getInitialTheme } from './theme/themeTransition';
 import { DashboardShell } from './components/layout/DashboardShell';
 import { ActiveTabId } from './components/layout/NavigationTabs';
 import { OverviewTab } from './features/overview/OverviewTab';
@@ -18,27 +19,17 @@ function getInitialTab(): ActiveTabId {
 
 export const App: React.FC = () => {
   const [activeTab, setActiveTab] = useState<ActiveTabId>(getInitialTab);
-  const [isDark, setIsDark] = useState<boolean>(() => {
-    if (typeof window !== 'undefined') {
-      const saved = localStorage.getItem('eps_theme') || localStorage.getItem('eps-theme');
-      if (saved) return saved === 'dark';
-      return window.matchMedia('(prefers-color-scheme: dark)').matches;
-    }
-    return false;
-  });
+  const [isDark, setIsDark] = useState<boolean>(getInitialTheme);
   const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
+  const isFirstMount = useRef(true);
 
   useEffect(() => {
-    const root = document.documentElement;
-    if (isDark) {
-      root.classList.add('dark');
-      localStorage.setItem('eps_theme', 'dark');
-      localStorage.setItem('eps-theme', 'dark');
-    } else {
-      root.classList.remove('dark');
-      localStorage.setItem('eps_theme', 'light');
-      localStorage.setItem('eps-theme', 'light');
+    if (isFirstMount.current) {
+      isFirstMount.current = false;
+      applyTheme(isDark, false);
+      return;
     }
+    applyTheme(isDark, true);
   }, [isDark]);
 
   useEffect(() => {

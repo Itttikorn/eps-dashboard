@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Sun, Moon } from 'lucide-react';
+import { applyTheme, getInitialTheme } from '../../theme/themeTransition';
 
 export interface ThemeToggleProps {
   isDark?: boolean;
@@ -10,12 +11,7 @@ export const ThemeToggle: React.FC<ThemeToggleProps> = ({
   isDark: controlledDark,
   onThemeChange,
 }) => {
-  const [internalDark, setInternalDark] = useState<boolean>(() => {
-    if (typeof window === 'undefined') return false;
-    const stored = localStorage.getItem('eps_theme') || localStorage.getItem('eps-theme');
-    if (stored) return stored === 'dark';
-    return window.matchMedia('(prefers-color-scheme: dark)').matches;
-  });
+  const [internalDark, setInternalDark] = useState<boolean>(getInitialTheme);
 
   const isDark = controlledDark !== undefined ? controlledDark : internalDark;
 
@@ -30,14 +26,7 @@ export const ThemeToggle: React.FC<ThemeToggleProps> = ({
     if (controlledDark === undefined) {
       setInternalDark(nextDark);
     }
-    const root = document.documentElement;
-    if (nextDark) {
-      root.classList.add('dark');
-      localStorage.setItem('eps_theme', 'dark');
-    } else {
-      root.classList.remove('dark');
-      localStorage.setItem('eps_theme', 'light');
-    }
+    applyTheme(nextDark, true);
     onThemeChange?.(nextDark);
   };
 

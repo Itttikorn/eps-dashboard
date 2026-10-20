@@ -20,7 +20,7 @@ export const DashboardShell: React.FC<DashboardShellProps> = ({
   children,
 }) => {
   return (
-    <div className="min-h-screen flex flex-col bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 transition-colors">
+    <div className="min-h-screen flex flex-col bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100">
       {/* 1. Corporate Dark-Navy Header */}
       <HeaderNav
         onOpenUploadModal={onOpenUploadModal}

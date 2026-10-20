@@ -84,7 +84,7 @@ export const SearchToolbar: React.FC<SearchToolbarProps> = ({
 
   return (
     <div
-      className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-4 mb-5 shadow-2xs space-y-3.5 transition-colors"
+      className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-4 mb-5 shadow-2xs space-y-3.5"
       data-testid="search-toolbar"
     >
       {/* Top Row: Search Autocomplete & Sort Controls */}
