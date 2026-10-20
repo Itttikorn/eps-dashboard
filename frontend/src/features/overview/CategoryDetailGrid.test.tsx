@@ -9,7 +9,6 @@ const mockProjects: ProjectMatrixRow[] = [
     projectId: 'PRJ-01',
     projectCode: 'RYG-A',
     projectName: 'Rayong Petrochemical Complex',
-    siteCode: 'RYG-A',
     healthStatus: 'ON TRACK',
     totalDocuments: 1200,
     approvedCount: 1000,
@@ -73,7 +72,7 @@ describe('CategoryDetailGrid Component', () => {
 
     expect(screen.getByTestId('category-detail-grid')).toBeInTheDocument();
     expect(screen.getByText(/Corrective \(NCR\/CAR\) — Project Contribution Breakdown/i)).toBeInTheDocument();
-    expect(screen.getByText('RYG-A')).toBeInTheDocument();
+    expect(screen.getByText('PRJ-01')).toBeInTheDocument();
     expect(screen.getByText('Rayong Petrochemical Complex')).toBeInTheDocument();
     expect(screen.getByText('CRITICAL')).toBeInTheDocument();
     expect(screen.getByText('50.0%')).toBeInTheDocument();

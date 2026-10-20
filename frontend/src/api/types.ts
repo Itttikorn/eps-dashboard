@@ -47,7 +47,6 @@ export interface CategoryMetricsContract {
 export interface ProjectContractRow {
   project_id?: string;
   project_code?: string; // legacy fallback
-  site_code?: string;
   project_name?: string;
   baseline_drawings?: {
     total?: number;
@@ -145,7 +144,6 @@ export interface ProjectMatrixRow {
   projectId: string;
   projectCode: string;
   projectName: string;
-  siteCode: string;
   healthStatus: HealthStatus;
   totalDocuments: number;
   approvedCount: number;

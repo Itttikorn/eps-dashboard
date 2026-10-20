@@ -21,21 +21,18 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({ project }) => {
       className="bg-white dark:bg-[#252526] border border-slate-200 dark:border-[#3c3c3c] rounded-xl p-5 shadow-xs transition-shadow hover:shadow-md"
       data-testid={`project-card-${project.projectId}`}
     >
-      {/* Header: Project Site Code, ID, Name, Health Badge, Net Change */}
+      {/* Header: Project Name, ID, Health Badge, Net Change */}
       <div className="flex flex-wrap items-start justify-between gap-3 pb-3 border-b border-slate-100 dark:border-[#3c3c3c]">
         <div>
-          <div className="flex items-center gap-2 mb-1">
-            <span className="px-2 py-0.5 rounded text-[11px] font-bold uppercase tracking-wider bg-blue-100 text-blue-800 dark:bg-[#007acc]/20 dark:text-[#3794ff] border border-blue-200 dark:border-[#007acc]/40">
-              {project.siteCode}
-            </span>
+          <h3 className="text-sm font-bold text-slate-900 dark:text-slate-100 truncate max-w-md mb-1">
+            {project.projectName}
+          </h3>
+          <div className="flex items-center gap-2">
             <span className="text-xs font-mono font-semibold text-slate-500 dark:text-slate-400">
               {project.projectId}
             </span>
             <TrendTag direction={project.netChange} />
           </div>
-          <h3 className="text-sm font-bold text-slate-900 dark:text-slate-100 truncate max-w-md">
-            {project.projectName}
-          </h3>
         </div>
 
         <div className="flex items-center gap-2">

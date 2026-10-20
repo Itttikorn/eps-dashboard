@@ -73,7 +73,6 @@ describe('API Queries Hooks', () => {
       {
         project_id: 'PRJ-01',
         project_name: 'Test Project',
-        site_code: 'TP-1',
         total_documents: 100,
         approved_count: 80,
         in_review_count: 15,
@@ -93,7 +92,6 @@ describe('API Queries Hooks', () => {
 
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
     expect(result.current.data?.[0]?.projectId).toBe('PRJ-01');
-    expect(result.current.data?.[0]?.siteCode).toBe('TP-1');
   });
 
   it('useHistoricalTrends fetches and normalizes trend series', async () => {

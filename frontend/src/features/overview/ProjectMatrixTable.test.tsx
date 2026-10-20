@@ -9,7 +9,6 @@ const mockProjects: ProjectMatrixRow[] = [
     projectId: 'PRJ-01',
     projectCode: 'RYG-A',
     projectName: 'Rayong Complex',
-    siteCode: 'RYG-A',
     healthStatus: 'ON TRACK',
     totalDocuments: 1000,
     approvedCount: 900,
@@ -42,7 +41,6 @@ const mockProjects: ProjectMatrixRow[] = [
     projectId: 'PRJ-02',
     projectCode: 'BKK-1',
     projectName: 'Bangkok Center',
-    siteCode: 'BKK-1',
     healthStatus: 'CRITICAL',
     totalDocuments: 2000,
     approvedCount: 1000,
@@ -97,7 +95,7 @@ describe('ProjectMatrixTable Component', () => {
 
   it('renders comparative matrix table headers correctly', () => {
     render(<ProjectMatrixTable projects={mockProjects} />);
-    expect(screen.getByText('Project & Site')).toBeInTheDocument();
+    expect(screen.getAllByText('Project')[0]).toBeInTheDocument();
     expect(screen.getByText('① Baseline')).toBeInTheDocument();
     expect(screen.getByText('② Control')).toBeInTheDocument();
     expect(screen.getByText('③ Corrective')).toBeInTheDocument();

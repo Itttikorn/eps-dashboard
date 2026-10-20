@@ -55,12 +55,12 @@ export const CategoryDetailGrid: React.FC<CategoryDetailGridProps> = ({
             >
               <div className="flex items-start justify-between gap-2 mb-2">
                 <div>
-                  <span className="text-[11px] font-bold text-blue-600 dark:text-blue-400 uppercase tracking-wider">
-                    {proj.siteCode}
-                  </span>
                   <h4 className="text-xs font-semibold text-slate-800 dark:text-slate-200 truncate" title={proj.projectName}>
                     {proj.projectName}
                   </h4>
+                  <span className="text-[10px] font-mono text-slate-500 dark:text-slate-400">
+                    {proj.projectId}
+                  </span>
                 </div>
                 {pillar.isCritical && (
                   <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-red-100 text-red-700 dark:bg-red-950/80 dark:text-red-300 border border-red-300 dark:border-red-800 animate-pulse">

@@ -104,10 +104,13 @@ export const ProjectDetailModal: React.FC<ProjectDetailModalProps> = ({
         {/* Fixed Header: Site, ID, Net Change, Health Badge, Close Button */}
         <div className="flex items-start justify-between gap-4 p-5 sm:p-6 pb-4 border-b border-slate-200 dark:border-[#3c3c3c] shrink-0 bg-white dark:bg-[#252526]">
           <div>
-            <div className="flex items-center gap-2 mb-1.5 flex-wrap">
-              <span className="px-2.5 py-0.5 rounded-md text-xs font-bold uppercase tracking-wider bg-blue-100 text-blue-800 dark:bg-[#007acc]/20 dark:text-[#3794ff] border border-blue-200 dark:border-[#007acc]/40">
-                {project.siteCode}
-              </span>
+            <h2
+              id="modal-project-title"
+              className="text-lg font-bold text-slate-900 dark:text-slate-100 leading-snug mb-1.5"
+            >
+              {project.projectName}
+            </h2>
+            <div className="flex items-center gap-2 flex-wrap">
               <span className="text-xs font-mono font-semibold text-slate-500 dark:text-slate-400">
                 {project.projectId}
               </span>
@@ -117,12 +120,6 @@ export const ProjectDetailModal: React.FC<ProjectDetailModalProps> = ({
                 overdueCount={project.overdueCount}
               />
             </div>
-            <h2
-              id="modal-project-title"
-              className="text-lg font-bold text-slate-900 dark:text-slate-100 leading-snug"
-            >
-              {project.projectName}
-            </h2>
           </div>
 
           <button

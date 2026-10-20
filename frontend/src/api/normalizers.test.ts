@@ -84,7 +84,6 @@ describe('Normalizers', () => {
     it('normalizes full project row and calculates critical flags at 45%', () => {
       const row: ProjectContractRow = {
         project_id: 'PRJ-101',
-        site_code: 'BKK',
         project_name: 'Bangkok Solar Site',
         total_documents: 100,
         overdue_count: 8,

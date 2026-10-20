@@ -33,7 +33,6 @@ export const OverviewTab: React.FC = () => {
     const q = searchQuery.toLowerCase().trim();
     return (
       p.projectId.toLowerCase().includes(q) ||
-      p.siteCode.toLowerCase().includes(q) ||
       p.projectName.toLowerCase().includes(q)
     );
   }).length;

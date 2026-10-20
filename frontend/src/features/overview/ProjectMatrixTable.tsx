@@ -36,7 +36,6 @@ export const ProjectMatrixTable: React.FC<ProjectMatrixTableProps> = ({
       result = result.filter(
         (p) =>
           p.projectId.toLowerCase().includes(q) ||
-          p.siteCode.toLowerCase().includes(q) ||
           p.projectName.toLowerCase().includes(q)
       );
     }
@@ -130,7 +129,7 @@ export const ProjectMatrixTable: React.FC<ProjectMatrixTableProps> = ({
             {/* Tier 1: Group Super-Headers */}
             <tr className="border-b border-slate-200 dark:border-[#3c3c3c] font-bold text-xs uppercase tracking-wider text-center select-none">
               <th className="py-2.5 px-4 text-left bg-slate-100 dark:bg-[#252526] text-slate-700 dark:text-slate-300 w-[240px]">
-                Project & Site
+                Project
               </th>
               <th className="py-2.5 px-3 bg-[#2f6fce] text-white w-[140px]">
                 ① Baseline
@@ -155,7 +154,7 @@ export const ProjectMatrixTable: React.FC<ProjectMatrixTableProps> = ({
             {/* Tier 2: Sub-Column Headers */}
             <tr className="border-b border-slate-200 dark:border-[#3c3c3c] text-[11px] font-semibold text-center select-none">
               <th className="py-2.5 px-4 text-left bg-slate-50 dark:bg-[#202020] text-slate-600 dark:text-slate-400">
-                Site · Project
+                Project
               </th>
               <th className="py-2.5 px-2 bg-blue-50 dark:bg-[#1a2b47] text-blue-900 dark:text-blue-200">
                 Drawings
@@ -218,19 +217,16 @@ export const ProjectMatrixTable: React.FC<ProjectMatrixTableProps> = ({
                   className="hover:bg-blue-50/60 dark:hover:bg-[#2a2d2e] cursor-pointer transition-colors group"
                   data-testid={`project-matrix-row-${p.projectId}`}
                 >
-                  {/* Column: Site & Project Name */}
+                  {/* Column: Project Name, Health & Trend */}
                   <td className="py-3 px-4">
-                    <div className="flex items-center gap-2 mb-1">
-                      <span className="px-2 py-0.5 rounded text-[10px] font-bold font-mono uppercase bg-blue-100 text-blue-800 dark:bg-[#007acc]/20 dark:text-[#3794ff] border border-blue-200 dark:border-[#007acc]/40">
-                        {p.siteCode}
-                      </span>
+                    <div className="font-bold text-slate-900 dark:text-slate-100 text-xs group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors mb-1">
+                      {p.projectName}
+                    </div>
+                    <div className="flex items-center gap-2">
                       <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${healthPill}`}>
                         {p.healthStatus}
                       </span>
                       <TrendTag direction={p.netChange} />
-                    </div>
-                    <div className="font-bold text-slate-900 dark:text-slate-100 text-xs group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
-                      {p.projectName}
                     </div>
                   </td>
 

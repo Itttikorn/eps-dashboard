@@ -107,7 +107,6 @@ export function normalizeProjectMatrixRow(raw: ProjectContractRow): ProjectMatri
   const projectId = raw.project_id || raw.project_code || 'UNKNOWN';
   const projectCode = raw.project_code || raw.project_id || 'UNKNOWN';
   const projectName = raw.project_name || projectCode;
-  const siteCode = raw.site_code || 'DEFAULT';
 
   const totalDocuments = raw.total_documents ?? 0;
   const overdueCount = raw.overdue_count ?? 0;
@@ -169,7 +168,6 @@ export function normalizeProjectMatrixRow(raw: ProjectContractRow): ProjectMatri
     projectId,
     projectCode,
     projectName,
-    siteCode,
     healthStatus,
     totalDocuments,
     approvedCount,
