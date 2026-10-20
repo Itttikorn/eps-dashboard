@@ -71,6 +71,9 @@ type ProjectMatrixRow struct {
 	Control              CategoryMetrics      `json:"control"`
 	Corrective           CategoryMetrics      `json:"corrective"`
 	Change               CategoryMetrics      `json:"change"`
+	FCR                  CategoryMetrics      `json:"fcr"`
+	DCR                  CategoryMetrics      `json:"dcr"`
+	VOR                  CategoryMetrics      `json:"vor"`
 	Complete             CategoryMetrics      `json:"complete"`
 	Disciplines          DisciplinesBreakdown `json:"disciplines"`
 	DrawingTypes         []string             `json:"drawing_types"`

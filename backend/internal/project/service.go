@@ -173,6 +173,9 @@ func (s *Service) GetProjectMatrix(ctx context.Context, search, sortBy, sortDir 
 		var corrTotal, corrOpen, corrClosed int
 		var corrAgeSum float64
 		var chgTotal, chgOpen, chgClosed int
+		var fcrTotal, fcrOpen, fcrClosed int
+		var dcrTotal, dcrOpen, dcrClosed int
+		var vorTotal, vorOpen, vorClosed int
 		var disciplines DisciplinesBreakdown
 		var drawingTypesMap = make(map[string]bool)
 
@@ -210,6 +213,30 @@ func (s *Service) GetProjectMatrix(ctx context.Context, search, sortBy, sortDir 
 					chgClosed++
 				} else {
 					chgOpen++
+				}
+
+				docUpper := strings.ToUpper(d.DocNumber + " " + d.Title)
+				if strings.Contains(docUpper, "DCR") {
+					dcrTotal++
+					if isClosed {
+						dcrClosed++
+					} else {
+						dcrOpen++
+					}
+				} else if strings.Contains(docUpper, "VOR") || strings.Contains(docUpper, "VARIATION") {
+					vorTotal++
+					if isClosed {
+						vorClosed++
+					} else {
+						vorOpen++
+					}
+				} else {
+					fcrTotal++
+					if isClosed {
+						fcrClosed++
+					} else {
+						fcrOpen++
+					}
 				}
 			default:
 				baselineTotal++
@@ -348,6 +375,9 @@ func (s *Service) GetProjectMatrix(ctx context.Context, search, sortBy, sortDir 
 			Control:              calcCategoryMetrics(ctrlTotal, ctrlOpen, ctrlClosed, 0),
 			Corrective:           calcCategoryMetrics(corrTotal, corrOpen, corrClosed, corrAvgAge),
 			Change:               calcCategoryMetrics(chgTotal, chgOpen, chgClosed, 0),
+			FCR:                  calcCategoryMetrics(fcrTotal, fcrOpen, fcrClosed, 0),
+			DCR:                  calcCategoryMetrics(dcrTotal, dcrOpen, dcrClosed, 0),
+			VOR:                  calcCategoryMetrics(vorTotal, vorOpen, vorClosed, 0),
 			Complete:             calcCategoryMetrics(0, 0, 0, 0),
 			Disciplines:          disciplines,
 			DrawingTypes:         drawingTypes,
