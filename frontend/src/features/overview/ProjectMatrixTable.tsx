@@ -5,7 +5,6 @@ import { EmptyState } from '../../components/ui/EmptyState';
 import { ErrorAlert } from '../../components/ui/ErrorAlert';
 import { TrendTag } from '../../components/ui/Badges';
 import { ProjectDetailModal } from './ProjectDetailModal';
-import { ChevronRight } from 'lucide-react';
 
 export interface ProjectMatrixTableProps {
   projects?: ProjectMatrixRow[];
@@ -151,59 +150,46 @@ export const ProjectMatrixTable: React.FC<ProjectMatrixTableProps> = ({
               <th className="py-2.5 px-3 bg-slate-700 text-white w-[110px]">
                 SLA Monitor
               </th>
-              <th className="py-2.5 px-2 bg-slate-100 dark:bg-[#252526] w-[40px]"></th>
             </tr>
 
             {/* Tier 2: Sub-Column Headers */}
             <tr className="border-b border-slate-200 dark:border-[#3c3c3c] text-[11px] font-semibold text-center select-none">
-              <th className="py-2 px-4 text-left bg-slate-50 dark:bg-[#202020] text-slate-600 dark:text-slate-400">
+              <th className="py-2.5 px-4 text-left bg-slate-50 dark:bg-[#202020] text-slate-600 dark:text-slate-400">
                 Site · Project
               </th>
-              <th className="py-2 px-2 bg-blue-50 dark:bg-[#1a2b47] text-blue-900 dark:text-blue-200">
+              <th className="py-2.5 px-2 bg-blue-50 dark:bg-[#1a2b47] text-blue-900 dark:text-blue-200">
                 Drawings
-                <span className="block text-[9.5px] font-normal opacity-80">Volume</span>
               </th>
-              <th className="py-2 px-2 bg-teal-50 dark:bg-[#0e3332] text-teal-900 dark:text-teal-200">
+              <th className="py-2.5 px-2 bg-teal-50 dark:bg-[#0e3332] text-teal-900 dark:text-teal-200">
                 ITP
-                <span className="block text-[9.5px] font-normal opacity-80">Branches</span>
               </th>
-              <th className="py-2 px-2 bg-teal-50 dark:bg-[#0e3332] text-teal-900 dark:text-teal-200">
+              <th className="py-2.5 px-2 bg-teal-50 dark:bg-[#0e3332] text-teal-900 dark:text-teal-200">
                 RFI
-                <span className="block text-[9.5px] font-normal opacity-80">Volume</span>
               </th>
-              <th className="py-2 px-2 bg-teal-50 dark:bg-[#0e3332] text-teal-900 dark:text-teal-200">
+              <th className="py-2.5 px-2 bg-teal-50 dark:bg-[#0e3332] text-teal-900 dark:text-teal-200">
                 ITR
-                <span className="block text-[9.5px] font-normal opacity-80">Reports</span>
               </th>
-              <th className="py-2 px-2 bg-amber-50 dark:bg-[#3b2a1a] text-amber-900 dark:text-amber-200">
+              <th className="py-2.5 px-2 bg-amber-50 dark:bg-[#3b2a1a] text-amber-900 dark:text-amber-200">
                 NCR
-                <span className="block text-[9.5px] font-normal opacity-80">Major</span>
               </th>
-              <th className="py-2 px-2 bg-amber-50 dark:bg-[#3b2a1a] text-amber-900 dark:text-amber-200">
+              <th className="py-2.5 px-2 bg-amber-50 dark:bg-[#3b2a1a] text-amber-900 dark:text-amber-200">
                 CAR
-                <span className="block text-[9.5px] font-normal opacity-80">Minor</span>
               </th>
-              <th className="py-2 px-2 bg-emerald-50 dark:bg-[#122e1e] text-emerald-900 dark:text-emerald-200">
+              <th className="py-2.5 px-2 bg-emerald-50 dark:bg-[#122e1e] text-emerald-900 dark:text-emerald-200">
                 FCR
-                <span className="block text-[9.5px] font-normal opacity-80">Field</span>
               </th>
-              <th className="py-2 px-2 bg-emerald-50 dark:bg-[#122e1e] text-emerald-900 dark:text-emerald-200">
+              <th className="py-2.5 px-2 bg-emerald-50 dark:bg-[#122e1e] text-emerald-900 dark:text-emerald-200">
                 DCR
-                <span className="block text-[9.5px] font-normal opacity-80">Design</span>
               </th>
-              <th className="py-2 px-2 bg-emerald-50 dark:bg-[#122e1e] text-emerald-900 dark:text-emerald-200">
+              <th className="py-2.5 px-2 bg-emerald-50 dark:bg-[#122e1e] text-emerald-900 dark:text-emerald-200">
                 VOR
-                <span className="block text-[9.5px] font-normal opacity-80">Variation</span>
               </th>
-              <th className="py-2 px-2 bg-purple-50 dark:bg-[#281b3d] text-purple-900 dark:text-purple-200">
+              <th className="py-2.5 px-2 bg-purple-50 dark:bg-[#281b3d] text-purple-900 dark:text-purple-200">
                 Handover
-                <span className="block text-[9.5px] font-normal opacity-80">Closeout</span>
               </th>
-              <th className="py-2 px-2 bg-slate-100 dark:bg-[#26282b] text-slate-800 dark:text-slate-200">
+              <th className="py-2.5 px-2 bg-slate-100 dark:bg-[#26282b] text-slate-800 dark:text-slate-200">
                 Overdue
-                <span className="block text-[9.5px] font-normal opacity-80">SLA Breaches</span>
               </th>
-              <th className="py-2 px-2 bg-slate-50 dark:bg-[#202020]"></th>
             </tr>
           </thead>
 
@@ -336,22 +322,6 @@ export const ProjectMatrixTable: React.FC<ProjectMatrixTableProps> = ({
                     ) : (
                       <span className="text-slate-400 dark:text-slate-600 font-mono text-xs">0</span>
                     )}
-                  </td>
-
-                  {/* Column: Inspect Action Button */}
-                  <td className="py-3 px-2 text-right pr-4">
-                    <button
-                      type="button"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setSelectedProject(p);
-                      }}
-                      className="p-1 rounded-md text-slate-400 group-hover:text-blue-600 dark:group-hover:text-blue-400 hover:bg-slate-100 dark:hover:bg-[#3c3c3c] transition-colors"
-                      title="Open project diagnostic modal"
-                      aria-label={`Open diagnostics for ${p.projectName}`}
-                    >
-                      <ChevronRight className="w-4 h-4" />
-                    </button>
                   </td>
                 </tr>
               );
