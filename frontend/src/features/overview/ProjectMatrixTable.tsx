@@ -161,7 +161,7 @@ export const ProjectMatrixTable: React.FC<ProjectMatrixTableProps> = ({
               </th>
               <th className="py-2 px-2 bg-blue-50 dark:bg-[#1a2b47] text-blue-900 dark:text-blue-200">
                 Drawings
-                <span className="block text-[9.5px] font-normal opacity-80">App / Total</span>
+                <span className="block text-[9.5px] font-normal opacity-80">Approved / Total</span>
               </th>
               <th className="py-2 px-2 bg-teal-50 dark:bg-[#0e3332] text-teal-900 dark:text-teal-200">
                 ITP
