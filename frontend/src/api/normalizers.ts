@@ -31,6 +31,7 @@ function normalizePillarDetail(contract?: CategoryMetricsContract): PillarPillDe
   const total = contract?.total ?? 0;
   const open = contract?.open ?? 0;
   const closed = contract?.closed ?? (total > open ? total - open : 0);
+  const overdue = contract?.overdue ?? 0;
   const sum = open + closed;
   const pendingPercent = sum > 0 ? (open / sum) * 100 : 0;
   const isCritical = contract?.is_critical ?? (pendingPercent >= 45.0);
@@ -39,6 +40,7 @@ function normalizePillarDetail(contract?: CategoryMetricsContract): PillarPillDe
     total,
     open,
     closed,
+    overdue,
     pendingPercent,
     isCritical,
   };
@@ -145,6 +147,8 @@ export function normalizeProjectMatrixRow(raw: ProjectContractRow): ProjectMatri
 
   const controlPillar = normalizePillarDetail(raw.control);
   const correctivePillar = normalizePillarDetail(raw.corrective);
+  const ncrPillar = normalizePillarDetail(raw.ncr);
+  const carPillar = normalizePillarDetail(raw.car);
   const changePillar = normalizePillarDetail(raw.change);
   const fcrPillar = normalizePillarDetail(raw.fcr ?? raw.change);
   const dcrPillar = normalizePillarDetail(raw.dcr);
@@ -182,6 +186,8 @@ export function normalizeProjectMatrixRow(raw: ProjectContractRow): ProjectMatri
       baseline: baselinePillar,
       control: controlPillar,
       corrective: correctivePillar,
+      ncr: ncrPillar,
+      car: carPillar,
       change: changePillar,
       fcr: fcrPillar,
       dcr: dcrPillar,
@@ -192,15 +198,32 @@ export function normalizeProjectMatrixRow(raw: ProjectContractRow): ProjectMatri
       me: {
         total: raw.disciplines?.me?.total ?? 0,
         approved: raw.disciplines?.me?.approved ?? 0,
+        underReview:
+          raw.disciplines?.me?.under_review ??
+          Math.max(0, (raw.disciplines?.me?.total ?? 0) - (raw.disciplines?.me?.approved ?? 0)),
+        overdue: raw.disciplines?.me?.overdue ?? 0,
       },
       ce: {
         total: raw.disciplines?.ce?.total ?? 0,
         approved: raw.disciplines?.ce?.approved ?? 0,
+        underReview:
+          raw.disciplines?.ce?.under_review ??
+          Math.max(0, (raw.disciplines?.ce?.total ?? 0) - (raw.disciplines?.ce?.approved ?? 0)),
+        overdue: raw.disciplines?.ce?.overdue ?? 0,
       },
       ee: {
         total: raw.disciplines?.ee?.total ?? 0,
         approved: raw.disciplines?.ee?.approved ?? 0,
+        underReview:
+          raw.disciplines?.ee?.under_review ??
+          Math.max(0, (raw.disciplines?.ee?.total ?? 0) - (raw.disciplines?.ee?.approved ?? 0)),
+        overdue: raw.disciplines?.ee?.overdue ?? 0,
       },
+    },
+    itpSubmissions: {
+      me: Boolean(raw.itp_submissions?.me),
+      ce: Boolean(raw.itp_submissions?.ce),
+      ee: Boolean(raw.itp_submissions?.ee),
     },
     drawingTypes: raw.drawing_types ?? ['FS', 'ML', 'PR', 'GA', 'LD', 'FD', 'PID', 'SLD'],
     pendingAgingDays: raw.pending_aging_days ?? 0,

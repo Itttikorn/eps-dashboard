@@ -39,6 +39,7 @@ export interface CategoryMetricsContract {
   total?: number;
   open?: number;
   closed?: number;
+  overdue?: number;
   pending_pct?: number;
   is_critical?: boolean;
   avg_age_days?: number;
@@ -56,6 +57,8 @@ export interface ProjectContractRow {
   } | number;
   control?: CategoryMetricsContract;
   corrective?: CategoryMetricsContract;
+  ncr?: CategoryMetricsContract;
+  car?: CategoryMetricsContract;
   change?: CategoryMetricsContract;
   fcr?: CategoryMetricsContract;
   dcr?: CategoryMetricsContract;
@@ -66,9 +69,14 @@ export interface ProjectContractRow {
   net_change?: 'IMPROVING' | 'DEGRADING' | 'STABLE' | string;
   last_snapshot_date?: string;
   disciplines?: {
-    me?: { total?: number; approved?: number };
-    ce?: { total?: number; approved?: number };
-    ee?: { total?: number; approved?: number };
+    me?: { total?: number; approved?: number; under_review?: number; overdue?: number };
+    ce?: { total?: number; approved?: number; under_review?: number; overdue?: number };
+    ee?: { total?: number; approved?: number; under_review?: number; overdue?: number };
+  };
+  itp_submissions?: {
+    me?: boolean;
+    ce?: boolean;
+    ee?: boolean;
   };
   drawing_types?: string[];
   pending_aging_days?: number;
@@ -136,6 +144,7 @@ export interface PillarPillDetail {
   total: number;
   open: number;
   closed: number;
+  overdue: number;
   pendingPercent: number;
   isCritical: boolean;
 }
@@ -166,6 +175,8 @@ export interface ProjectMatrixRow {
     };
     control: PillarPillDetail;
     corrective: PillarPillDetail;
+    ncr: PillarPillDetail;
+    car: PillarPillDetail;
     change: PillarPillDetail;
     fcr: PillarPillDetail;
     dcr: PillarPillDetail;
@@ -173,9 +184,14 @@ export interface ProjectMatrixRow {
     complete: PillarPillDetail;
   };
   disciplines: {
-    me: { total: number; approved: number };
-    ce: { total: number; approved: number };
-    ee: { total: number; approved: number };
+    me: { total: number; approved: number; underReview: number; overdue: number };
+    ce: { total: number; approved: number; underReview: number; overdue: number };
+    ee: { total: number; approved: number; underReview: number; overdue: number };
+  };
+  itpSubmissions: {
+    me: boolean;
+    ce: boolean;
+    ee: boolean;
   };
   drawingTypes: string[];
   pendingAgingDays: number;

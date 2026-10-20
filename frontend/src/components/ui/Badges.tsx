@@ -52,7 +52,7 @@ export const DelinquencyChip: React.FC<{
       data-testid="delinquency-critical-chip"
     >
       <span className="w-1.5 h-1.5 rounded-full bg-red-600 dark:bg-red-400 animate-ping" />
-      {pendingPercent.toFixed(1)}% DELINQUENT
+      {pendingPercent.toFixed(1)}% OVERDUE
     </span>
   );
 };

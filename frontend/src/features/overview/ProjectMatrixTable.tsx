@@ -282,9 +282,9 @@ export const ProjectMatrixTable: React.FC<ProjectMatrixTableProps> = ({
                   {/* Column: ② Control - ITP */}
                   <td className="py-3 px-2 text-center bg-teal-50/20 dark:bg-[#0e3332]/10">
                     {renderDelinquencyChip(
-                      (p.disciplines.me.total > 0 ? 1 : 0) +
-                        (p.disciplines.ce.total > 0 ? 1 : 0) +
-                        (p.disciplines.ee.total > 0 ? 1 : 0),
+                      (p.itpSubmissions?.me ? 1 : 0) +
+                        (p.itpSubmissions?.ce ? 1 : 0) +
+                        (p.itpSubmissions?.ee ? 1 : 0),
                       0,
                       false,
                       'ITP Submissions'

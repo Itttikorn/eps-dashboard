@@ -49,7 +49,7 @@ describe('Badges Component Suite', () => {
       render(<DelinquencyChip pendingPercent={51.2} isCritical={true} />);
       const chip = screen.getByTestId('delinquency-critical-chip');
       expect(chip).toBeInTheDocument();
-      expect(chip).toHaveTextContent('51.2% DELINQUENT');
+      expect(chip).toHaveTextContent('51.2% OVERDUE');
       expect(chip).toHaveClass('chip-blink');
     });
   });

@@ -4,10 +4,9 @@ import {
   Wrench,
   HardHat,
   Zap,
-  Clock,
 } from 'lucide-react';
 import { ProjectMatrixRow } from '../../api/types';
-import { OverdueBadge, DelinquencyChip, TrendTag } from '../../components/ui/Badges';
+import { DelinquencyChip, TrendTag } from '../../components/ui/Badges';
 
 export interface ProjectDetailModalProps {
   project: ProjectMatrixRow | null;
@@ -23,6 +22,87 @@ const STANDARD_DRAW_TYPES = [
   { code: 'LD', name: 'Load Data' },
   { code: 'FD', name: 'Fabrication Drawing' },
 ];
+
+export interface DocMetricTriadCardProps {
+  title: string;
+  icon?: React.ReactNode;
+  total: number;
+  pending: number;
+  overdue: number;
+  approved: number;
+  pendingLabel?: string;
+  overdueLabel?: string;
+  approvedLabel?: string;
+}
+
+export const DocMetricTriadCard: React.FC<DocMetricTriadCardProps> = ({
+  title,
+  icon,
+  total,
+  pending,
+  overdue,
+  approved,
+  pendingLabel = 'PENDING',
+  overdueLabel = 'OVERDUE',
+  approvedLabel = 'APPROVED',
+}) => {
+  return (
+    <div className="bg-white dark:bg-[#252526] p-3 rounded-xl border border-slate-200 dark:border-[#3c3c3c] flex flex-col justify-between">
+      <div className="flex items-center justify-between mb-2 gap-1.5">
+        <span className="flex items-center gap-1.5 font-bold text-slate-800 dark:text-slate-100 text-xs truncate">
+          {icon}
+          {title}
+        </span>
+        <span className="text-[11px] text-slate-500 dark:text-slate-400 shrink-0">
+          Total: <strong className="text-slate-700 dark:text-slate-200 tabular-nums">{total}</strong>
+        </span>
+      </div>
+      <div className="grid grid-cols-3 gap-1.5">
+        {/* Pending Box */}
+        <div className="py-2 px-1 rounded-lg bg-slate-50 dark:bg-[#1e1e1e] border border-slate-200/70 dark:border-[#333] flex flex-col items-center justify-center text-center">
+          <span className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+            {pendingLabel}
+          </span>
+          <span
+            className={`text-sm font-bold mt-0.5 tabular-nums ${
+              pending > 0 ? 'text-amber-500 dark:text-amber-400' : 'text-slate-400 dark:text-slate-500'
+            }`}
+          >
+            {pending}
+          </span>
+        </div>
+
+        {/* Overdue Box */}
+        <div className="py-2 px-1 rounded-lg bg-slate-50 dark:bg-[#1e1e1e] border border-slate-200/70 dark:border-[#333] flex flex-col items-center justify-center text-center">
+          <span className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+            {overdueLabel}
+          </span>
+          <span
+            className={`text-sm font-bold mt-0.5 tabular-nums ${
+              overdue > 0 ? 'text-rose-600 dark:text-rose-400' : 'text-slate-400 dark:text-slate-500'
+            }`}
+          >
+            {overdue}
+          </span>
+        </div>
+
+        {/* Approved / Closed Box */}
+        <div className="py-2 px-1 rounded-lg bg-slate-50 dark:bg-[#1e1e1e] border border-slate-200/70 dark:border-[#333] flex flex-col items-center justify-center text-center">
+          <span className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+            {approvedLabel}
+          </span>
+          <span
+            className={`text-sm font-bold mt-0.5 tabular-nums ${
+              approved > 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-slate-400 dark:text-slate-500'
+            }`}
+          >
+            {approved}
+          </span>
+        </div>
+      </div>
+    </div>
+  );
+};
 
 export const ProjectDetailModal: React.FC<ProjectDetailModalProps> = ({
   project,
@@ -45,47 +125,39 @@ export const ProjectDetailModal: React.FC<ProjectDetailModalProps> = ({
 
   if (!project) return null;
 
-  const calcPct = (num: number, denom: number) =>
-    denom > 0 ? Math.min(100, Math.max(0, (num / denom) * 100)) : 0;
-
-  const mePct = calcPct(project.disciplines.me.approved, project.disciplines.me.total);
-  const cePct = calcPct(project.disciplines.ce.approved, project.disciplines.ce.total);
-  const eePct = calcPct(project.disciplines.ee.approved, project.disciplines.ee.total);
-
   // Check which standard types or custom types are tagged
   const activeTypesSet = new Set((project.drawingTypes || []).map((t) => t.toUpperCase()));
 
-  // Delinquency rate level helper
-  const getDelinquencyColor = (pct: number) => {
-    if (pct >= 45) return 'text-red-600 dark:text-red-400 font-bold';
-    if (pct >= 25) return 'text-amber-600 dark:text-amber-400 font-bold';
-    return 'text-emerald-600 dark:text-emerald-400 font-medium';
-  };
-
-  const getAgingBadge = (days: number) => {
+  const getAgingStatusBadge = (days: number, openCount: number) => {
+    if (openCount === 0) {
+      return (
+        <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 whitespace-nowrap">
+          On Track
+        </span>
+      );
+    }
     if (days >= 20) {
       return (
-        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-bold bg-red-100 text-red-700 dark:bg-red-950/60 dark:text-red-300 border border-red-200 dark:border-red-800">
-          <Clock className="w-3 h-3 text-red-500" />
-          {days.toFixed(1)} Days (Critical Lag)
+        <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20 whitespace-nowrap">
+          Critical Lag
         </span>
       );
     }
     if (days >= 10) {
       return (
-        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-bold bg-amber-100 text-amber-700 dark:bg-amber-950/60 dark:text-amber-300 border border-amber-200 dark:border-amber-800">
-          <Clock className="w-3 h-3 text-amber-500" />
-          {days.toFixed(1)} Days (Attention)
+        <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20 whitespace-nowrap">
+          Attention
         </span>
       );
     }
     return (
-      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-medium bg-emerald-100 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800">
-        <Clock className="w-3 h-3 text-emerald-500" />
-        {days > 0 ? `${days.toFixed(1)} Days (On Track)` : 'No Open Backlog'}
+      <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 whitespace-nowrap">
+        On Track
       </span>
     );
   };
+
+
 
   return (
     <div
@@ -101,7 +173,7 @@ export const ProjectDetailModal: React.FC<ProjectDetailModalProps> = ({
         onClick={(e) => e.stopPropagation()}
         data-testid="project-detail-modal"
       >
-        {/* Fixed Header: Site, ID, Net Change, Health Badge, Close Button */}
+        {/* Fixed Header: Project Name, Health Status, Trend Tag, Aging, Close Button */}
         <div className="flex items-start justify-between gap-4 p-5 sm:p-6 pb-4 border-b border-slate-200 dark:border-[#3c3c3c] shrink-0 bg-white dark:bg-[#252526]">
           <div>
             <h2
@@ -111,14 +183,25 @@ export const ProjectDetailModal: React.FC<ProjectDetailModalProps> = ({
               {project.projectName}
             </h2>
             <div className="flex items-center gap-2 flex-wrap">
-              <span className="text-xs font-mono font-semibold text-slate-500 dark:text-slate-400">
-                {project.projectId}
+              {project.projectName !== project.projectId &&
+                project.projectName !== `Project ${project.projectId}` && (
+                  <span className="text-xs font-mono font-semibold text-slate-500 dark:text-slate-400">
+                    {project.projectId}
+                  </span>
+                )}
+              <span
+                className={`px-2 py-0.5 rounded text-[11px] font-bold border ${
+                  project.healthStatus === 'CRITICAL'
+                    ? 'bg-red-100 text-red-700 dark:bg-red-950/60 dark:text-red-300 border-red-300 dark:border-red-800'
+                    : project.healthStatus === 'ATTENTION'
+                    ? 'bg-amber-100 text-amber-700 dark:bg-amber-950/60 dark:text-amber-300 border-amber-300 dark:border-amber-800'
+                    : 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300 border-emerald-300 dark:border-emerald-800'
+                }`}
+                data-testid={`modal-health-badge-${project.healthStatus.toLowerCase().replace(/\s+/g, '-')}`}
+              >
+                {project.healthStatus}
               </span>
               <TrendTag direction={project.netChange} />
-              <OverdueBadge
-                overduePercent={project.overduePercent}
-                overdueCount={project.overdueCount}
-              />
             </div>
           </div>
 
@@ -129,7 +212,7 @@ export const ProjectDetailModal: React.FC<ProjectDetailModalProps> = ({
             aria-label="Close project modal"
             data-testid="close-project-modal-btn"
           >
-            <X className="w-5 h-5" />
+            <X className="w-5 h-5 cursor-pointer" />
           </button>
         </div>
 
@@ -190,65 +273,45 @@ export const ProjectDetailModal: React.FC<ProjectDetailModalProps> = ({
 
             {/* Discipline Breakdown */}
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 text-xs mb-3.5">
-              {/* ME */}
-              <div className="bg-white dark:bg-[#252526] p-2.5 rounded-lg border border-slate-200 dark:border-[#3c3c3c]">
-                <div className="flex items-center justify-between mb-1">
-                  <span className="flex items-center gap-1.5 font-bold text-slate-700 dark:text-slate-200 text-xs">
-                    <Wrench className="w-3.5 h-3.5 text-blue-500" /> Mechanical (ME)
-                  </span>
-                  <span className="text-xs font-bold tabular-nums text-slate-900 dark:text-slate-100">
-                    {project.disciplines.me.approved}/{project.disciplines.me.total}
-                  </span>
-                </div>
-                <div className="w-full bg-slate-100 dark:bg-[#1e1e1e] h-1.5 rounded-full overflow-hidden">
-                  <div className="bg-blue-500 h-full rounded-full transition-all" style={{ width: `${mePct}%` }} />
-                </div>
-                <div className="text-[10px] text-slate-500 dark:text-slate-400 mt-1 text-right">
-                  {mePct.toFixed(0)}% Complete
-                </div>
-              </div>
-
-              {/* CE */}
-              <div className="bg-white dark:bg-[#252526] p-2.5 rounded-lg border border-slate-200 dark:border-[#3c3c3c]">
-                <div className="flex items-center justify-between mb-1">
-                  <span className="flex items-center gap-1.5 font-bold text-slate-700 dark:text-slate-200 text-xs">
-                    <HardHat className="w-3.5 h-3.5 text-amber-500" /> Civil (CE)
-                  </span>
-                  <span className="text-xs font-bold tabular-nums text-slate-900 dark:text-slate-100">
-                    {project.disciplines.ce.approved}/{project.disciplines.ce.total}
-                  </span>
-                </div>
-                <div className="w-full bg-slate-100 dark:bg-[#1e1e1e] h-1.5 rounded-full overflow-hidden">
-                  <div className="bg-amber-500 h-full rounded-full transition-all" style={{ width: `${cePct}%` }} />
-                </div>
-                <div className="text-[10px] text-slate-500 dark:text-slate-400 mt-1 text-right">
-                  {cePct.toFixed(0)}% Complete
-                </div>
-              </div>
-
-              {/* EE */}
-              <div className="bg-white dark:bg-[#252526] p-2.5 rounded-lg border border-slate-200 dark:border-[#3c3c3c]">
-                <div className="flex items-center justify-between mb-1">
-                  <span className="flex items-center gap-1.5 font-bold text-slate-700 dark:text-slate-200 text-xs">
-                    <Zap className="w-3.5 h-3.5 text-purple-500" /> Electrical (EE)
-                  </span>
-                  <span className="text-xs font-bold tabular-nums text-slate-900 dark:text-slate-100">
-                    {project.disciplines.ee.approved}/{project.disciplines.ee.total}
-                  </span>
-                </div>
-                <div className="w-full bg-slate-100 dark:bg-[#1e1e1e] h-1.5 rounded-full overflow-hidden">
-                  <div className="bg-purple-500 h-full rounded-full transition-all" style={{ width: `${eePct}%` }} />
-                </div>
-                <div className="text-[10px] text-slate-500 dark:text-slate-400 mt-1 text-right">
-                  {eePct.toFixed(0)}% Complete
-                </div>
-              </div>
+              <DocMetricTriadCard
+                title="Mechanical (ME)"
+                icon={<Wrench className="w-3.5 h-3.5 text-blue-500 shrink-0" />}
+                total={project.disciplines.me.total}
+                pending={project.disciplines.me.underReview}
+                overdue={project.disciplines.me.overdue}
+                approved={project.disciplines.me.approved}
+                pendingLabel="PENDING"
+                overdueLabel="OVERDUE"
+                approvedLabel="APPROVED"
+              />
+              <DocMetricTriadCard
+                title="Civil (CE)"
+                icon={<HardHat className="w-3.5 h-3.5 text-amber-500 shrink-0" />}
+                total={project.disciplines.ce.total}
+                pending={project.disciplines.ce.underReview}
+                overdue={project.disciplines.ce.overdue}
+                approved={project.disciplines.ce.approved}
+                pendingLabel="PENDING"
+                overdueLabel="OVERDUE"
+                approvedLabel="APPROVED"
+              />
+              <DocMetricTriadCard
+                title="Electrical (EE)"
+                icon={<Zap className="w-3.5 h-3.5 text-purple-500 shrink-0" />}
+                total={project.disciplines.ee.total}
+                pending={project.disciplines.ee.underReview}
+                overdue={project.disciplines.ee.overdue}
+                approved={project.disciplines.ee.approved}
+                pendingLabel="PENDING"
+                overdueLabel="OVERDUE"
+                approvedLabel="APPROVED"
+              />
             </div>
 
             {/* Deliverable Drawing Types Status Tiles */}
             <div>
               <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 block mb-1.5">
-                Deliverable Drawing Types (Conzol Engineering Workflow):
+                Deliverable Drawing Types:
               </span>
               <div className="flex flex-wrap gap-1.5">
                 {STANDARD_DRAW_TYPES.map((t) => {
@@ -304,61 +367,63 @@ export const ProjectDetailModal: React.FC<ProjectDetailModalProps> = ({
               />
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 text-xs">
               {/* ITP Submission by Discipline */}
-              <div className="bg-white dark:bg-[#252526] p-3 rounded-lg border border-slate-200 dark:border-[#3c3c3c]">
+              <div className="bg-white dark:bg-[#252526] p-3 rounded-xl border border-slate-200 dark:border-[#3c3c3c] flex flex-col justify-between">
                 <div className="flex items-center justify-between mb-2">
-                  <span className="font-bold text-slate-700 dark:text-slate-200">
-                    ITP Submission Status (ME / CE / EE)
+                  <span className="font-bold text-slate-800 dark:text-slate-100 text-xs">
+                    ITP Submissions
                   </span>
-                  <span className="text-[11px] text-slate-400">1 transmittal / branch</span>
+                  <span className="text-[11px] text-slate-500 dark:text-slate-400">1 per branch</span>
                 </div>
-                <div className="flex items-center gap-2">
+                <div className="grid grid-cols-3 gap-1.5">
                   {[
-                    { label: 'ME', active: project.disciplines.me.total > 0 },
-                    { label: 'CE', active: project.disciplines.ce.total > 0 },
-                    { label: 'EE', active: project.disciplines.ee.total > 0 },
+                    { label: 'ME', active: Boolean(project.itpSubmissions?.me) },
+                    { label: 'CE', active: Boolean(project.itpSubmissions?.ce) },
+                    { label: 'EE', active: Boolean(project.itpSubmissions?.ee) },
                   ].map((branch) => (
                     <div
                       key={branch.label}
-                      className={`flex-1 py-1.5 px-2 rounded text-center text-xs font-bold border ${
+                      className={`py-2 px-1 rounded-lg flex flex-col items-center justify-center text-center border transition-colors ${
                         branch.active
-                          ? 'bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950/40 dark:text-emerald-300 dark:border-emerald-800'
-                          : 'bg-red-50 text-red-700 border-red-200 dark:bg-red-950/40 dark:text-red-300 dark:border-red-800'
+                          ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/30'
+                          : 'bg-rose-500/10 text-rose-600 dark:text-rose-400 border-rose-500/30'
                       }`}
                     >
-                      {branch.label}: {branch.active ? 'Submitted ✓' : 'Pending'}
+                      <span className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                        {branch.label}
+                      </span>
+                      <span className="text-sm font-bold mt-0.5 whitespace-nowrap">
+                        {branch.active ? 'Submitted' : 'Pending'}
+                      </span>
                     </div>
                   ))}
                 </div>
               </div>
 
-              {/* RFI Transmittals Breakdown */}
-              <div className="bg-white dark:bg-[#252526] p-3 rounded-lg border border-slate-200 dark:border-[#3c3c3c]">
-                <div className="flex items-center justify-between mb-1">
-                  <span className="font-bold text-slate-700 dark:text-slate-200">RFI Transmittals</span>
-                  <span className="text-slate-500 dark:text-slate-400">
-                    Total: <strong>{project.pillars.control.total}</strong>
-                  </span>
-                </div>
-                <div className="flex items-center justify-between text-xs py-1">
-                  <span className="text-slate-500 dark:text-slate-400">
-                    Open:{' '}
-                    <strong className={getDelinquencyColor(project.pillars.control.pendingPercent)}>
-                      {project.pillars.control.open}
-                    </strong>
-                  </span>
-                  <span className="text-slate-500 dark:text-slate-400">
-                    Closed: <strong className="text-emerald-600 dark:text-emerald-400">{project.pillars.control.closed}</strong>
-                  </span>
-                  <span className="text-slate-500 dark:text-slate-400">
-                    Pending Rate:{' '}
-                    <strong className={getDelinquencyColor(project.pillars.control.pendingPercent)}>
-                      {project.pillars.control.pendingPercent.toFixed(1)}%
-                    </strong>
-                  </span>
-                </div>
-              </div>
+              {/* RFI Transmittals */}
+              <DocMetricTriadCard
+                title="RFI Transmittals"
+                total={project.pillars.control.total}
+                pending={project.pillars.control.open}
+                overdue={project.pillars.control.overdue}
+                approved={project.pillars.control.closed}
+                pendingLabel="PENDING"
+                overdueLabel="OVERDUE"
+                approvedLabel="APPROVED"
+              />
+
+              {/* ITR Reports */}
+              <DocMetricTriadCard
+                title="ITR Reports"
+                total={project.pillars.control.total}
+                pending={project.pillars.control.open}
+                overdue={project.pillars.control.overdue}
+                approved={project.pillars.control.closed}
+                pendingLabel="PENDING"
+                overdueLabel="OVERDUE"
+                approvedLabel="APPROVED"
+              />
             </div>
           </div>
 
@@ -377,56 +442,68 @@ export const ProjectDetailModal: React.FC<ProjectDetailModalProps> = ({
               />
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs mb-3">
-              {/* NCR & CAR Metrics */}
-              <div className="bg-white dark:bg-[#252526] p-3 rounded-lg border border-slate-200 dark:border-[#3c3c3c]">
-                <div className="flex items-center justify-between mb-1.5">
-                  <span className="font-bold text-slate-700 dark:text-slate-200">
-                    Corrective Volume (NCR & CAR)
-                  </span>
-                  <span className="font-semibold text-slate-500 dark:text-slate-400">
-                    Total: {project.pillars.corrective.total}
-                  </span>
-                </div>
-                <div className="space-y-1 text-xs">
-                  <div className="flex justify-between">
-                    <span className="text-slate-500 dark:text-slate-400">Open Action Items:</span>
-                    <strong className={getDelinquencyColor(project.pillars.corrective.pendingPercent)}>
-                      {project.pillars.corrective.open}
-                    </strong>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-slate-500 dark:text-slate-400">Closed / Resolved:</span>
-                    <strong className="text-emerald-600 dark:text-emerald-400">
-                      {project.pillars.corrective.closed}
-                    </strong>
-                  </div>
-                </div>
-              </div>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 text-xs">
+              {/* Card 1: NCR */}
+              <DocMetricTriadCard
+                title="NCR"
+                total={project.pillars.ncr?.total ?? 0}
+                pending={project.pillars.ncr?.open ?? 0}
+                overdue={project.pillars.ncr?.overdue ?? 0}
+                approved={project.pillars.ncr?.closed ?? 0}
+                pendingLabel="PENDING"
+                overdueLabel="OVERDUE"
+                approvedLabel="CLOSED"
+              />
 
-              {/* Average Open Aging Days */}
-              <div className="bg-white dark:bg-[#252526] p-3 rounded-lg border border-slate-200 dark:border-[#3c3c3c] flex flex-col justify-between">
-                <div>
-                  <div className="flex items-center justify-between mb-1">
-                    <span className="font-bold text-slate-700 dark:text-slate-200">
-                      Average Open Aging
-                    </span>
-                    {getAgingBadge(project.pendingAgingDays)}
-                  </div>
-                  <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-1">
-                    Tracks the average turnaround speed of open NCR/CAR transmittals before closure.
-                  </p>
+              {/* Card 2: CAR */}
+              <DocMetricTriadCard
+                title="CAR"
+                total={project.pillars.car?.total ?? 0}
+                pending={project.pillars.car?.open ?? 0}
+                overdue={project.pillars.car?.overdue ?? 0}
+                approved={project.pillars.car?.closed ?? 0}
+                pendingLabel="PENDING"
+                overdueLabel="OVERDUE"
+                approvedLabel="CLOSED"
+              />
+
+              {/* Card 3: Backlog Aging */}
+              <div className="bg-white dark:bg-[#252526] p-3 rounded-xl border border-slate-200 dark:border-[#3c3c3c] flex flex-col justify-between">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="font-bold text-slate-800 dark:text-slate-100 text-xs whitespace-nowrap">
+                    Backlog Aging
+                  </span>
+                  {getAgingStatusBadge(project.pendingAgingDays, project.pillars.corrective.open)}
                 </div>
-                <div className="text-[10px] text-slate-400 dark:text-slate-500 pt-1 border-t border-slate-100 dark:border-[#3c3c3c]">
-                  Threshold: &lt;10d Normal · 10–20d Warning · &ge;20d Critical
+                <div className="flex flex-col items-center justify-center py-1 text-center">
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 leading-tight">
+                    Average
+                  </span>
+                  <span
+                    className={`text-base font-bold tabular-nums mt-0.5 ${
+                      project.pillars.corrective.open === 0
+                        ? 'text-emerald-600 dark:text-emerald-400'
+                        : project.pendingAgingDays >= 20
+                        ? 'text-rose-600 dark:text-rose-400'
+                        : project.pendingAgingDays >= 10
+                        ? 'text-amber-500'
+                        : 'text-emerald-600 dark:text-emerald-400'
+                    }`}
+                  >
+                    {project.pillars.corrective.open === 0
+                      ? '0 days'
+                      : project.pendingAgingDays > 0
+                      ? `${project.pendingAgingDays.toFixed(1)} days`
+                      : '< 1 day'}
+                  </span>
                 </div>
               </div>
             </div>
           </div>
 
-          {/* SECTION 4: Change Management & Impact (from 'fcr', 'dcr', 'vo' dropdowns) */}
+          {/* SECTION 4: Engineering Change Tracking (FCR / DCR / VOR) */}
           <div className="p-4 rounded-xl bg-slate-50/70 dark:bg-[#1e1e1e] border border-green-200/60 dark:border-green-900/40">
-            <div className="flex items-center justify-between mb-2">
+            <div className="flex items-center justify-between mb-3">
               <div className="flex items-center gap-2">
                 <span className="w-2.5 h-2.5 rounded-full bg-[#26a65b] shrink-0" />
                 <h3 className="text-xs font-bold uppercase tracking-wider text-slate-800 dark:text-slate-100">
@@ -438,59 +515,43 @@ export const ProjectDetailModal: React.FC<ProjectDetailModalProps> = ({
                 isCritical={project.pillars.change.isCritical}
               />
             </div>
-            <div className="bg-white dark:bg-[#252526] p-3 rounded-lg border border-slate-200 dark:border-[#3c3c3c] text-xs">
-              <div className="grid grid-cols-3 gap-2 text-center">
-                <div>
-                  <span className="block text-[11px] text-slate-500 dark:text-slate-400">
-                    Total Changes
-                  </span>
-                  <span className="font-bold text-slate-800 dark:text-slate-100 text-sm">
-                    {project.pillars.change.total}
-                  </span>
-                </div>
-                <div>
-                  <span className="block text-[11px] text-slate-500 dark:text-slate-400">
-                    Open / In-Review
-                  </span>
-                  <span
-                    className={`font-bold text-sm ${getDelinquencyColor(
-                      project.pillars.change.pendingPercent
-                    )}`}
-                  >
-                    {project.pillars.change.open}
-                  </span>
-                </div>
-                <div>
-                  <span className="block text-[11px] text-slate-500 dark:text-slate-400">
-                    Closed / Incorporated
-                  </span>
-                  <span className="font-bold text-emerald-600 dark:text-emerald-400 text-sm">
-                    {project.pillars.change.closed}
-                  </span>
-                </div>
-              </div>
 
-              {/* Sub-breakdown: FCR, DCR, VOR */}
-              <div className="grid grid-cols-3 gap-2 mt-2.5 pt-2 border-t border-slate-100 dark:border-[#3c3c3c] text-center text-[11px]">
-                <div className="bg-slate-50 dark:bg-[#202020] p-1.5 rounded">
-                  <span className="text-slate-500 dark:text-slate-400 block font-medium">FCR (Field)</span>
-                  <span className="font-bold text-slate-800 dark:text-slate-200">
-                    {project.pillars.fcr?.total ?? 0}
-                  </span>
-                </div>
-                <div className="bg-slate-50 dark:bg-[#202020] p-1.5 rounded">
-                  <span className="text-slate-500 dark:text-slate-400 block font-medium">DCR (Design)</span>
-                  <span className="font-bold text-slate-800 dark:text-slate-200">
-                    {project.pillars.dcr?.total ?? 0}
-                  </span>
-                </div>
-                <div className="bg-slate-50 dark:bg-[#202020] p-1.5 rounded">
-                  <span className="text-slate-500 dark:text-slate-400 block font-medium">VOR (Variation)</span>
-                  <span className="font-bold text-slate-800 dark:text-slate-200">
-                    {project.pillars.vor?.total ?? 0}
-                  </span>
-                </div>
-              </div>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 text-xs">
+              {/* Card 1: FCR */}
+              <DocMetricTriadCard
+                title="FCR"
+                total={project.pillars.fcr?.total ?? 0}
+                pending={project.pillars.fcr?.open ?? 0}
+                overdue={project.pillars.fcr?.overdue ?? 0}
+                approved={project.pillars.fcr?.closed ?? 0}
+                pendingLabel="PENDING"
+                overdueLabel="OVERDUE"
+                approvedLabel="CLOSED"
+              />
+
+              {/* Card 2: DCR */}
+              <DocMetricTriadCard
+                title="DCR"
+                total={project.pillars.dcr?.total ?? 0}
+                pending={project.pillars.dcr?.open ?? 0}
+                overdue={project.pillars.dcr?.overdue ?? 0}
+                approved={project.pillars.dcr?.closed ?? 0}
+                pendingLabel="PENDING"
+                overdueLabel="OVERDUE"
+                approvedLabel="CLOSED"
+              />
+
+              {/* Card 3: VOR */}
+              <DocMetricTriadCard
+                title="VOR"
+                total={project.pillars.vor?.total ?? 0}
+                pending={project.pillars.vor?.open ?? 0}
+                overdue={project.pillars.vor?.overdue ?? 0}
+                approved={project.pillars.vor?.closed ?? 0}
+                pendingLabel="PENDING"
+                overdueLabel="OVERDUE"
+                approvedLabel="CLOSED"
+              />
             </div>
           </div>
 
@@ -511,7 +572,7 @@ export const ProjectDetailModal: React.FC<ProjectDetailModalProps> = ({
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
-              <div className="bg-white dark:bg-[#252526] p-3 rounded-lg border border-slate-200 dark:border-[#3c3c3c]">
+              <div className="bg-white dark:bg-[#252526] p-3 rounded-xl border border-slate-200 dark:border-[#3c3c3c]">
                 <span className="font-bold text-slate-700 dark:text-slate-200 block mb-1">
                   Handover & Commissioning
                 </span>
@@ -522,19 +583,24 @@ export const ProjectDetailModal: React.FC<ProjectDetailModalProps> = ({
                 </span>
               </div>
 
-              <div className="bg-white dark:bg-[#252526] p-3 rounded-lg border border-slate-200 dark:border-[#3c3c3c]">
+              <div className="bg-white dark:bg-[#252526] p-3 rounded-xl border border-slate-200 dark:border-[#3c3c3c]">
                 <div className="flex items-center justify-between mb-1">
                   <span className="font-bold text-slate-700 dark:text-slate-200">
                     Overdue SLA Compliance
                   </span>
-                  <OverdueBadge
-                    overdueCount={project.overdueCount}
-                    overduePercent={project.overduePercent}
-                  />
+                  <span
+                    className={`text-xs font-bold tabular-nums ${
+                      project.overdueCount > 0
+                        ? 'text-red-600 dark:text-red-400'
+                        : 'text-emerald-600 dark:text-emerald-400'
+                    }`}
+                  >
+                    {project.overdueCount === 0 ? '100% Compliant' : `${(100 - project.overduePercent).toFixed(1)}% On-Time`}
+                  </span>
                 </div>
                 <span className="text-slate-500 dark:text-slate-400">
                   {project.overdueCount > 0
-                    ? `${project.overdueCount} transmittals exceed the 14-day standard turnaround SLA`
+                    ? `${project.overdueCount} ${project.overdueCount === 1 ? 'transmittal exceeds' : 'transmittals exceed'} SLA turnaround window`
                     : '100% of transmittals within SLA response window'}
                 </span>
               </div>
@@ -542,17 +608,6 @@ export const ProjectDetailModal: React.FC<ProjectDetailModalProps> = ({
           </div>
         </div>
       </div>
-
-        {/* Fixed Footer: Close button */}
-        <div className="flex items-center justify-end px-5 sm:px-6 py-3.5 border-t border-slate-200 dark:border-[#3c3c3c] shrink-0 bg-slate-50/80 dark:bg-[#202021]">
-          <button
-            type="button"
-            onClick={onClose}
-            className="px-4 py-2 rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-[#2a2d2e] dark:hover:bg-[#333333] text-slate-700 dark:text-slate-200 font-semibold text-xs border border-slate-200 dark:border-[#3c3c3c] transition-colors"
-          >
-            Close Diagnostics
-          </button>
-        </div>
       </div>
     </div>
   );
