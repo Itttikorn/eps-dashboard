@@ -1,8 +1,11 @@
 import React from 'react';
 
-export const CardSkeleton: React.FC<{ count?: number }> = ({ count = 4 }) => {
+export const CardSkeleton: React.FC<{ count?: number }> = ({ count = 3 }) => {
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4" data-testid="card-skeleton">
+    <div
+      className={`grid grid-cols-1 ${count === 3 ? 'sm:grid-cols-3' : 'md:grid-cols-2 lg:grid-cols-4'} gap-4`}
+      data-testid="card-skeleton"
+    >
       {Array.from({ length: count }).map((_, i) => (
         <div
           key={i}

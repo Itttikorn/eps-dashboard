@@ -1,6 +1,6 @@
 import React from 'react';
 import { describe, it, expect, vi } from 'vitest';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import { TopbarKpiCards } from './TopbarKpiCards';
 import { GlobalSummaryData } from '../../api/types';
 
@@ -32,25 +32,31 @@ describe('TopbarKpiCards Component', () => {
     expect(screen.getByText('Failed to load portfolio totals')).toBeInTheDocument();
   });
 
-  it('renders 4 macro cards and formatted figures when data is supplied', () => {
+  it('renders 3 macro cards and formatted figures with red percentage when overdue > 0', () => {
     render(<TopbarKpiCards summary={mockSummary} />);
     expect(screen.getByText('12,450')).toBeInTheDocument();
     expect(screen.getByText('820')).toBeInTheDocument();
     expect(screen.getByText('340')).toBeInTheDocument();
     expect(screen.getByText('(2.7%)')).toBeInTheDocument();
     expect(screen.getByText('Across 14 active projects')).toBeInTheDocument();
+
+    // Verify overdue threshold text is removed
+    expect(screen.queryByText(/Target SLA threshold/i)).not.toBeInTheDocument();
+
+    // Verify percentage is styled in red when overdueRatePercent > 0
+    const pctElement = screen.getByTestId('overdue-percentage');
+    expect(pctElement.className).toContain('text-red-600');
   });
 
-  it('toggles category contribution drawer when pillar button is clicked', () => {
-    render(<TopbarKpiCards summary={mockSummary} projects={[]} />);
-    const baselinePill = screen.getByTestId('pillar-pill-baseline');
-
-    fireEvent.click(baselinePill);
-    expect(screen.getByTestId('category-detail-grid')).toBeInTheDocument();
-
-    // Clicking again collapses it
-    fireEvent.click(baselinePill);
-    expect(screen.queryByTestId('category-detail-grid')).not.toBeInTheDocument();
+  it('renders overdue percentage with neutral text when overdue is 0', () => {
+    const zeroOverdueSummary: GlobalSummaryData = {
+      ...mockSummary,
+      totalOverdue: 0,
+      overdueRatePercent: 0,
+    };
+    render(<TopbarKpiCards summary={zeroOverdueSummary} />);
+    const pctElement = screen.getByTestId('overdue-percentage');
+    expect(pctElement.className).toContain('text-slate-400');
+    expect(pctElement.className).not.toContain('text-red-600');
   });
 });
-
