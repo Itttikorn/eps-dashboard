@@ -197,7 +197,7 @@ export const ProjectMatrixTable: React.FC<ProjectMatrixTableProps> = ({
               </th>
               <th className="py-2 px-2 bg-slate-100 dark:bg-[#26282b] text-slate-800 dark:text-slate-200">
                 Overdue
-                <span className="block text-[9.5px] font-normal opacity-80">&gt;14 Days SLA</span>
+                <span className="block text-[9.5px] font-normal opacity-80">&gt;14 Due Date</span>
               </th>
               <th className="py-2 px-2 bg-slate-50 dark:bg-[#202020]"></th>
             </tr>
