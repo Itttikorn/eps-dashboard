@@ -5,7 +5,6 @@ import {
   HardHat,
   Zap,
   Clock,
-  Scale,
 } from 'lucide-react';
 import { ProjectMatrixRow } from '../../api/types';
 import { OverdueBadge, DelinquencyChip, TrendTag } from '../../components/ui/Badges';

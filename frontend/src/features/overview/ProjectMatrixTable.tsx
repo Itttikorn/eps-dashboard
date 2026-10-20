@@ -161,7 +161,7 @@ export const ProjectMatrixTable: React.FC<ProjectMatrixTableProps> = ({
               </th>
               <th className="py-2 px-2 bg-blue-50 dark:bg-[#1a2b47] text-blue-900 dark:text-blue-200">
                 Drawings
-                <span className="block text-[9.5px] font-normal opacity-80">Approved / Total</span>
+                <span className="block text-[9.5px] font-normal opacity-80">Volume</span>
               </th>
               <th className="py-2 px-2 bg-teal-50 dark:bg-[#0e3332] text-teal-900 dark:text-teal-200">
                 ITP
@@ -197,7 +197,7 @@ export const ProjectMatrixTable: React.FC<ProjectMatrixTableProps> = ({
               </th>
               <th className="py-2 px-2 bg-slate-100 dark:bg-[#26282b] text-slate-800 dark:text-slate-200">
                 Overdue
-                <span className="block text-[9.5px] font-normal opacity-80">&gt;14 Due Date</span>
+                <span className="block text-[9.5px] font-normal opacity-80">SLA Breaches</span>
               </th>
               <th className="py-2 px-2 bg-slate-50 dark:bg-[#202020]"></th>
             </tr>
@@ -244,27 +244,16 @@ export const ProjectMatrixTable: React.FC<ProjectMatrixTableProps> = ({
 
                   {/* Column: ① Baseline Drawings */}
                   <td className="py-3 px-2 text-center bg-blue-50/30 dark:bg-[#1a2b47]/20">
-                    <div className="flex flex-col items-center gap-1">
-                      <span className="font-bold tabular-nums text-slate-800 dark:text-slate-200 text-xs">
-                        {base.approved}
-                        <span className="text-slate-400 dark:text-slate-500 font-normal">/{base.total}</span>
-                      </span>
-                      <div className="w-14 bg-slate-200 dark:bg-[#3c3c3c] h-1.5 rounded-full overflow-hidden">
-                        <div
-                          className={`h-full rounded-full ${
-                            base.approvedPercent >= 75
-                              ? 'bg-emerald-500'
-                              : base.approvedPercent >= 50
-                              ? 'bg-amber-500'
-                              : 'bg-red-500'
-                          }`}
-                          style={{ width: `${Math.min(100, Math.max(0, base.approvedPercent))}%` }}
-                        />
-                      </div>
-                      <span className="text-[10px] text-slate-500 dark:text-slate-400 tabular-nums">
-                        {base.approvedPercent.toFixed(0)}%
-                      </span>
-                    </div>
+                    <span
+                      className="px-2 py-0.5 rounded-md text-xs font-bold tabular-nums text-slate-800 dark:text-slate-200"
+                      title={`Baseline Drawings: ${base.total} total deliverables`}
+                    >
+                      {base.total > 0 ? (
+                        base.total.toLocaleString()
+                      ) : (
+                        <span className="text-slate-400 dark:text-slate-600 font-mono text-xs">0</span>
+                      )}
+                    </span>
                   </td>
 
                   {/* Column: ② Control - ITP */}
