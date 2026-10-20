@@ -147,6 +147,9 @@ export function normalizeProjectMatrixRow(raw: ProjectContractRow): ProjectMatri
   const controlPillar = normalizePillarDetail(raw.control);
   const correctivePillar = normalizePillarDetail(raw.corrective);
   const changePillar = normalizePillarDetail(raw.change);
+  const fcrPillar = normalizePillarDetail(raw.fcr ?? raw.change);
+  const dcrPillar = normalizePillarDetail(raw.dcr);
+  const vorPillar = normalizePillarDetail(raw.vor);
   const completePillar = normalizePillarDetail(raw.complete);
 
   // Overall counts
@@ -182,6 +185,9 @@ export function normalizeProjectMatrixRow(raw: ProjectContractRow): ProjectMatri
       control: controlPillar,
       corrective: correctivePillar,
       change: changePillar,
+      fcr: fcrPillar,
+      dcr: dcrPillar,
+      vor: vorPillar,
       complete: completePillar,
     },
     disciplines: {

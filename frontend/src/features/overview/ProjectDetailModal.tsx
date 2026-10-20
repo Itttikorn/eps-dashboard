@@ -472,6 +472,28 @@ export const ProjectDetailModal: React.FC<ProjectDetailModalProps> = ({
                   </span>
                 </div>
               </div>
+
+              {/* Sub-breakdown: FCR, DCR, VOR */}
+              <div className="grid grid-cols-3 gap-2 mt-2.5 pt-2 border-t border-slate-100 dark:border-[#3c3c3c] text-center text-[11px]">
+                <div className="bg-slate-50 dark:bg-[#202020] p-1.5 rounded">
+                  <span className="text-slate-500 dark:text-slate-400 block font-medium">FCR (Field)</span>
+                  <span className="font-bold text-slate-800 dark:text-slate-200">
+                    {project.pillars.fcr?.total ?? 0}
+                  </span>
+                </div>
+                <div className="bg-slate-50 dark:bg-[#202020] p-1.5 rounded">
+                  <span className="text-slate-500 dark:text-slate-400 block font-medium">DCR (Design)</span>
+                  <span className="font-bold text-slate-800 dark:text-slate-200">
+                    {project.pillars.dcr?.total ?? 0}
+                  </span>
+                </div>
+                <div className="bg-slate-50 dark:bg-[#202020] p-1.5 rounded">
+                  <span className="text-slate-500 dark:text-slate-400 block font-medium">VOR (Variation)</span>
+                  <span className="font-bold text-slate-800 dark:text-slate-200">
+                    {project.pillars.vor?.total ?? 0}
+                  </span>
+                </div>
+              </div>
             </div>
           </div>
 

@@ -25,6 +25,9 @@ const mockProjects: ProjectMatrixRow[] = [
       control: { total: 200, open: 10, closed: 190, pendingPercent: 5, isCritical: false },
       corrective: { total: 100, open: 10, closed: 90, pendingPercent: 10, isCritical: false },
       change: { total: 150, open: 10, closed: 140, pendingPercent: 6.7, isCritical: false },
+      fcr: { total: 50, open: 5, closed: 45, pendingPercent: 10, isCritical: false },
+      dcr: { total: 60, open: 3, closed: 57, pendingPercent: 5, isCritical: false },
+      vor: { total: 40, open: 2, closed: 38, pendingPercent: 5, isCritical: false },
       complete: { total: 150, open: 10, closed: 140, pendingPercent: 6.7, isCritical: false },
     },
     disciplines: {
@@ -55,6 +58,9 @@ const mockProjects: ProjectMatrixRow[] = [
       control: { total: 400, open: 200, closed: 200, pendingPercent: 50, isCritical: true },
       corrective: { total: 200, open: 100, closed: 100, pendingPercent: 50, isCritical: true },
       change: { total: 300, open: 150, closed: 150, pendingPercent: 50, isCritical: true },
+      fcr: { total: 100, open: 50, closed: 50, pendingPercent: 50, isCritical: true },
+      dcr: { total: 100, open: 50, closed: 50, pendingPercent: 50, isCritical: true },
+      vor: { total: 100, open: 50, closed: 50, pendingPercent: 50, isCritical: true },
       complete: { total: 300, open: 100, closed: 200, pendingPercent: 33.3, isCritical: false },
     },
     disciplines: {
@@ -96,6 +102,9 @@ describe('ProjectMatrixTable Component', () => {
     expect(screen.getByText('② Control')).toBeInTheDocument();
     expect(screen.getByText('③ Corrective')).toBeInTheDocument();
     expect(screen.getByText('④ Change')).toBeInTheDocument();
+    expect(screen.getByText('FCR')).toBeInTheDocument();
+    expect(screen.getByText('DCR')).toBeInTheDocument();
+    expect(screen.getByText('VOR')).toBeInTheDocument();
     expect(screen.getByText('⑤ Complete')).toBeInTheDocument();
     expect(screen.getByText('SLA Monitor')).toBeInTheDocument();
   });

@@ -142,7 +142,7 @@ export const ProjectMatrixTable: React.FC<ProjectMatrixTableProps> = ({
               <th className="py-2.5 px-3 bg-[#ee8a1f] text-white" colSpan={2}>
                 ③ Corrective
               </th>
-              <th className="py-2.5 px-3 bg-[#26a65b] text-white" colSpan={2}>
+              <th className="py-2.5 px-3 bg-[#26a65b] text-white" colSpan={3}>
                 ④ Change
               </th>
               <th className="py-2.5 px-3 bg-[#8b5cf6] text-white w-[90px]">
@@ -188,8 +188,12 @@ export const ProjectMatrixTable: React.FC<ProjectMatrixTableProps> = ({
                 <span className="block text-[9.5px] font-normal opacity-80">Field</span>
               </th>
               <th className="py-2 px-2 bg-emerald-50 dark:bg-[#122e1e] text-emerald-900 dark:text-emerald-200">
-                DCR/VOR
-                <span className="block text-[9.5px] font-normal opacity-80">Design/VO</span>
+                DCR
+                <span className="block text-[9.5px] font-normal opacity-80">Design</span>
+              </th>
+              <th className="py-2 px-2 bg-emerald-50 dark:bg-[#122e1e] text-emerald-900 dark:text-emerald-200">
+                VOR
+                <span className="block text-[9.5px] font-normal opacity-80">Variation</span>
               </th>
               <th className="py-2 px-2 bg-purple-50 dark:bg-[#281b3d] text-purple-900 dark:text-purple-200">
                 Handover
@@ -209,7 +213,9 @@ export const ProjectMatrixTable: React.FC<ProjectMatrixTableProps> = ({
               const base = p.pillars.baseline;
               const ctrl = p.pillars.control;
               const corr = p.pillars.corrective;
-              const chg = p.pillars.change;
+              const fcr = p.pillars.fcr;
+              const dcr = p.pillars.dcr;
+              const vor = p.pillars.vor;
               const comp = p.pillars.complete;
 
               const healthPill =
@@ -300,12 +306,17 @@ export const ProjectMatrixTable: React.FC<ProjectMatrixTableProps> = ({
 
                   {/* Column: ④ Change - FCR */}
                   <td className="py-3 px-2 text-center bg-emerald-50/20 dark:bg-[#122e1e]/10">
-                    {renderDelinquencyChip(chg.total, chg.pendingPercent, chg.isCritical, 'FCR Total')}
+                    {renderDelinquencyChip(fcr.total, fcr.pendingPercent, fcr.isCritical, 'FCR Total')}
                   </td>
 
-                  {/* Column: ④ Change - DCR/VOR */}
+                  {/* Column: ④ Change - DCR */}
                   <td className="py-3 px-2 text-center bg-emerald-50/20 dark:bg-[#122e1e]/10">
-                    {renderDelinquencyChip(chg.closed, 0, false, 'DCR/VOR Closed')}
+                    {renderDelinquencyChip(dcr.total, dcr.pendingPercent, dcr.isCritical, 'DCR Total')}
+                  </td>
+
+                  {/* Column: ④ Change - VOR */}
+                  <td className="py-3 px-2 text-center bg-emerald-50/20 dark:bg-[#122e1e]/10">
+                    {renderDelinquencyChip(vor.total, vor.pendingPercent, vor.isCritical, 'VOR Total')}
                   </td>
 
                   {/* Column: ⑤ Complete - Handover */}

@@ -58,6 +58,9 @@ export interface ProjectContractRow {
   control?: CategoryMetricsContract;
   corrective?: CategoryMetricsContract;
   change?: CategoryMetricsContract;
+  fcr?: CategoryMetricsContract;
+  dcr?: CategoryMetricsContract;
+  vor?: CategoryMetricsContract;
   complete?: CategoryMetricsContract;
   overdue_count?: number;
   total_documents?: number;
@@ -166,6 +169,9 @@ export interface ProjectMatrixRow {
     control: PillarPillDetail;
     corrective: PillarPillDetail;
     change: PillarPillDetail;
+    fcr: PillarPillDetail;
+    dcr: PillarPillDetail;
+    vor: PillarPillDetail;
     complete: PillarPillDetail;
   };
   disciplines: {
