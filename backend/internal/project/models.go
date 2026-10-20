@@ -20,6 +20,7 @@ type CategoryMetrics struct {
 	Total      int     `json:"total"`
 	Open       int     `json:"open"`
 	Closed     int     `json:"closed"`
+	Overdue    int     `json:"overdue"`
 	PendingPct float64 `json:"pending_pct"`
 	IsCritical bool    `json:"is_critical"`
 	AvgAgeDays float64 `json:"avg_age_days"`
@@ -48,10 +49,12 @@ type BaselineMetrics struct {
 	IsCritical bool    `json:"is_critical"`
 }
 
-// DisciplineStat tracks total and approved document counts for a discipline.
+// DisciplineStat tracks total, approved, under-review, and overdue document counts for a discipline.
 type DisciplineStat struct {
-	Total    int `json:"total"`
-	Approved int `json:"approved"`
+	Total       int `json:"total"`
+	Approved    int `json:"approved"`
+	UnderReview int `json:"under_review"`
+	Overdue     int `json:"overdue"`
 }
 
 // DisciplinesBreakdown breaks down engineering drawings across ME, CE, and EE.
@@ -59,6 +62,13 @@ type DisciplinesBreakdown struct {
 	ME DisciplineStat `json:"me"`
 	CE DisciplineStat `json:"ce"`
 	EE DisciplineStat `json:"ee"`
+}
+
+// ITPDisciplineStatus tracks whether an ITP has been submitted for each engineering discipline.
+type ITPDisciplineStatus struct {
+	ME bool `json:"me"`
+	CE bool `json:"ce"`
+	EE bool `json:"ee"`
 }
 
 // ProjectMatrixRow represents a single project's summarized status for the comparative matrix.
@@ -69,12 +79,15 @@ type ProjectMatrixRow struct {
 	BaselineDrawings     BaselineMetrics      `json:"baseline_drawings"`
 	Control              CategoryMetrics      `json:"control"`
 	Corrective           CategoryMetrics      `json:"corrective"`
+	NCR                  CategoryMetrics      `json:"ncr"`
+	CAR                  CategoryMetrics      `json:"car"`
 	Change               CategoryMetrics      `json:"change"`
 	FCR                  CategoryMetrics      `json:"fcr"`
 	DCR                  CategoryMetrics      `json:"dcr"`
 	VOR                  CategoryMetrics      `json:"vor"`
 	Complete             CategoryMetrics      `json:"complete"`
 	Disciplines          DisciplinesBreakdown `json:"disciplines"`
+	ITPSubmissions       ITPDisciplineStatus  `json:"itp_submissions"`
 	DrawingTypes         []string             `json:"drawing_types"`
 	PendingAgingDays     float64              `json:"pending_aging_days"`
 	OverdueCount         int                  `json:"overdue_count"`

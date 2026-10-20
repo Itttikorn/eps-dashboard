@@ -154,6 +154,60 @@ func (s *Service) GetGlobalSummary(ctx context.Context) (*GlobalSummary, error) 
 	}, nil
 }
 
+// resolveDiscipline extracts or normalizes engineering disciplines (ME, CE, EE)
+// by inspecting tokens in the document number / ID, with fallback to explicit discipline code.
+func resolveDiscipline(docNumber, explicitDiscipline string) string {
+	normalized := strings.ReplaceAll(docNumber, "_", "-")
+	parts := strings.Split(normalized, "-")
+
+	// Phase 1: Multi-letter discipline tokens (e.g. ME, CE, EE, ME06, EE15, EXC16, PP, MS)
+	for _, p := range parts {
+		token := strings.ToUpper(strings.TrimSpace(p))
+		if token == "ME" || token == "PP" || (strings.HasPrefix(token, "ME") && len(token) <= 4) {
+			return "ME"
+		}
+		if token == "CE" || token == "MS" || (strings.HasPrefix(token, "CE") && len(token) <= 4) ||
+			(strings.HasPrefix(token, "EXC") && len(token) <= 5) || (strings.HasPrefix(token, "EX") && len(token) <= 4 && token != "EXP") {
+			return "CE"
+		}
+		if token == "EE" || (strings.HasPrefix(token, "EE") && len(token) <= 4) {
+			return "EE"
+		}
+	}
+
+	// Phase 2: Single-letter discipline segment (e.g. STSBPP-AB-E-100-001, STSBPP-UB-M-120-094)
+	for _, p := range parts {
+		token := strings.ToUpper(strings.TrimSpace(p))
+		if token == "M" {
+			return "ME"
+		}
+		if token == "E" || token == "I" {
+			return "EE"
+		}
+		if token == "C" || token == "S" || token == "AR" {
+			return "CE"
+		}
+	}
+
+	// Fallback to explicit discipline suffix
+	disc := strings.ToUpper(strings.TrimSpace(explicitDiscipline))
+	switch disc {
+	case "ME", "CE", "EE":
+		return disc
+	}
+	if strings.HasSuffix(disc, "ME") {
+		return "ME"
+	}
+	if strings.HasSuffix(disc, "CE") {
+		return "CE"
+	}
+	if strings.HasSuffix(disc, "EE") {
+		return "EE"
+	}
+
+	return disc
+}
+
 func (s *Service) GetProjectMatrix(ctx context.Context, search, sortBy, sortDir string, page, pageSize int) ([]ProjectMatrixRow, int, error) {
 	projects, err := s.repo.ListProjects(ctx)
 	if err != nil {
@@ -169,14 +223,17 @@ func (s *Service) GetProjectMatrix(ctx context.Context, search, sortBy, sortDir 
 
 		var total, approved, underReview, overdue int
 		var baselineTotal, baselineApproved, baselineInReview, baselineOverdue int
-		var ctrlTotal, ctrlOpen, ctrlClosed int
-		var corrTotal, corrOpen, corrClosed int
+		var ctrlTotal, ctrlOpen, ctrlClosed, ctrlOverdue int
+		var corrTotal, corrOpen, corrClosed, corrOverdue int
+		var ncrTotal, ncrOpen, ncrClosed, ncrOverdue int
+		var carTotal, carOpen, carClosed, carOverdue int
 		var corrAgeSum float64
-		var chgTotal, chgOpen, chgClosed int
-		var fcrTotal, fcrOpen, fcrClosed int
-		var dcrTotal, dcrOpen, dcrClosed int
-		var vorTotal, vorOpen, vorClosed int
+		var chgTotal, chgOpen, chgClosed, chgOverdue int
+		var fcrTotal, fcrOpen, fcrClosed, fcrOverdue int
+		var dcrTotal, dcrOpen, dcrClosed, dcrOverdue int
+		var vorTotal, vorOpen, vorClosed, vorOverdue int
 		var disciplines DisciplinesBreakdown
+		var itpSubmissions ITPDisciplineStatus
 		var drawingTypesMap = make(map[string]bool)
 
 		for _, d := range docs {
@@ -190,6 +247,21 @@ func (s *Service) GetProjectMatrix(ctx context.Context, search, sortBy, sortDir 
 				overdue++
 			}
 
+			docUpper := strings.ToUpper(d.DocNumber + " " + d.Title)
+
+			// Track ITP submissions per discipline
+			if strings.Contains(docUpper, "ITP") {
+				itpDisc := resolveDiscipline(d.DocNumber, d.Discipline)
+				switch itpDisc {
+				case "ME":
+					itpSubmissions.ME = true
+				case "CE":
+					itpSubmissions.CE = true
+				case "EE":
+					itpSubmissions.EE = true
+				}
+			}
+
 			cat, isClosed := ClassifyCategory(d.DocNumber, d.Title, d.Status)
 			switch cat {
 			case CategoryControl:
@@ -199,13 +271,48 @@ func (s *Service) GetProjectMatrix(ctx context.Context, search, sortBy, sortDir 
 				} else {
 					ctrlOpen++
 				}
+				if d.IsOverdue {
+					ctrlOverdue++
+				}
 			case CategoryCorrective:
 				corrTotal++
+				if d.IsOverdue {
+					corrOverdue++
+				}
+				if strings.Contains(docUpper, "NCR") {
+					ncrTotal++
+					if isClosed {
+						ncrClosed++
+					} else {
+						ncrOpen++
+					}
+					if d.IsOverdue {
+						ncrOverdue++
+					}
+				} else {
+					carTotal++
+					if isClosed {
+						carClosed++
+					} else {
+						carOpen++
+					}
+					if d.IsOverdue {
+						carOverdue++
+					}
+				}
+
 				if isClosed {
 					corrClosed++
 				} else {
 					corrOpen++
-					corrAgeSum += float64(d.OverdueDays)
+					if d.OverdueDays > 0 {
+						corrAgeSum += float64(d.OverdueDays)
+					} else if !d.IssueDate.IsZero() {
+						days := time.Since(d.IssueDate).Hours() / 24.0
+						if days > 0 {
+							corrAgeSum += days
+						}
+					}
 				}
 			case CategoryChange:
 				chgTotal++
@@ -214,14 +321,19 @@ func (s *Service) GetProjectMatrix(ctx context.Context, search, sortBy, sortDir 
 				} else {
 					chgOpen++
 				}
+				if d.IsOverdue {
+					chgOverdue++
+				}
 
-				docUpper := strings.ToUpper(d.DocNumber + " " + d.Title)
 				if strings.Contains(docUpper, "DCR") {
 					dcrTotal++
 					if isClosed {
 						dcrClosed++
 					} else {
 						dcrOpen++
+					}
+					if d.IsOverdue {
+						dcrOverdue++
 					}
 				} else if strings.Contains(docUpper, "VOR") || strings.Contains(docUpper, "VARIATION") {
 					vorTotal++
@@ -230,12 +342,18 @@ func (s *Service) GetProjectMatrix(ctx context.Context, search, sortBy, sortDir 
 					} else {
 						vorOpen++
 					}
+					if d.IsOverdue {
+						vorOverdue++
+					}
 				} else {
 					fcrTotal++
 					if isClosed {
 						fcrClosed++
 					} else {
 						fcrOpen++
+					}
+					if d.IsOverdue {
+						fcrOverdue++
 					}
 				}
 			default:
@@ -249,21 +367,37 @@ func (s *Service) GetProjectMatrix(ctx context.Context, search, sortBy, sortDir 
 					baselineOverdue++
 				}
 
-				switch strings.ToUpper(d.Discipline) {
+				discCode := resolveDiscipline(d.DocNumber, d.Discipline)
+				switch discCode {
 				case "ME":
 					disciplines.ME.Total++
 					if d.Status == "Approved" {
 						disciplines.ME.Approved++
+					} else if d.Status == "Under Review" {
+						disciplines.ME.UnderReview++
+					}
+					if d.IsOverdue {
+						disciplines.ME.Overdue++
 					}
 				case "CE":
 					disciplines.CE.Total++
 					if d.Status == "Approved" {
 						disciplines.CE.Approved++
+					} else if d.Status == "Under Review" {
+						disciplines.CE.UnderReview++
+					}
+					if d.IsOverdue {
+						disciplines.CE.Overdue++
 					}
 				case "EE":
 					disciplines.EE.Total++
 					if d.Status == "Approved" {
 						disciplines.EE.Approved++
+					} else if d.Status == "Under Review" {
+						disciplines.EE.UnderReview++
+					}
+					if d.IsOverdue {
+						disciplines.EE.Overdue++
 					}
 				}
 
@@ -316,7 +450,7 @@ func (s *Service) GetProjectMatrix(ctx context.Context, search, sortBy, sortDir 
 		}
 		sort.Strings(drawingTypes)
 
-		calcCategoryMetrics := func(tot, op, cl int, avgAge float64) CategoryMetrics {
+		calcCategoryMetrics := func(tot, op, cl, ovd int, avgAge float64) CategoryMetrics {
 			var pct float64
 			if tot > 0 {
 				pct = float64(op) / float64(tot) * 100.0
@@ -325,6 +459,7 @@ func (s *Service) GetProjectMatrix(ctx context.Context, search, sortBy, sortDir 
 				Total:      tot,
 				Open:       op,
 				Closed:     cl,
+				Overdue:    ovd,
 				PendingPct: pct,
 				IsCritical: pct >= 45.0,
 				AvgAgeDays: avgAge,
@@ -366,14 +501,17 @@ func (s *Service) GetProjectMatrix(ctx context.Context, search, sortBy, sortDir 
 			ProjectCode:          p.Code,
 			ProjectName:          p.Name,
 			BaselineDrawings:     baselineMetrics,
-			Control:              calcCategoryMetrics(ctrlTotal, ctrlOpen, ctrlClosed, 0),
-			Corrective:           calcCategoryMetrics(corrTotal, corrOpen, corrClosed, corrAvgAge),
-			Change:               calcCategoryMetrics(chgTotal, chgOpen, chgClosed, 0),
-			FCR:                  calcCategoryMetrics(fcrTotal, fcrOpen, fcrClosed, 0),
-			DCR:                  calcCategoryMetrics(dcrTotal, dcrOpen, dcrClosed, 0),
-			VOR:                  calcCategoryMetrics(vorTotal, vorOpen, vorClosed, 0),
-			Complete:             calcCategoryMetrics(0, 0, 0, 0),
+			Control:              calcCategoryMetrics(ctrlTotal, ctrlOpen, ctrlClosed, ctrlOverdue, 0),
+			Corrective:           calcCategoryMetrics(corrTotal, corrOpen, corrClosed, corrOverdue, corrAvgAge),
+			NCR:                  calcCategoryMetrics(ncrTotal, ncrOpen, ncrClosed, ncrOverdue, 0),
+			CAR:                  calcCategoryMetrics(carTotal, carOpen, carClosed, carOverdue, 0),
+			Change:               calcCategoryMetrics(chgTotal, chgOpen, chgClosed, chgOverdue, 0),
+			FCR:                  calcCategoryMetrics(fcrTotal, fcrOpen, fcrClosed, fcrOverdue, 0),
+			DCR:                  calcCategoryMetrics(dcrTotal, dcrOpen, dcrClosed, dcrOverdue, 0),
+			VOR:                  calcCategoryMetrics(vorTotal, vorOpen, vorClosed, vorOverdue, 0),
+			Complete:             calcCategoryMetrics(0, 0, 0, 0, 0),
 			Disciplines:          disciplines,
+			ITPSubmissions:       itpSubmissions,
 			DrawingTypes:         drawingTypes,
 			PendingAgingDays:     corrAvgAge,
 			OverdueCount:         overdue,
