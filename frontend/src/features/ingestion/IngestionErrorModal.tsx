@@ -19,6 +19,12 @@ export const IngestionErrorModal: React.FC<IngestionErrorModalProps> = ({
   errorMessage = 'The uploaded CSV could not be processed.',
   details = [],
 }) => {
+  // Filter out any details that duplicate the main error message or empty entries
+  const normalizedError = errorMessage.trim().toLowerCase();
+  const distinctDetails = details.filter(
+    (d) => d && d.trim() !== '' && d.trim().toLowerCase() !== normalizedError
+  );
+
   return (
     <Modal
       open={open}
@@ -28,7 +34,7 @@ export const IngestionErrorModal: React.FC<IngestionErrorModalProps> = ({
           key="close"
           type="button"
           onClick={onClose}
-          className="px-4 py-2 bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 text-slate-800 dark:text-slate-100 font-semibold rounded-lg text-xs transition-colors"
+          className="px-4 py-2 bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 text-slate-800 dark:text-slate-100 font-semibold rounded-lg text-xs transition-colors cursor-pointer"
         >
           Close Diagnostics
         </button>,
@@ -51,13 +57,13 @@ export const IngestionErrorModal: React.FC<IngestionErrorModalProps> = ({
           </div>
         ) : null}
 
-        {details.length > 0 && (
+        {distinctDetails.length > 0 && (
           <div className="mt-3">
             <span className="font-semibold block mb-1.5 flex items-center gap-1.5 text-slate-600 dark:text-slate-400">
               <FileWarning className="w-3.5 h-3.5 text-red-500" /> Detected Row Discrepancies:
             </span>
             <div className="max-h-48 overflow-y-auto bg-slate-50 dark:bg-slate-800 p-2.5 rounded border border-slate-200 dark:border-slate-700 font-mono text-[11px] space-y-1">
-              {details.map((d, i) => (
+              {distinctDetails.map((d, i) => (
                 <div key={i} className="text-red-600 dark:text-red-400">
                   {d}
                 </div>
@@ -69,4 +75,3 @@ export const IngestionErrorModal: React.FC<IngestionErrorModalProps> = ({
     </Modal>
   );
 };
-

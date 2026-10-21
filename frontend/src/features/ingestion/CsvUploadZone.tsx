@@ -1,5 +1,5 @@
 import React, { useState, useRef, DragEvent, ChangeEvent } from 'react';
-import { UploadCloud, CheckCircle2, AlertCircle, FileText, Loader2 } from 'lucide-react';
+import { UploadCloud, CheckCircle2, AlertCircle, Loader2 } from 'lucide-react';
 import { validateCsvFile } from '../../lib/validation';
 import { useUploadSnapshot } from '../../api/queries';
 import { IngestionErrorModal } from './IngestionErrorModal';
@@ -33,6 +33,7 @@ export const CsvUploadZone: React.FC<CsvUploadZoneProps> = ({ onUploadSuccess })
 
   const handleDragOver = (e: DragEvent<HTMLDivElement>) => {
     e.preventDefault();
+    if (uploadMutation.isPending) return;
     setIsDragOver(true);
   };
 
@@ -44,6 +45,7 @@ export const CsvUploadZone: React.FC<CsvUploadZoneProps> = ({ onUploadSuccess })
   const handleDrop = (e: DragEvent<HTMLDivElement>) => {
     e.preventDefault();
     setIsDragOver(false);
+    if (uploadMutation.isPending) return;
 
     if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
       const file = e.dataTransfer.files[0];
@@ -59,7 +61,36 @@ export const CsvUploadZone: React.FC<CsvUploadZoneProps> = ({ onUploadSuccess })
     e.target.value = '';
   };
 
+  const executeUpload = async (file: File) => {
+    try {
+      const record = await uploadMutation.mutateAsync({ file });
+      setSuccessResult(record);
+      setSelectedFile(null);
+      onUploadSuccess?.(record);
+    } catch (err: unknown) {
+      setSelectedFile(null);
+      const apiErr = err as ApiClientError;
+      const isConflict = apiErr.classification === 'conflict' || apiErr.statusCode === 409;
+      const isValidation = apiErr.statusCode === 400;
+      const errorMsg = apiErr.statusDescription || 'Unable to process CSV file on the server.';
+
+      setErrorDetails({
+        open: true,
+        title: isConflict
+          ? 'Chronology Conflict'
+          : isValidation
+          ? 'Invalid CSV Format'
+          : 'Upload Ingestion Failed',
+        message: errorMsg,
+        isConflict,
+        details: [],
+      });
+    }
+  };
+
   const processSelectedFile = (file: File) => {
+    if (uploadMutation.isPending) return;
+
     setSuccessResult(null);
     setValidationError(null);
 
@@ -71,37 +102,7 @@ export const CsvUploadZone: React.FC<CsvUploadZoneProps> = ({ onUploadSuccess })
     }
 
     setSelectedFile(file);
-  };
-
-  const handleUploadSubmit = async () => {
-    if (!selectedFile) return;
-
-    try {
-      const record = await uploadMutation.mutateAsync({ file: selectedFile });
-      setSuccessResult(record);
-      setSelectedFile(null);
-      onUploadSuccess?.(record);
-    } catch (err: unknown) {
-      const apiErr = err as ApiClientError;
-      const isConflict = apiErr.classification === 'conflict' || apiErr.statusCode === 409;
-      const isValidation = apiErr.statusCode === 400;
-
-      setErrorDetails({
-        open: true,
-        title: isConflict
-          ? 'Chronology Conflict'
-          : isValidation
-          ? 'Invalid CSV Format'
-          : 'Upload Ingestion Failed',
-        message: apiErr.statusDescription || 'Unable to process CSV file on the server.',
-        isConflict,
-        details: isConflict
-          ? ['Existing dataset snapshot is more recent than this file.']
-          : isValidation
-          ? [apiErr.statusDescription || 'Check CSV formatting, headers, and UTF-8 encoding.']
-          : [apiErr.statusDescription || 'An internal server error occurred. Please check docker container logs.'],
-      });
-    }
+    executeUpload(file);
   };
 
   return (
@@ -115,16 +116,18 @@ export const CsvUploadZone: React.FC<CsvUploadZoneProps> = ({ onUploadSuccess })
         </p>
       </div>
 
-      {/* Drag & Drop Visual Box */}
+      {/* Drag & Drop Visual Box / In-Flight Upload State */}
       <div
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
         onDrop={handleDrop}
-        onClick={() => fileInputRef.current?.click()}
-        className={`border-2 border-dashed rounded-xl p-8 text-center cursor-pointer transition-all ${
-          isDragOver
-            ? 'border-blue-500 dark:border-[#3794ff] bg-blue-50/70 dark:bg-[#007acc]/15'
-            : 'border-slate-300 dark:border-[#3c3c3c] hover:border-blue-500 dark:hover:border-[#007acc] bg-slate-50/70 dark:bg-[#1e1e1e] hover:bg-blue-50/20 dark:hover:bg-[#2a2d2e]'
+        onClick={() => !uploadMutation.isPending && fileInputRef.current?.click()}
+        className={`border-2 border-dashed rounded-xl p-8 text-center transition-all ${
+          uploadMutation.isPending
+            ? 'border-blue-400 dark:border-[#007acc] bg-blue-50/40 dark:bg-[#007acc]/10 cursor-wait'
+            : isDragOver
+            ? 'border-blue-500 dark:border-[#3794ff] bg-blue-50/70 dark:bg-[#007acc]/15 cursor-pointer'
+            : 'border-slate-300 dark:border-[#3c3c3c] hover:border-blue-500 dark:hover:border-[#007acc] bg-slate-50/70 dark:bg-[#1e1e1e] hover:bg-blue-50/20 dark:hover:bg-[#2a2d2e] cursor-pointer'
         }`}
         data-testid="dropzone-area"
       >
@@ -133,23 +136,55 @@ export const CsvUploadZone: React.FC<CsvUploadZoneProps> = ({ onUploadSuccess })
           type="file"
           accept=".csv"
           onChange={handleFileChange}
+          disabled={uploadMutation.isPending}
           className="hidden"
           data-testid="file-input"
         />
 
-        <div className="w-14 h-14 rounded-full bg-blue-100 dark:bg-[#007acc]/20 text-blue-600 dark:text-[#3794ff] border border-blue-200 dark:border-[#007acc]/40 flex items-center justify-center mx-auto mb-3">
-          <UploadCloud className="w-7 h-7" />
-        </div>
+        {uploadMutation.isPending ? (
+          <div data-testid="uploading-state">
+            <div className="w-14 h-14 rounded-full bg-blue-100 dark:bg-[#007acc]/20 text-blue-600 dark:text-[#3794ff] border border-blue-200 dark:border-[#007acc]/40 flex items-center justify-center mx-auto mb-3">
+              <Loader2 className="w-7 h-7 animate-spin" />
+            </div>
 
-        <h4 className="text-sm font-bold text-slate-900 dark:text-slate-100 mb-1">
-          Drag & Drop CSV snapshot file here
-        </h4>
-        <p className="text-xs text-slate-600 dark:text-slate-300 max-w-sm mx-auto mb-2">
-          or click anywhere to browse from your computer.
-        </p>
-        <span className="text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
-          Limit: 32 MB • Format: .CSV
-        </span>
+            <h4 className="text-sm font-bold text-slate-900 dark:text-slate-100 mb-1">
+              Uploading and processing snapshot...
+            </h4>
+            <p className="text-xs text-slate-600 dark:text-slate-300 max-w-sm mx-auto mb-2 truncate">
+              {selectedFile ? (
+                <>
+                  <span className="font-semibold text-slate-800 dark:text-slate-200">
+                    {selectedFile.name}
+                  </span>{' '}
+                  <span className="text-slate-500 dark:text-slate-400 tabular-nums">
+                    ({(selectedFile.size / 1024).toFixed(1)} KB)
+                  </span>
+                </>
+              ) : (
+                'Ingesting data into database...'
+              )}
+            </p>
+            <span className="text-[11px] font-semibold text-blue-600 dark:text-[#3794ff] uppercase tracking-wider">
+              Please wait...
+            </span>
+          </div>
+        ) : (
+          <>
+            <div className="w-14 h-14 rounded-full bg-blue-100 dark:bg-[#007acc]/20 text-blue-600 dark:text-[#3794ff] border border-blue-200 dark:border-[#007acc]/40 flex items-center justify-center mx-auto mb-3">
+              <UploadCloud className="w-7 h-7" />
+            </div>
+
+            <h4 className="text-sm font-bold text-slate-900 dark:text-slate-100 mb-1">
+              Drag & Drop CSV snapshot file here
+            </h4>
+            <p className="text-xs text-slate-600 dark:text-slate-300 max-w-sm mx-auto mb-2">
+              or click anywhere to browse from your computer.
+            </p>
+            <span className="text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+              Limit: 32 MB • Format: .CSV
+            </span>
+          </>
+        )}
       </div>
 
       {/* Validation Error Banner */}
@@ -157,55 +192,6 @@ export const CsvUploadZone: React.FC<CsvUploadZoneProps> = ({ onUploadSuccess })
         <div className="mt-4 p-3 rounded-lg bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-900/60 flex items-center gap-2.5 text-xs text-red-700 dark:text-red-300">
           <AlertCircle className="w-4 h-4 shrink-0 text-red-600 dark:text-red-400" />
           <span>{validationError}</span>
-        </div>
-      )}
-
-      {/* Selected File Card & Submit CTA */}
-      {selectedFile && (
-        <div className="mt-4 p-4 rounded-lg bg-slate-100/80 dark:bg-[#1e1e1e] border border-slate-200 dark:border-[#3c3c3c] flex items-center justify-between gap-4">
-          <div className="flex items-center gap-3 truncate">
-            <div className="w-9 h-9 rounded bg-blue-100 dark:bg-[#007acc]/20 text-blue-600 dark:text-[#3794ff] flex items-center justify-center shrink-0">
-              <FileText className="w-5 h-5" />
-            </div>
-            <div className="truncate text-xs">
-              <p className="font-semibold text-slate-900 dark:text-slate-100 truncate">
-                {selectedFile.name}
-              </p>
-              <p className="text-slate-500 dark:text-slate-400 tabular-nums">
-                {(selectedFile.size / 1024).toFixed(1)} KB
-              </p>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-2 shrink-0">
-            <button
-              type="button"
-              onClick={() => setSelectedFile(null)}
-              disabled={uploadMutation.isPending}
-              className="px-3 py-1.5 text-xs font-semibold text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white rounded hover:bg-slate-200/60 dark:hover:bg-[#2d2d2d] transition-colors"
-            >
-              Cancel
-            </button>
-            <button
-              type="button"
-              onClick={handleUploadSubmit}
-              disabled={uploadMutation.isPending}
-              className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-500 dark:bg-[#007acc] dark:hover:bg-[#0e639c] disabled:bg-blue-400 text-white text-xs font-semibold shadow-xs transition-colors"
-              data-testid="submit-upload-btn"
-            >
-              {uploadMutation.isPending ? (
-                <>
-                  <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                  <span>Processing...</span>
-                </>
-              ) : (
-                <>
-                  <UploadCloud className="w-3.5 h-3.5" />
-                  <span>Submit Snapshot</span>
-                </>
-              )}
-            </button>
-          </div>
         </div>
       )}
 
@@ -240,4 +226,3 @@ export const CsvUploadZone: React.FC<CsvUploadZoneProps> = ({ onUploadSuccess })
     </div>
   );
 };
-
