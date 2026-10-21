@@ -10,6 +10,8 @@ import (
 	"regexp"
 	"strings"
 	"time"
+
+	"eps-dashboard/backend/internal/models"
 )
 
 var (
@@ -73,81 +75,14 @@ func ParseDate(dateStr string) (time.Time, error) {
 
 // ParseDisciplineFromDocNumber extracts standard discipline codes from document numbers/IDs.
 func ParseDisciplineFromDocNumber(docNumber string) string {
-	normalized := strings.ReplaceAll(docNumber, "_", "-")
-	parts := strings.Split(normalized, "-")
-
-	// Phase 1: Multi-letter discipline tokens (e.g. ME, CE, EE, ME06, EE15, EXC16, PP, MS, INST)
-	for _, p := range parts {
-		token := strings.ToUpper(strings.TrimSpace(p))
-		if token == "ME" || token == "PP" || (strings.HasPrefix(token, "ME") && len(token) <= 4) {
-			return "ME"
-		}
-		if token == "CE" || token == "MS" || (strings.HasPrefix(token, "CE") && len(token) <= 4) ||
-			(strings.HasPrefix(token, "EXC") && len(token) <= 5) || (strings.HasPrefix(token, "EX") && len(token) <= 4 && token != "EXP") {
-			return "CE"
-		}
-		if token == "EE" || (strings.HasPrefix(token, "EE") && len(token) <= 4) {
-			return "EE"
-		}
-		if token == "INST" {
-			return "INST"
-		}
-		if token == "PROC" {
-			return "PROC"
-		}
-		if token == "GEN" {
-			return "GEN"
-		}
-	}
-
-	// Phase 2: Single-letter discipline segment (e.g. STSBPP-AB-E-100-001, STSBPP-UB-M-120-094)
-	for _, p := range parts {
-		token := strings.ToUpper(strings.TrimSpace(p))
-		if token == "M" {
-			return "ME"
-		}
-		if token == "E" || token == "I" {
-			return "EE"
-		}
-		if token == "C" || token == "S" || token == "AR" {
-			return "CE"
-		}
-	}
-
-	return ""
+	return models.ParseDisciplineFromDocNumber(docNumber)
 }
 
 // ExtractDiscipline extracts or normalizes the discipline code.
 // It prioritizes parsing engineering discipline tokens directly from the document ID / number,
 // as the explicit CSV DISCIPLINE column often contains contractor/company codes (e.g. ABB, VK, SN).
 func ExtractDiscipline(explicitDiscipline, docNumber string) string {
-	disc := strings.ToUpper(strings.TrimSpace(explicitDiscipline))
-
-	// 1. Prioritize parsing discipline directly from docNumber
-	if inferred := ParseDisciplineFromDocNumber(docNumber); inferred != "" {
-		return inferred
-	}
-
-	// 2. Check explicit discipline if it's standard or known suffix
-	switch disc {
-	case "ME", "CE", "EE", "INST", "PROC", "GEN":
-		return disc
-	}
-	if strings.HasSuffix(disc, "ME") {
-		return "ME"
-	}
-	if strings.HasSuffix(disc, "CE") {
-		return "CE"
-	}
-	if strings.HasSuffix(disc, "EE") {
-		return "EE"
-	}
-
-	if disc != "" {
-		return disc
-	}
-
-	return "GEN"
+	return models.ResolveDiscipline(explicitDiscipline, docNumber)
 }
 
 // StripBOM removes the UTF-8 Byte Order Mark (\xef\xbb\xbf) if present at reader start.

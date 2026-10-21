@@ -80,3 +80,28 @@ func TestModelInstantiations(t *testing.T) {
 	}
 }
 
+func TestResolveDiscipline(t *testing.T) {
+	tests := []struct {
+		docNumber string
+		explicit  string
+		want      string
+	}{
+		{"STSBPP-AB-E-100-001", "ABB", "EE"},
+		{"STSBPP-UB-M-120-094", "", "ME"},
+		{"CIVIL-CE-001", "CIVIL", "CE"},
+		{"INST-LOOP-01", "", "INST"},
+		{"PROC-FLOW-01", "", "PROC"},
+		{"UNKNOWN-001", "ME", "ME"},
+		{"UNKNOWN-002", "SOME_CE", "CE"},
+		{"UNKNOWN-003", "", "GEN"},
+	}
+
+	for _, tt := range tests {
+		got := ResolveDiscipline(tt.explicit, tt.docNumber)
+		if got != tt.want {
+			t.Errorf("ResolveDiscipline(%q, %q) = %q, want %q", tt.explicit, tt.docNumber, got, tt.want)
+		}
+	}
+}
+
+

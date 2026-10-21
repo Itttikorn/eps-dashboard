@@ -157,55 +157,7 @@ func (s *Service) GetGlobalSummary(ctx context.Context) (*GlobalSummary, error) 
 // resolveDiscipline extracts or normalizes engineering disciplines (ME, CE, EE)
 // by inspecting tokens in the document number / ID, with fallback to explicit discipline code.
 func resolveDiscipline(docNumber, explicitDiscipline string) string {
-	normalized := strings.ReplaceAll(docNumber, "_", "-")
-	parts := strings.Split(normalized, "-")
-
-	// Phase 1: Multi-letter discipline tokens (e.g. ME, CE, EE, ME06, EE15, EXC16, PP, MS)
-	for _, p := range parts {
-		token := strings.ToUpper(strings.TrimSpace(p))
-		if token == "ME" || token == "PP" || (strings.HasPrefix(token, "ME") && len(token) <= 4) {
-			return "ME"
-		}
-		if token == "CE" || token == "MS" || (strings.HasPrefix(token, "CE") && len(token) <= 4) ||
-			(strings.HasPrefix(token, "EXC") && len(token) <= 5) || (strings.HasPrefix(token, "EX") && len(token) <= 4 && token != "EXP") {
-			return "CE"
-		}
-		if token == "EE" || (strings.HasPrefix(token, "EE") && len(token) <= 4) {
-			return "EE"
-		}
-	}
-
-	// Phase 2: Single-letter discipline segment (e.g. STSBPP-AB-E-100-001, STSBPP-UB-M-120-094)
-	for _, p := range parts {
-		token := strings.ToUpper(strings.TrimSpace(p))
-		if token == "M" {
-			return "ME"
-		}
-		if token == "E" || token == "I" {
-			return "EE"
-		}
-		if token == "C" || token == "S" || token == "AR" {
-			return "CE"
-		}
-	}
-
-	// Fallback to explicit discipline suffix
-	disc := strings.ToUpper(strings.TrimSpace(explicitDiscipline))
-	switch disc {
-	case "ME", "CE", "EE":
-		return disc
-	}
-	if strings.HasSuffix(disc, "ME") {
-		return "ME"
-	}
-	if strings.HasSuffix(disc, "CE") {
-		return "CE"
-	}
-	if strings.HasSuffix(disc, "EE") {
-		return "EE"
-	}
-
-	return disc
+	return models.ResolveDiscipline(explicitDiscipline, docNumber)
 }
 
 func (s *Service) GetProjectMatrix(ctx context.Context, search, sortBy, sortDir string, page, pageSize int) ([]ProjectMatrixRow, int, error) {
