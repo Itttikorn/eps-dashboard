@@ -48,10 +48,10 @@ export const DelinquencyChip: React.FC<{
 
   return (
     <span
-      className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-red-100 text-red-800 dark:bg-red-950/80 dark:text-red-300 border border-red-400 dark:border-red-700 chip-blink tabular-nums shadow-xs"
+      className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-bold bg-red-100 text-red-800 dark:bg-red-950/80 dark:text-red-300 border border-red-400 dark:border-red-700 tabular-nums shadow-xs"
       data-testid="delinquency-critical-chip"
     >
-      <span className="w-1.5 h-1.5 rounded-full bg-red-600 dark:bg-red-400 animate-ping" />
+      <span className="w-1.5 h-1.5 rounded-full bg-red-600 dark:bg-red-400" />
       {pendingPercent.toFixed(1)}% OVERDUE
     </span>
   );

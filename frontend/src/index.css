@@ -85,21 +85,6 @@
   font-variant-numeric: tabular-nums;
 }
 
-@keyframes chip-blink-kf {
-  0%, 100% {
-    opacity: 1;
-    transform: scale(1);
-  }
-  50% {
-    opacity: 0.45;
-    transform: scale(0.98);
-  }
-}
-
-.chip-blink {
-  animation: chip-blink-kf 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-}
-
 /* Smooth transition utility */
 .transition-smooth {
   transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);

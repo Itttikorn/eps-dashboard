@@ -45,12 +45,12 @@ describe('Badges Component Suite', () => {
       expect(screen.queryByTestId('delinquency-critical-chip')).not.toBeInTheDocument();
     });
 
-    it('renders high-contrast blinking badge when critical (>=45%)', () => {
+    it('renders high-contrast badge when critical (>=45%)', () => {
       render(<DelinquencyChip pendingPercent={51.2} isCritical={true} />);
       const chip = screen.getByTestId('delinquency-critical-chip');
       expect(chip).toBeInTheDocument();
       expect(chip).toHaveTextContent('51.2% OVERDUE');
-      expect(chip).toHaveClass('chip-blink');
+      expect(chip).toHaveClass('bg-red-100');
     });
   });
 

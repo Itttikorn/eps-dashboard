@@ -63,7 +63,7 @@ export const CategoryDetailGrid: React.FC<CategoryDetailGridProps> = ({
                   </span>
                 </div>
                 {pillar.isCritical && (
-                  <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-red-100 text-red-700 dark:bg-red-950/80 dark:text-red-300 border border-red-300 dark:border-red-800 animate-pulse">
+                  <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-red-100 text-red-700 dark:bg-red-950/80 dark:text-red-300 border border-red-300 dark:border-red-800">
                     CRITICAL
                   </span>
                 )}

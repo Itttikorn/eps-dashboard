@@ -127,7 +127,7 @@ export const ProjectMatrixTable: React.FC<ProjectMatrixTableProps> = ({
 
     if (pendingPercent >= 45 || isCritical) {
       chipClass = 'text-red-700 dark:text-red-300 font-bold';
-      bgClass = 'bg-red-100/80 dark:bg-red-950/50 border border-red-300/80 dark:border-red-800 animate-pulse';
+      bgClass = 'bg-red-100/80 dark:bg-red-950/50 border border-red-300/80 dark:border-red-800';
     } else if (pendingPercent >= 25) {
       chipClass = 'text-amber-700 dark:text-amber-300 font-bold';
       bgClass = 'bg-amber-100/70 dark:bg-amber-950/40 border border-amber-300/70 dark:border-amber-800';
@@ -359,7 +359,7 @@ export const ProjectMatrixTable: React.FC<ProjectMatrixTableProps> = ({
                   <td className="py-3 px-2 text-center bg-slate-50/50 dark:bg-[#26282b]/30">
                     {p.overdueCount > 0 ? (
                       <span
-                        className="inline-flex items-center justify-center px-2 py-0.5 rounded-full text-xs font-bold bg-red-100 text-red-700 dark:bg-red-950/70 dark:text-red-300 border border-red-300 dark:border-red-800 animate-pulse"
+                        className="inline-flex items-center justify-center px-2 py-0.5 rounded-full text-xs font-bold bg-red-100 text-red-700 dark:bg-red-950/70 dark:text-red-300 border border-red-300 dark:border-red-800"
                         title={`${p.overdueCount} documents overdue (${p.overduePercent.toFixed(1)}%)`}
                       >
                         {p.overdueCount}
