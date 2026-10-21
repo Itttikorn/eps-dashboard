@@ -32,14 +32,11 @@ export const HeaderNav: React.FC<HeaderNavProps> = ({
           <div>
             <div className="flex items-center gap-2">
               <h1 className="text-base font-bold tracking-tight text-white leading-none">
-                Conzol Doc Tracker
+                ConZol Document Dashboard
               </h1>
-              <span className="text-[10px] font-semibold uppercase tracking-wider px-1.5 py-0.5 rounded bg-blue-500/20 text-blue-300 border border-blue-400/30">
-                v1.0.0
-              </span>
             </div>
             <p className="text-xs text-slate-400 mt-0.5 hidden sm:block">
-              Corporate Document Management System
+              Corporate Document Dashboard
             </p>
           </div>
         </div>
@@ -69,7 +66,7 @@ export const HeaderNav: React.FC<HeaderNavProps> = ({
               }`}
             />
             <span className="text-[11px] font-medium hidden md:inline">
-              {isHealthy ? 'Operational' : isError ? 'Degraded' : 'Connecting'}
+              {isHealthy ? 'Connected' : isError ? 'Offline' : 'Connecting'}
             </span>
           </div>
 
