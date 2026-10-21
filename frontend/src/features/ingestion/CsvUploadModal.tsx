@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useRef, useEffect } from 'react';
 import { Modal } from 'antd';
 import { CsvUploadZone } from './CsvUploadZone';
 import { IngestionBatchRecord } from '../../api/types';
@@ -14,10 +14,24 @@ export const CsvUploadModal: React.FC<CsvUploadModalProps> = ({
   onClose,
   onSuccess,
 }) => {
+  const closeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    if (!open && closeTimerRef.current) {
+      clearTimeout(closeTimerRef.current);
+      closeTimerRef.current = null;
+    }
+    return () => {
+      if (closeTimerRef.current) {
+        clearTimeout(closeTimerRef.current);
+      }
+    };
+  }, [open]);
+
   const handleSuccess = (record: IngestionBatchRecord) => {
     onSuccess?.(record);
-    // Auto-close dialog after 2.5s on successful ingestion
-    setTimeout(() => {
+    if (closeTimerRef.current) clearTimeout(closeTimerRef.current);
+    closeTimerRef.current = setTimeout(() => {
       onClose();
     }, 2500);
   };
