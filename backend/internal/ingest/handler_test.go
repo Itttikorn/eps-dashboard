@@ -3,6 +3,7 @@ package ingest
 import (
 	"bytes"
 	"encoding/json"
+	"io"
 	"mime/multipart"
 	"net/http"
 	"net/http/httptest"
@@ -165,4 +166,44 @@ PRJ-CONF,DOC-1,Old,ME,Approved,0,2026-03-10,2026-03-30
 		t.Fatalf("status = %d, want %d (Conflict)", rec2.Code, http.StatusConflict)
 	}
 }
+
+type repeatedReader struct {
+	total   int64
+	emitted int64
+}
+
+func (r *repeatedReader) Read(p []byte) (int, error) {
+	if r.emitted >= r.total {
+		return 0, io.EOF
+	}
+	remaining := r.total - r.emitted
+	toWrite := len(p)
+	if int64(toWrite) > remaining {
+		toWrite = int(remaining)
+	}
+	for i := 0; i < toWrite; i++ {
+		p[i] = 'A'
+	}
+	r.emitted += int64(toWrite)
+	return toWrite, nil
+}
+
+func TestHandler_IngestCSV_BodySizeExceeded(t *testing.T) {
+	db := database.NewTestDB(t)
+	repo := NewRepository(db)
+	svc := NewService(repo)
+	handler := NewHandler(svc)
+
+	req := httptest.NewRequest(http.MethodPost, "/api/ingest", &repeatedReader{total: 33 << 20})
+	req.Header.Set("Content-Type", "text/csv")
+	rec := httptest.NewRecorder()
+
+	handler.IngestCSV(rec, req)
+
+	// MaxBytesReader returns an error when reading beyond limit, resulting in 400 or 500 error response
+	if rec.Code != http.StatusBadRequest && rec.Code != http.StatusRequestEntityTooLarge && rec.Code != http.StatusInternalServerError {
+		t.Errorf("status = %d, want 400, 413, or 500", rec.Code)
+	}
+}
+
 

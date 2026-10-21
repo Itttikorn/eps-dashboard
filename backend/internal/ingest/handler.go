@@ -3,6 +3,7 @@ package ingest
 import (
 	"errors"
 	"io"
+	"log/slog"
 	"net/http"
 	"strings"
 
@@ -21,6 +22,9 @@ func NewHandler(svc *Service) *Handler {
 
 // IngestCSV processes multipart file uploads or raw CSV body streams.
 func (h *Handler) IngestCSV(w http.ResponseWriter, r *http.Request) {
+	const maxUploadSize = 32 << 20 // 32MB hard ceiling
+	r.Body = http.MaxBytesReader(w, r.Body, maxUploadSize)
+
 	projectCodeOverride := strings.TrimSpace(r.URL.Query().Get("project_code"))
 	if projectCodeOverride == "" {
 		projectCodeOverride = strings.TrimSpace(r.URL.Query().Get("projectCode"))
@@ -31,10 +35,12 @@ func (h *Handler) IngestCSV(w http.ResponseWriter, r *http.Request) {
 
 	contentType := r.Header.Get("Content-Type")
 	if strings.HasPrefix(contentType, "multipart/form-data") {
-		// Limit to 32MB multipart body
-		if err := r.ParseMultipartForm(32 << 20); err != nil {
+		if err := r.ParseMultipartForm(maxUploadSize); err != nil {
 			utils.WriteJSON(w, http.StatusBadRequest, utils.ValidationErrorResponse("failed to parse multipart form: "+err.Error()))
 			return
+		}
+		if r.MultipartForm != nil {
+			defer func() { _ = r.MultipartForm.RemoveAll() }()
 		}
 
 		if projectCodeOverride == "" {
@@ -60,10 +66,11 @@ func (h *Handler) IngestCSV(w http.ResponseWriter, r *http.Request) {
 		defer file.Close()
 		reader = file
 	} else if strings.Contains(contentType, "text/csv") || strings.Contains(contentType, "application/csv") || contentType == "text/plain" {
-		reader = io.LimitReader(r.Body, utils.MaxBodyBytes)
+		reader = io.LimitReader(r.Body, maxUploadSize)
 	} else {
 		// Attempt to parse multipart form if content type is unset or generic
-		if err := r.ParseMultipartForm(32 << 20); err == nil && r.MultipartForm != nil {
+		if err := r.ParseMultipartForm(maxUploadSize); err == nil && r.MultipartForm != nil {
+			defer func() { _ = r.MultipartForm.RemoveAll() }()
 			if f, _, err := r.FormFile("file"); err == nil {
 				defer f.Close()
 				reader = f
@@ -92,6 +99,7 @@ func (h *Handler) IngestCSV(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
+		slog.Error("Failed to ingest CSV", "err", err)
 		utils.WriteJSON(w, http.StatusInternalServerError, utils.ServerErrorResponse())
 		return
 	}
