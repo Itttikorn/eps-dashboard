@@ -4,6 +4,7 @@ import { TopbarKpiCards } from './TopbarKpiCards';
 import { SearchToolbar, SortField, SortDirection, HealthFilter } from './SearchToolbar';
 import { ProjectMatrixTable } from './ProjectMatrixTable';
 import { TableErrorBoundary } from '../../components/ui/ErrorBoundaries';
+import { useDebouncedValue } from '../../lib/useDebouncedValue';
 
 export const OverviewTab: React.FC = () => {
   const [selectedProjectIds, setSelectedProjectIds] = useState<string[]>([]);
@@ -46,13 +47,22 @@ export const OverviewTab: React.FC = () => {
     setOverdueOnly(false);
   };
 
-  // Matrix table filtered count is determined strictly by explicit selections and filters
+  const debouncedSearch = useDebouncedValue(searchQuery, 200);
+
+  // Matrix table filtered count is determined by explicit selections, filters, and debounced search
   const filteredCount = useMemo(() => {
     let list = projects;
 
     if (selectedProjectIds.length > 0) {
       const idSet = new Set(selectedProjectIds);
       list = list.filter((p) => idSet.has(p.projectId));
+    }
+
+    if (debouncedSearch.trim()) {
+      const q = debouncedSearch.toLowerCase().trim();
+      list = list.filter(
+        (p) => p.projectId.toLowerCase().includes(q) || p.projectName.toLowerCase().includes(q)
+      );
     }
 
     if (healthFilter !== 'all') {
@@ -64,7 +74,7 @@ export const OverviewTab: React.FC = () => {
     }
 
     return list.length;
-  }, [projects, selectedProjectIds, healthFilter, overdueOnly]);
+  }, [projects, selectedProjectIds, debouncedSearch, healthFilter, overdueOnly]);
 
   return (
     <div data-testid="overview-tab">
@@ -98,11 +108,12 @@ export const OverviewTab: React.FC = () => {
         onResetFilters={handleResetFilters}
       />
 
-      {/* 3. Comparative Matrix Grid (Filtered only by user selection / filters, not raw search typing) */}
+      {/* 3. Comparative Matrix Grid (Filtered by user selection, filters, and debounced search) */}
       <TableErrorBoundary>
         <ProjectMatrixTable
           projects={projects}
           selectedProjectIds={selectedProjectIds}
+          searchQuery={debouncedSearch}
           healthFilter={healthFilter}
           overdueOnly={overdueOnly}
           sortField={sortField}
