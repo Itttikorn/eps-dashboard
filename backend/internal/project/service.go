@@ -2,6 +2,7 @@ package project
 
 import (
 	"context"
+	"fmt"
 	"sort"
 	"strings"
 	"time"
@@ -17,6 +18,7 @@ type ProjectRepository interface {
 	ListDocumentsByProject(ctx context.Context, projectCode string) ([]models.Document, error)
 	GetDocumentStats(ctx context.Context, projectCode string) (total int, approved int, underReview int, overdue int, err error)
 	GetLatestSnapshot(ctx context.Context, projectCode string) (*models.KPISnapshot, error)
+	GetLatestSnapshotsByProjects(ctx context.Context, projectCodes []string) (map[string]*models.KPISnapshot, error)
 	GetTrendSeries(ctx context.Context, projectCode string, from, to time.Time) ([]models.KPISnapshot, error)
 }
 
@@ -163,15 +165,49 @@ func resolveDiscipline(docNumber, explicitDiscipline string) string {
 func (s *Service) GetProjectMatrix(ctx context.Context, search, sortBy, sortDir string, page, pageSize int) ([]ProjectMatrixRow, int, error) {
 	projects, err := s.repo.ListProjects(ctx)
 	if err != nil {
-		return nil, 0, err
+		return nil, 0, fmt.Errorf("list projects: %w", err)
+	}
+
+	if search != "" {
+		term := strings.ToLower(strings.TrimSpace(search))
+		filtered := make([]models.Project, 0, len(projects))
+		for _, p := range projects {
+			if strings.Contains(strings.ToLower(p.Code), term) ||
+				strings.Contains(strings.ToLower(p.Name), term) {
+				filtered = append(filtered, p)
+			}
+		}
+		projects = filtered
+	}
+
+	if len(projects) == 0 {
+		return []ProjectMatrixRow{}, 0, nil
+	}
+
+	// Bulk fetch all documents in a single query and group by project code
+	allDocs, err := s.repo.ListDocumentsByProject(ctx, "")
+	if err != nil {
+		return nil, 0, fmt.Errorf("list all documents: %w", err)
+	}
+
+	docsByProject := make(map[string][]models.Document, len(projects))
+	for _, d := range allDocs {
+		docsByProject[d.ProjectCode] = append(docsByProject[d.ProjectCode], d)
+	}
+
+	projectCodes := make([]string, len(projects))
+	for i, p := range projects {
+		projectCodes[i] = p.Code
+	}
+
+	snapshotsByProject, err := s.repo.GetLatestSnapshotsByProjects(ctx, projectCodes)
+	if err != nil {
+		return nil, 0, fmt.Errorf("get snapshots for projects: %w", err)
 	}
 
 	rows := make([]ProjectMatrixRow, 0, len(projects))
 	for _, p := range projects {
-		docs, err := s.repo.ListDocumentsByProject(ctx, p.Code)
-		if err != nil {
-			return nil, 0, err
-		}
+		docs := docsByProject[p.Code]
 
 		var total, approved, underReview, overdue int
 		var baselineTotal, baselineApproved, baselineInReview, baselineOverdue int
@@ -436,7 +472,7 @@ func (s *Service) GetProjectMatrix(ctx context.Context, search, sortBy, sortDir 
 			lastUpdated = time.Now().UTC()
 		}
 
-		latestSnapshot, _ := s.repo.GetLatestSnapshot(ctx, p.Code)
+		latestSnapshot := snapshotsByProject[p.Code]
 		lastSnapshotDate := lastUpdated.Format("2006-01-02")
 		netChange := "STABLE"
 		if latestSnapshot != nil {
@@ -476,18 +512,6 @@ func (s *Service) GetProjectMatrix(ctx context.Context, search, sortBy, sortDir 
 			ApprovalRate:         rate,
 			LastUpdated:          lastUpdated,
 		})
-	}
-
-	if search != "" {
-		term := strings.ToLower(strings.TrimSpace(search))
-		var filtered []ProjectMatrixRow
-		for _, r := range rows {
-			if strings.Contains(strings.ToLower(r.ProjectCode), term) ||
-				strings.Contains(strings.ToLower(r.ProjectName), term) {
-				filtered = append(filtered, r)
-			}
-		}
-		rows = filtered
 	}
 
 	desc := strings.ToLower(sortDir) == "desc"

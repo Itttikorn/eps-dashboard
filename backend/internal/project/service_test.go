@@ -2,6 +2,7 @@ package project
 
 import (
 	"context"
+	"fmt"
 	"testing"
 	"time"
 
@@ -337,5 +338,38 @@ func TestRepository_GetDocumentStats(t *testing.T) {
 		t.Errorf("GetDocumentStats project failed: total=%d, err=%v", totalPrj, errPrj)
 	}
 }
+
+func TestGetProjectMatrix_BulkPerformance(t *testing.T) {
+	svc, repo := setupTestService(t)
+	ctx := context.Background()
+
+	// Seed 10 projects
+	for i := 1; i <= 10; i++ {
+		code := fmt.Sprintf("PRJ-%02d", i)
+		_ = repo.UpsertProject(ctx, &models.Project{Code: code, Name: "Project " + code})
+		_ = repo.db.Create(&models.Document{
+			ProjectCode: code,
+			DocNumber:   fmt.Sprintf("%s-DOC-01", code),
+			Title:       "Test Doc",
+			Discipline:  "ME",
+			Status:      "Approved",
+			IssueDate:   time.Now().UTC(),
+		}).Error
+		_ = repo.db.Create(&models.KPISnapshot{
+			ProjectCode:  code,
+			SnapshotDate: time.Now().UTC(),
+			ApprovalRate: 100.0,
+		}).Error
+	}
+
+	matrix, total, err := svc.GetProjectMatrix(ctx, "", "code", "asc", 1, 20)
+	if err != nil {
+		t.Fatalf("GetProjectMatrix failed: %v", err)
+	}
+	if total != 10 || len(matrix) != 10 {
+		t.Errorf("expected 10 projects, got %d (total: %d)", len(matrix), total)
+	}
+}
+
 
 

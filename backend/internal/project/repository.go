@@ -132,3 +132,28 @@ func (r *Repository) GetTrendSeries(ctx context.Context, projectCode string, fro
 	return snapshots, nil
 }
 
+func (r *Repository) GetLatestSnapshotsByProjects(ctx context.Context, projectCodes []string) (map[string]*models.KPISnapshot, error) {
+	result := make(map[string]*models.KPISnapshot)
+	if len(projectCodes) == 0 {
+		return result, nil
+	}
+
+	var snapshots []models.KPISnapshot
+	err := r.db.WithContext(ctx).
+		Where("project_code IN (?)", projectCodes).
+		Order("snapshot_date desc, id desc").
+		Find(&snapshots).Error
+	if err != nil {
+		return nil, err
+	}
+
+	for i := range snapshots {
+		pCode := snapshots[i].ProjectCode
+		if _, exists := result[pCode]; !exists {
+			result[pCode] = &snapshots[i]
+		}
+	}
+	return result, nil
+}
+
+
