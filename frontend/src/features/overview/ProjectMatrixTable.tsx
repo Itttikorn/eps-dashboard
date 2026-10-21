@@ -228,7 +228,7 @@ export const ProjectMatrixTable: React.FC<ProjectMatrixTableProps> = ({
           </thead>
 
           {/* Table Body */}
-          <tbody className="divide-y divide-slate-100 dark:divide-[#2a2d2e]">
+          <tbody>
             {filteredProjects.map((p) => {
               const base = p.pillars.baseline;
               const ctrl = p.pillars.control;
@@ -249,7 +249,7 @@ export const ProjectMatrixTable: React.FC<ProjectMatrixTableProps> = ({
                 <tr
                   key={p.projectId}
                   onClick={() => setSelectedProject(p)}
-                  className="hover:bg-blue-50/60 dark:hover:bg-[#2a2d2e] cursor-pointer transition-colors group"
+                  className="border-b border-slate-100 dark:border-[#2a2d2e] last:border-b-0 hover:bg-blue-50/60 dark:hover:bg-[#2a2d2e] cursor-pointer transition-[background-color] duration-150 group"
                   data-testid={`project-matrix-row-${p.projectId}`}
                 >
                   {/* Column: Project Name, Health & Trend */}
