@@ -525,4 +525,43 @@ PRJ-NOSLA,DOC-WITH-TARGET,Technical Spec,GEN,IFA,40:WAIT,A,2026-03-25,2026-03-10
 	}
 }
 
+func TestIngestService_MultiProjectCSV(t *testing.T) {
+	db := database.NewTestDB(t)
+	repo := NewRepository(db)
+	svc := NewService(repo)
+	ctx := context.Background()
+
+	multiCSV := `project_code,doc_number,title,discipline,status,revision,issue_date,target_date
+PRJ-X,DOC-X1,Title X1,ME,Approved,A,2026-03-10,2026-03-20
+PRJ-Y,DOC-Y1,Title Y1,EE,Under Review,0,2026-03-12,2026-03-05
+`
+	result, err := svc.IngestCSV(ctx, strings.NewReader(multiCSV), "", false)
+	if err != nil {
+		t.Fatalf("IngestCSV multi-project failed: %v", err)
+	}
+
+	if result.TotalRows != 2 {
+		t.Errorf("TotalRows = %d, want 2", result.TotalRows)
+	}
+
+	// Verify PRJ-X snapshot
+	var snapX models.KPISnapshot
+	if err := db.Where("project_code = ?", "PRJ-X").First(&snapX).Error; err != nil {
+		t.Fatalf("snapX not found: %v", err)
+	}
+	if snapX.TotalDocuments != 1 || snapX.ApprovedDocuments != 1 || snapX.OverdueDocuments != 0 {
+		t.Errorf("snapX metrics polluted: %+v", snapX)
+	}
+
+	// Verify PRJ-Y snapshot
+	var snapY models.KPISnapshot
+	if err := db.Where("project_code = ?", "PRJ-Y").First(&snapY).Error; err != nil {
+		t.Fatalf("snapY not found: %v", err)
+	}
+	if snapY.TotalDocuments != 1 || snapY.ApprovedDocuments != 0 || snapY.OverdueDocuments != 1 {
+		t.Errorf("snapY metrics polluted: %+v", snapY)
+	}
+}
+
+
 

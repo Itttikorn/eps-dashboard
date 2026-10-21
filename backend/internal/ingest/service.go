@@ -157,169 +157,179 @@ func (s *Service) IngestCSV(ctx context.Context, r io.Reader, projectCodeOverrid
 		return nil, ErrNoValidRows
 	}
 
-	// Determine effective project code
+	// Determine effective project code for overall batch reporting
 	projectCode := projectCodeOverride
 	if projectCode == "" {
 		projectCode = parsedRows[0].ProjectCode
 	}
 
-	// Find the latest issue date among rows to act as the snapshot timestamp
-	var snapshotDate time.Time
-	for _, row := range parsedRows {
-		if row.IssueDate.After(snapshotDate) {
-			snapshotDate = row.IssueDate
-		}
-	}
-	if snapshotDate.IsZero() {
-		snapshotDate = time.Now().UTC()
-	}
-
-	// Chronological downgrade protection
-	latestDate, err := s.repo.GetLatestSnapshotDate(ctx, projectCode)
-	if err != nil {
-		return nil, fmt.Errorf("failed checking latest snapshot date: %w", err)
-	}
-	if latestDate != nil && !forceChronology {
-		if snapshotDate.Before(*latestDate) {
-			return nil, fmt.Errorf("%w: current snapshot %s is older than recorded %s",
-				ErrChronologyDowngrade, snapshotDate.Format("2006-01-02"), latestDate.Format("2006-01-02"))
-		}
-	}
-
 	// Deduplicate rows for the same document to maintain lean, active current state
 	uniqueRows := deduplicateParsedRows(parsedRows, projectCodeOverride)
 
-	// Transform unique rows into documents, evaluating overdue status relative to snapshotDate
-	docs := make([]models.Document, 0, len(uniqueRows))
-	var overdueLogs []models.OverdueLog
+	// Group rows by effective project code
+	projectRowsMap := make(map[string][]ParsedRow)
+	for _, row := range uniqueRows {
+		pCode := projectCodeOverride
+		if pCode == "" {
+			pCode = row.ProjectCode
+		}
+		projectRowsMap[pCode] = append(projectRowsMap[pCode], row)
+	}
 
-	totalDocs := len(uniqueRows)
-	approvedDocs := 0
-	underReviewDocs := 0
-	overdueDocs := 0
-	lateApprovalDocs := 0
+	type projectIngestData struct {
+		projectCode  string
+		snapshotDate time.Time
+		kpiSnapshot  *models.KPISnapshot
+	}
 
 	now := time.Now().UTC()
-	for _, row := range uniqueRows {
-		rowProject := projectCode
-		if projectCodeOverride == "" && row.ProjectCode != "" {
-			rowProject = row.ProjectCode
+	var globalLatestSnapshot time.Time
+	projectDataList := make([]projectIngestData, 0, len(projectRowsMap))
+	allDocs := make([]models.Document, 0, len(uniqueRows))
+	allOverdueLogs := make([]models.OverdueLog, 0)
+
+	for pCode, pRows := range projectRowsMap {
+		var pSnapshotDate time.Time
+		for _, row := range pRows {
+			if row.IssueDate.After(pSnapshotDate) {
+				pSnapshotDate = row.IssueDate
+			}
+		}
+		if pSnapshotDate.IsZero() {
+			pSnapshotDate = now
+		}
+		if pSnapshotDate.After(globalLatestSnapshot) {
+			globalLatestSnapshot = pSnapshotDate
 		}
 
-		isOverdue := false
-		overdueDays := 0
-		isLateApproval := false
+		totalDocs := len(pRows)
+		approvedDocs := 0
+		underReviewDocs := 0
+		overdueDocs := 0
+		lateApprovalDocs := 0
 
-		// New Criteria:
-		// 1. IFI deliverables are completed information deliverables and never overdue.
-		// 2. Only actionable documents (ISSUEFOR != "IFI") that remain open past TargetDate are overdue.
-		// 3. Approved documents returned after TargetDate are tracked as late approval.
-		if row.Status != "Approved" && row.Status != "Cancelled" && !strings.EqualFold(row.IssueFor, "IFI") {
-			if !row.TargetDate.IsZero() && row.TargetDate.Before(snapshotDate) {
-				isOverdue = true
-				diff := snapshotDate.Sub(row.TargetDate)
-				overdueDays = int(diff.Hours() / 24)
-				if overdueDays <= 0 {
-					overdueDays = 1
+		for _, row := range pRows {
+			isOverdue := false
+			overdueDays := 0
+			isLateApproval := false
+
+			// New Criteria:
+			// 1. IFI deliverables are completed information deliverables and never overdue.
+			// 2. Only actionable documents (ISSUEFOR != "IFI") that remain open past TargetDate are overdue.
+			// 3. Approved documents returned after TargetDate are tracked as late approval.
+			if row.Status != "Approved" && row.Status != "Cancelled" && !strings.EqualFold(row.IssueFor, "IFI") {
+				if !row.TargetDate.IsZero() && row.TargetDate.Before(pSnapshotDate) {
+					isOverdue = true
+					diff := pSnapshotDate.Sub(row.TargetDate)
+					overdueDays = int(diff.Hours() / 24)
+					if overdueDays <= 0 {
+						overdueDays = 1
+					}
+					overdueDocs++
+
+					allOverdueLogs = append(allOverdueLogs, models.OverdueLog{
+						ProjectCode:  pCode,
+						DocNumber:    row.DocNumber,
+						SnapshotDate: pSnapshotDate,
+						DaysOverdue:  overdueDays,
+						AgingBracket: CalculateAgingBracket(overdueDays),
+						CreatedAt:    now,
+					})
 				}
-				overdueDocs++
+				if row.Status == "Under Review" {
+					underReviewDocs++
+				}
+			} else if row.Status == "Approved" {
+				approvedDocs++
+				if row.ActualDate != nil && !row.TargetDate.IsZero() && row.ActualDate.After(row.TargetDate) {
+					isLateApproval = true
+					lateApprovalDocs++
+				}
+			}
 
-				overdueLogs = append(overdueLogs, models.OverdueLog{
-					ProjectCode:  rowProject,
-					DocNumber:    row.DocNumber,
-					SnapshotDate: snapshotDate,
-					DaysOverdue:  overdueDays,
-					AgingBracket: CalculateAgingBracket(overdueDays),
-					CreatedAt:    now,
-				})
-			}
-			if row.Status == "Under Review" {
-				underReviewDocs++
-			}
-		} else if row.Status == "Approved" {
-			approvedDocs++
-			if row.ActualDate != nil && !row.TargetDate.IsZero() && row.ActualDate.After(row.TargetDate) {
-				isLateApproval = true
-				lateApprovalDocs++
-			}
+			allDocs = append(allDocs, models.Document{
+				ProjectCode:    pCode,
+				DocNumber:      row.DocNumber,
+				Title:          row.Title,
+				Discipline:     row.Discipline,
+				Status:         row.Status,
+				Revision:       row.Revision,
+				IssueFor:       row.IssueFor,
+				IssueDate:      row.IssueDate,
+				TargetDate:     row.TargetDate,
+				ActualDate:     row.ActualDate,
+				IsOverdue:      isOverdue,
+				OverdueDays:    overdueDays,
+				IsLateApproval: isLateApproval,
+				UpdatedAt:      now,
+			})
 		}
 
-		docs = append(docs, models.Document{
-			ProjectCode:    rowProject,
-			DocNumber:      row.DocNumber,
-			Title:          row.Title,
-			Discipline:     row.Discipline,
-			Status:         row.Status,
-			Revision:       row.Revision,
-			IssueFor:       row.IssueFor,
-			IssueDate:      row.IssueDate,
-			TargetDate:     row.TargetDate,
-			ActualDate:     row.ActualDate,
-			IsOverdue:      isOverdue,
-			OverdueDays:    overdueDays,
-			IsLateApproval: isLateApproval,
-			UpdatedAt:      now,
+		approvalRate := 0.0
+		if totalDocs > 0 {
+			approvalRate = float64(approvedDocs) / float64(totalDocs) * 100.0
+		}
+
+		kpiSnapshot := &models.KPISnapshot{
+			ProjectCode:           pCode,
+			SnapshotDate:          pSnapshotDate,
+			TotalDocuments:        totalDocs,
+			ApprovedDocuments:     approvedDocs,
+			UnderReviewDocuments:  underReviewDocs,
+			OverdueDocuments:      overdueDocs,
+			LateApprovalDocuments: lateApprovalDocs,
+			ApprovalRate:          approvalRate,
+			CreatedAt:             now,
+		}
+
+		projectDataList = append(projectDataList, projectIngestData{
+			projectCode:  pCode,
+			snapshotDate: pSnapshotDate,
+			kpiSnapshot:  kpiSnapshot,
 		})
 	}
 
-	approvalRate := 0.0
-	if totalDocs > 0 {
-		approvalRate = float64(approvedDocs) / float64(totalDocs) * 100.0
+	if globalLatestSnapshot.IsZero() {
+		globalLatestSnapshot = now
 	}
 
-	kpiSnapshot := &models.KPISnapshot{
-		ProjectCode:           projectCode,
-		SnapshotDate:          snapshotDate,
-		TotalDocuments:        totalDocs,
-		ApprovedDocuments:     approvedDocs,
-		UnderReviewDocuments:  underReviewDocs,
-		OverdueDocuments:      overdueDocs,
-		LateApprovalDocuments: lateApprovalDocs,
-		ApprovalRate:          approvalRate,
-		CreatedAt:             now,
-	}
-
-	// Perform all DB operations inside a transaction
+	// Perform all DB operations inside an atomic transaction
 	txErr := s.repo.WithTransaction(ctx, func(txRepo Repository) error {
-		// Ensure all projects in the CSV exist
-		distinctProjects := make(map[string]struct{})
-		for _, row := range parsedRows {
-			p := row.ProjectCode
-			if projectCodeOverride != "" {
-				p = projectCodeOverride
+		for _, pData := range projectDataList {
+			// Chronological downgrade protection inside transaction
+			latestDate, err := txRepo.GetLatestSnapshotDate(ctx, pData.projectCode)
+			if err != nil {
+				return fmt.Errorf("failed checking latest snapshot date for %s: %w", pData.projectCode, err)
 			}
-			if p != "" {
-				distinctProjects[p] = struct{}{}
+			if latestDate != nil && !forceChronology {
+				if pData.snapshotDate.Before(*latestDate) {
+					return fmt.Errorf("%w: current snapshot %s is older than recorded %s for project %s",
+						ErrChronologyDowngrade, pData.snapshotDate.Format("2006-01-02"), latestDate.Format("2006-01-02"), pData.projectCode)
+				}
 			}
-		}
-		if len(distinctProjects) == 0 && projectCode != "" {
-			distinctProjects[projectCode] = struct{}{}
-		}
 
-		for pCode := range distinctProjects {
 			prj := &models.Project{
-				Code:      pCode,
-				Name:      fmt.Sprintf("Project %s", pCode),
+				Code:      pData.projectCode,
+				Name:      fmt.Sprintf("Project %s", pData.projectCode),
 				UpdatedAt: now,
 			}
 			if err := txRepo.UpsertProject(ctx, prj); err != nil {
-				return fmt.Errorf("failed to upsert project %s: %w", pCode, err)
+				return fmt.Errorf("failed to upsert project %s: %w", pData.projectCode, err)
+			}
+
+			if err := txRepo.SaveSnapshot(ctx, pData.kpiSnapshot); err != nil {
+				return fmt.Errorf("failed to save KPI snapshot for %s: %w", pData.projectCode, err)
 			}
 		}
 
 		// Batch upsert documents
-		if err := txRepo.BatchUpsertDocuments(ctx, docs); err != nil {
+		if err := txRepo.BatchUpsertDocuments(ctx, allDocs); err != nil {
 			return fmt.Errorf("failed to batch upsert documents: %w", err)
 		}
 
-		// Save KPI snapshot
-		if err := txRepo.SaveSnapshot(ctx, kpiSnapshot); err != nil {
-			return fmt.Errorf("failed to save KPI snapshot: %w", err)
-		}
-
 		// Batch insert overdue logs
-		if len(overdueLogs) > 0 {
-			if err := txRepo.BatchInsertOverdueLogs(ctx, overdueLogs); err != nil {
+		if len(allOverdueLogs) > 0 {
+			if err := txRepo.BatchInsertOverdueLogs(ctx, allOverdueLogs); err != nil {
 				return fmt.Errorf("failed to insert overdue logs: %w", err)
 			}
 		}
@@ -337,10 +347,10 @@ func (s *Service) IngestCSV(ctx context.Context, r io.Reader, projectCodeOverrid
 		BatchID:          generateUUID(),
 		FileSHA256:       fileHash,
 		Status:           "INGESTED",
-		SnapshotDate:     snapshotDate,
+		SnapshotDate:     globalLatestSnapshot,
 		TotalRows:        len(parsedRows) + len(parseErrors),
-		DeltasUpdated:    len(docs),
-		SkippedUnchanged: len(parsedRows) - len(docs),
+		DeltasUpdated:    len(allDocs),
+		SkippedUnchanged: len(parsedRows) - len(allDocs),
 		CreatedAt:        now,
 		ProjectCode:      projectCode,
 		ProcessedCount:   len(parsedRows),
