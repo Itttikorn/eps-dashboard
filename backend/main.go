@@ -2,8 +2,9 @@ package main
 
 import (
 	"context"
-	"fmt"
 	"log/slog"
+	"net"
+	"net/url"
 	"os"
 	"os/signal"
 	"runtime/debug"
@@ -48,7 +49,14 @@ func main() {
 			password := config.String("DB_PASSWORD", "postgres")
 			dbname := config.String("DB_NAME", "eps_db")
 			sslmode := config.String("DB_SSLMODE", "disable")
-			dbURL = fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=%s", user, password, host, dbPort, dbname, sslmode)
+			u := &url.URL{
+				Scheme:   "postgres",
+				User:     url.UserPassword(user, password),
+				Host:     net.JoinHostPort(host, dbPort),
+				Path:     dbname,
+				RawQuery: "sslmode=" + url.QueryEscape(sslmode),
+			}
+			dbURL = u.String()
 		}
 	}
 
@@ -56,6 +64,9 @@ func main() {
 	if err != nil {
 		slog.Error("Failed to connect to database", "err", err)
 		os.Exit(1)
+	}
+	if sqlDB, err := db.DB(); err == nil {
+		defer func() { _ = sqlDB.Close() }()
 	}
 
 	cfg := Config{

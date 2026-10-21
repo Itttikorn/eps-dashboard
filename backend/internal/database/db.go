@@ -1,6 +1,7 @@
 package database
 
 import (
+	"context"
 	"database/sql"
 	"fmt"
 	"log/slog"
@@ -42,7 +43,9 @@ func InitDB(dsn string) (*gorm.DB, error) {
 	sqlDB.SetConnMaxLifetime(config.Duration("DB_CONN_MAX_LIFETIME", 30*time.Minute))
 	sqlDB.SetConnMaxIdleTime(config.Duration("DB_CONN_MAX_IDLE_TIME", 5*time.Minute))
 
-	if err := sqlDB.Ping(); err != nil {
+	pingCtx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+	if err := sqlDB.PingContext(pingCtx); err != nil {
 		return nil, fmt.Errorf("failed to ping database: %w", err)
 	}
 

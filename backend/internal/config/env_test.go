@@ -1,6 +1,8 @@
 package config
 
 import (
+	"net"
+	"net/url"
 	"testing"
 	"time"
 )
@@ -85,4 +87,35 @@ func TestEnvHelpers(t *testing.T) {
 		t.Errorf("expected fallback on bad bool, got true")
 	}
 }
+
+func TestPostgresURLSpecialChars(t *testing.T) {
+	user := "user@domain"
+	password := "p@ss#word%123/?"
+	host := "localhost"
+	port := "5432"
+	dbname := "eps_db"
+	sslmode := "disable"
+
+	u := &url.URL{
+		Scheme:   "postgres",
+		User:     url.UserPassword(user, password),
+		Host:     net.JoinHostPort(host, port),
+		Path:     dbname,
+		RawQuery: "sslmode=" + url.QueryEscape(sslmode),
+	}
+
+	dsn := u.String()
+	parsed, err := url.Parse(dsn)
+	if err != nil {
+		t.Fatalf("failed to parse generated DSN: %v", err)
+	}
+	p, _ := parsed.User.Password()
+	if p != password {
+		t.Errorf("password mismatch: got %q, want %q", p, password)
+	}
+	if parsed.User.Username() != user {
+		t.Errorf("username mismatch: got %q, want %q", parsed.User.Username(), user)
+	}
+}
+
 
