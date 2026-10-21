@@ -37,3 +37,26 @@ func TestDatabaseMigrationAndSeeding(t *testing.T) {
 	}
 }
 
+func TestModelIndexes(t *testing.T) {
+	db, err := InitInMemoryDB()
+	if err != nil {
+		t.Fatalf("InitInMemoryDB failed: %v", err)
+	}
+	if err := AutoMigrate(db); err != nil {
+		t.Fatalf("AutoMigrate failed: %v", err)
+	}
+
+	// Verify indexes exist in sqlite_master
+	var count int64
+	db.Raw("SELECT count(*) FROM sqlite_master WHERE type = 'index' AND name = 'idx_snapshot_project_date'").Scan(&count)
+	if count == 0 {
+		t.Errorf("expected idx_snapshot_project_date index to be created")
+	}
+
+	db.Raw("SELECT count(*) FROM sqlite_master WHERE type = 'index' AND name = 'idx_project_issue_date'").Scan(&count)
+	if count == 0 {
+		t.Errorf("expected idx_project_issue_date index to be created")
+	}
+}
+
+
