@@ -26,7 +26,6 @@ export const queryKeys = {
   projects: (search?: string) => ['projects', { search }] as const,
   trends: (projectIds: string[], preset: string, metric: TrendMetricType) =>
     ['trends', { projectIds, preset, metric }] as const,
-  ingestionHistory: ['ingestion', 'history'] as const,
 };
 
 // 1. Health Check (polls every 30s)
@@ -107,35 +106,12 @@ export function useUploadSnapshot() {
       const res = await uploadFile<IngestionResultContract>('/ingest', formData, signal);
       return normalizeIngestionResult(res);
     },
-    onSuccess: (newRecord) => {
+    onSuccess: () => {
       // Invalidate relevant query caches
       qc.invalidateQueries({ queryKey: ['projects'] });
       qc.invalidateQueries({ queryKey: queryKeys.summary });
       qc.invalidateQueries({ queryKey: ['trends'] });
-
-      // Prepend to optimistic local ingestion history
-      qc.setQueryData<IngestionBatchRecord[]>(queryKeys.ingestionHistory, (old = []) => [
-        newRecord,
-        ...old,
-      ]);
     },
-  });
-}
-
-// 6. Ingestion History Ledger
-export function useIngestionHistory() {
-  return useQuery<IngestionBatchRecord[]>({
-    queryKey: queryKeys.ingestionHistory,
-    queryFn: async () => {
-      // In MVP, we fetch existing history or return mock records if endpoint is purely on-upload
-      try {
-        const rows = await request<IngestionResultContract[]>('/ingest/history');
-        return Array.isArray(rows) ? rows.map(normalizeIngestionResult) : [];
-      } catch {
-        return [];
-      }
-    },
-    staleTime: 30000,
   });
 }
 

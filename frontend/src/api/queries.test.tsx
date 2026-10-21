@@ -111,27 +111,5 @@ describe('API Queries Hooks', () => {
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
     expect(result.current.data).toBeDefined();
   });
-
-  it('useIngestionHistory fetches and normalizes batch audit ledger', async () => {
-    vi.spyOn(client, 'request').mockResolvedValue([
-      {
-        batch_id: 'BATCH-001',
-        project_target: 'ALL',
-        snapshot_date: '2026-03-31',
-        total_rows: 500,
-        deltas_updated: 20,
-        skipped_unchanged: 480,
-        status: 'INGESTED',
-        elapsed_ms: 1200,
-      },
-    ]);
-
-    const { useIngestionHistory } = await import('./queries');
-    const { result } = renderHook(() => useIngestionHistory(), { wrapper });
-
-    await waitFor(() => expect(result.current.isSuccess).toBe(true));
-    expect(result.current.data?.[0]?.batchId).toBe('BATCH-001');
-    expect(result.current.data?.[0]?.status).toBe('INGESTED');
-  });
 });
 

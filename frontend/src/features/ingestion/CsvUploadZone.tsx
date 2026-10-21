@@ -107,10 +107,10 @@ export const CsvUploadZone: React.FC<CsvUploadZoneProps> = ({ onUploadSuccess })
     <div className="bg-white dark:bg-[#252526] border border-slate-200 dark:border-[#3c3c3c] rounded-xl p-6 shadow-xs" data-testid="csv-upload-zone">
       <div className="pb-3 mb-4 border-b border-slate-100 dark:border-[#3c3c3c]">
         <h3 className="text-sm font-bold uppercase tracking-wider text-slate-800 dark:text-slate-100">
-          Daily CSV Snapshot Ingestion Portal
+          CSV Snapshot Ingestion
         </h3>
         <p className="text-xs text-slate-500 dark:text-slate-300 mt-0.5">
-          Upload daily engineering document exports (Max 50 MB, UTF-8/ASCII auto-detected)
+          Upload ConZol report (.csv) (Max 50 MB)
         </p>
       </div>
 
@@ -144,7 +144,7 @@ export const CsvUploadZone: React.FC<CsvUploadZoneProps> = ({ onUploadSuccess })
           Drag & Drop CSV snapshot file here
         </h4>
         <p className="text-xs text-slate-600 dark:text-slate-300 max-w-sm mx-auto mb-2">
-          or click anywhere to browse from your workstation (Supports standard SCG Conzol export templates)
+          or click anywhere to browse from your computer.
         </p>
         <span className="text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
           Limit: 50 MB • Format: .CSV
