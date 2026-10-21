@@ -188,5 +188,12 @@ describe('API Client', () => {
       expect(apiErr.statusDescription).toBe('Invalid CSV format');
     }
   });
+
+  it('re-throws DOMException AbortError without wrapping in AppApiError', async () => {
+    const abortErr = new DOMException('The user aborted a request.', 'AbortError');
+    globalThis.fetch = vi.fn().mockRejectedValue(abortErr);
+
+    await expect(request('/projects')).rejects.toBe(abortErr);
+  });
 });
 

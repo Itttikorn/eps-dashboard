@@ -111,5 +111,21 @@ describe('API Queries Hooks', () => {
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
     expect(result.current.data).toBeDefined();
   });
+
+  it('passes AbortSignal to request in useHistoricalTrends', async () => {
+    const requestSpy = vi.spyOn(client, 'request').mockResolvedValue([]);
+
+    const { useHistoricalTrends } = await import('./queries');
+    const { result } = renderHook(
+      () => useHistoricalTrends(['PRJ-01'], '30D', 'total_documents'),
+      { wrapper }
+    );
+
+    await waitFor(() => expect(result.current.isSuccess).toBe(true));
+    expect(requestSpy).toHaveBeenCalledWith(
+      expect.stringContaining('/analytics/trends'),
+      expect.objectContaining({ signal: expect.any(AbortSignal) })
+    );
+  });
 });
 

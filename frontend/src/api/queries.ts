@@ -32,7 +32,7 @@ export const queryKeys = {
 export function useHealthCheck() {
   return useQuery<HealthCheckContract>({
     queryKey: queryKeys.health,
-    queryFn: () => request<HealthCheckContract>('/health'),
+    queryFn: ({ signal }) => request<HealthCheckContract>('/health', { signal }),
     refetchInterval: 30000,
     staleTime: 15000,
   });
@@ -42,8 +42,8 @@ export function useHealthCheck() {
 export function useGlobalSummary() {
   return useQuery<GlobalSummaryData>({
     queryKey: queryKeys.summary,
-    queryFn: async () => {
-      const contract = await request<GlobalSummaryContract>('/projects/summary');
+    queryFn: async ({ signal }) => {
+      const contract = await request<GlobalSummaryContract>('/projects/summary', { signal });
       return normalizeGlobalSummary(contract);
     },
     staleTime: 60000,
@@ -55,11 +55,11 @@ export function useGlobalSummary() {
 export function useProjectMatrix(search?: string) {
   return useQuery<ProjectMatrixRow[]>({
     queryKey: queryKeys.projects(search),
-    queryFn: async () => {
+    queryFn: async ({ signal }) => {
       const queryParams = new URLSearchParams();
       if (search) queryParams.set('search', search);
       const url = `/projects${queryParams.toString() ? `?${queryParams.toString()}` : ''}`;
-      const contractRows = await request<ProjectContractRow[]>(url);
+      const contractRows = await request<ProjectContractRow[]>(url, { signal });
       return Array.isArray(contractRows) ? contractRows.map(normalizeProjectMatrixRow) : [];
     },
     staleTime: 30000,
@@ -77,7 +77,7 @@ export function useHistoricalTrends(
 ) {
   return useQuery<DailyTrendDataPoint[]>({
     queryKey: ['trends', { projectIds, preset, metric, endDate }] as const,
-    queryFn: async () => {
+    queryFn: async ({ signal }) => {
       if (projectIds.length === 0) return [];
       const queryParams = new URLSearchParams();
       queryParams.set('project_ids', projectIds.join(','));
@@ -86,7 +86,7 @@ export function useHistoricalTrends(
         queryParams.set('end_date', endDate);
       }
       const url = `/analytics/trends?${queryParams.toString()}`;
-      const points = await request<TrendPointContract[]>(url);
+      const points = await request<TrendPointContract[]>(url, { signal });
       return normalizeHistoricalTrends(points, metric);
     },
     staleTime: 120000,
