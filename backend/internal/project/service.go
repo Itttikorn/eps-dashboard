@@ -569,10 +569,13 @@ func (s *Service) GetProjectMatrix(ctx context.Context, search, sortBy, sortDir 
 func (s *Service) GetProjectDetails(ctx context.Context, projectCode string) (*ProjectDetailsResponse, error) {
 	p, err := s.repo.GetProjectByCode(ctx, projectCode)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("get project by code %s: %w", projectCode, err)
 	}
 
-	snap, _ := s.repo.GetLatestSnapshot(ctx, projectCode)
+	snap, err := s.repo.GetLatestSnapshot(ctx, projectCode)
+	if err != nil {
+		return nil, fmt.Errorf("get latest snapshot for %s: %w", projectCode, err)
+	}
 	return &ProjectDetailsResponse{
 		Project:        p,
 		LatestSnapshot: snap,
@@ -631,10 +634,12 @@ func (s *Service) GetDisciplineBreakdown(ctx context.Context, projectCode string
 func (s *Service) GetAnalyticsTrends(ctx context.Context, projectIDs []string, from, to time.Time, preset string) ([]DateMetricPoint, error) {
 	if len(projectIDs) == 0 {
 		prjs, err := s.repo.ListProjects(ctx)
-		if err == nil {
-			for _, p := range prjs {
-				projectIDs = append(projectIDs, p.Code)
-			}
+		if err != nil {
+			return nil, fmt.Errorf("list projects for trends: %w", err)
+		}
+		projectIDs = make([]string, 0, len(prjs))
+		for _, p := range prjs {
+			projectIDs = append(projectIDs, p.Code)
 		}
 	}
 

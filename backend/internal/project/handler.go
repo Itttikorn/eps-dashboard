@@ -2,6 +2,7 @@ package project
 
 import (
 	"errors"
+	"log/slog"
 	"net/http"
 	"strconv"
 	"strings"
@@ -24,6 +25,7 @@ func NewHandler(service *Service) *Handler {
 func (h *Handler) GetProjectsSummary(w http.ResponseWriter, r *http.Request) {
 	summary, err := h.service.GetGlobalSummary(r.Context())
 	if err != nil {
+		slog.Error("Failed to get projects summary", "err", err)
 		utils.WriteJSON(w, http.StatusInternalServerError, utils.ServerErrorResponse())
 		return
 	}
@@ -56,6 +58,7 @@ func (h *Handler) GetProjects(w http.ResponseWriter, r *http.Request) {
 
 	matrix, total, err := h.service.GetProjectMatrix(r.Context(), search, sortBy, sortDir, page, pageSize)
 	if err != nil {
+		slog.Error("Failed to get project matrix", "err", err)
 		utils.WriteJSON(w, http.StatusInternalServerError, utils.ServerErrorResponse())
 		return
 	}
@@ -88,6 +91,7 @@ func (h *Handler) GetProjectDetails(w http.ResponseWriter, r *http.Request) {
 			utils.WriteJSON(w, http.StatusNotFound, utils.NotFoundErrorResponse("Project"))
 			return
 		}
+		slog.Error("Failed to get project details", "projectCode", projectCode, "err", err)
 		utils.WriteJSON(w, http.StatusInternalServerError, utils.ServerErrorResponse())
 		return
 	}
@@ -105,6 +109,7 @@ func (h *Handler) GetProjectOverdue(w http.ResponseWriter, r *http.Request) {
 
 	overdueSummary, err := h.service.GetOverdueSummary(r.Context(), projectCode)
 	if err != nil {
+		slog.Error("Failed to get project overdue summary", "projectCode", projectCode, "err", err)
 		utils.WriteJSON(w, http.StatusInternalServerError, utils.ServerErrorResponse())
 		return
 	}
@@ -122,6 +127,7 @@ func (h *Handler) GetProjectDisciplines(w http.ResponseWriter, r *http.Request) 
 
 	disciplines, err := h.service.GetDisciplineBreakdown(r.Context(), projectCode)
 	if err != nil {
+		slog.Error("Failed to get project disciplines", "projectCode", projectCode, "err", err)
 		utils.WriteJSON(w, http.StatusInternalServerError, utils.ServerErrorResponse())
 		return
 	}
@@ -170,6 +176,7 @@ func (h *Handler) GetAnalyticsTrends(w http.ResponseWriter, r *http.Request) {
 
 	trends, err := h.service.GetAnalyticsTrends(r.Context(), projectIDs, from, to, preset)
 	if err != nil {
+		slog.Error("Failed to get analytics trends", "err", err)
 		utils.WriteJSON(w, http.StatusInternalServerError, utils.ServerErrorResponse())
 		return
 	}
