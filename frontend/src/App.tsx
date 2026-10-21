@@ -1,14 +1,22 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo, Suspense, lazy } from 'react';
 import { ConfigProvider } from 'antd';
 import { getAntdTheme } from './theme/antdTheme';
 import { applyTheme, getInitialTheme } from './theme/themeTransition';
 import { DashboardShell } from './components/layout/DashboardShell';
 import { ActiveTabId } from './components/layout/NavigationTabs';
 import { OverviewTab } from './features/overview/OverviewTab';
-import { TrendTab } from './features/trend/TrendTab';
-import { CsvIngestionScreen } from './features/ingestion/CsvIngestionScreen';
-import { CsvUploadModal } from './features/ingestion/CsvUploadModal';
+import { ChartSkeleton } from './components/ui/Skeletons';
 import { ErrorBoundary } from './components/ui/ErrorBoundaries';
+
+const TrendTab = lazy(() =>
+  import('./features/trend/TrendTab').then((m) => ({ default: m.TrendTab }))
+);
+const CsvIngestionScreen = lazy(() =>
+  import('./features/ingestion/CsvIngestionScreen').then((m) => ({ default: m.CsvIngestionScreen }))
+);
+const CsvUploadModal = lazy(() =>
+  import('./features/ingestion/CsvUploadModal').then((m) => ({ default: m.CsvUploadModal }))
+);
 
 function getInitialTab(): ActiveTabId {
   const hash = window.location.hash.toLowerCase();
@@ -67,8 +75,10 @@ export const App: React.FC = () => {
     }
   };
 
+  const antdThemeConfig = useMemo(() => getAntdTheme(isDark), [isDark]);
+
   return (
-    <ConfigProvider theme={getAntdTheme(isDark)}>
+    <ConfigProvider theme={antdThemeConfig}>
       <ErrorBoundary>
         <DashboardShell
           activeTab={activeTab}
@@ -77,15 +87,21 @@ export const App: React.FC = () => {
           isDark={isDark}
           onThemeChange={handleThemeChange}
         >
-          {activeTab === 'overview' && <OverviewTab />}
-          {activeTab === 'trends' && <TrendTab />}
-          {activeTab === 'ingest' && <CsvIngestionScreen />}
+          <Suspense fallback={<ChartSkeleton />}>
+            {activeTab === 'overview' && <OverviewTab />}
+            {activeTab === 'trends' && <TrendTab />}
+            {activeTab === 'ingest' && <CsvIngestionScreen />}
+          </Suspense>
         </DashboardShell>
 
-        <CsvUploadModal
-          open={isUploadModalOpen}
-          onClose={() => setIsUploadModalOpen(false)}
-        />
+        <Suspense fallback={null}>
+          {isUploadModalOpen && (
+            <CsvUploadModal
+              open={isUploadModalOpen}
+              onClose={() => setIsUploadModalOpen(false)}
+            />
+          )}
+        </Suspense>
       </ErrorBoundary>
     </ConfigProvider>
   );

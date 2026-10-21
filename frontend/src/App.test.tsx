@@ -17,6 +17,7 @@ describe('App Root Component - Theme Management', () => {
   beforeEach(() => {
     localStorage.clear();
     document.documentElement.className = '';
+    window.location.hash = '';
   });
 
   it('initializes in light mode when no preference stored and toggles to dark mode', async () => {
@@ -71,6 +72,62 @@ describe('App Root Component - Theme Management', () => {
 
     expect(localStorage.getItem('eps_theme')).toBeNull();
     expect(localStorage.getItem('eps-theme')).toBeNull();
+  });
+
+  it('switches tabs and renders lazy-loaded components within Suspense', async () => {
+    const queryClient = createTestQueryClient();
+    render(
+      <QueryClientProvider client={queryClient}>
+        <App />
+      </QueryClientProvider>
+    );
+
+    expect(screen.getByTestId('overview-tab')).toBeInTheDocument();
+
+    const trendsNav =
+      screen.queryByRole('tab', { name: /trends/i }) ??
+      screen.getByTestId('tab-trends');
+    fireEvent.click(trendsNav);
+
+    await waitFor(() => {
+      expect(screen.getByTestId('trend-tab')).toBeInTheDocument();
+    }, { timeout: 5000 });
+  });
+
+  it('switches to ingest tab and renders lazy-loaded CsvIngestionScreen', async () => {
+    const queryClient = createTestQueryClient();
+    render(
+      <QueryClientProvider client={queryClient}>
+        <App />
+      </QueryClientProvider>
+    );
+
+    const ingestNav =
+      screen.queryByRole('tab', { name: /ingest/i }) ??
+      screen.getByTestId('tab-ingest');
+    fireEvent.click(ingestNav);
+
+    await waitFor(() => {
+      expect(screen.getByTestId('csv-ingestion-screen')).toBeInTheDocument();
+    }, { timeout: 5000 });
+  });
+
+  it('renders lazy-loaded CsvUploadModal on demand when upload button clicked', async () => {
+    const queryClient = createTestQueryClient();
+    render(
+      <QueryClientProvider client={queryClient}>
+        <App />
+      </QueryClientProvider>
+    );
+
+    expect(screen.queryByTestId('csv-upload-modal')).not.toBeInTheDocument();
+
+    const uploadBtn = screen.getByTestId('header-upload-btn');
+    fireEvent.click(uploadBtn);
+
+    await waitFor(() => {
+      expect(screen.getByTestId('csv-upload-modal')).toBeInTheDocument();
+    }, { timeout: 5000 });
   });
 });
 
