@@ -1,4 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { downsampleTrendPoints } from '../lib/trend';
 import { request, uploadFile } from './client';
 import {
   normalizeGlobalSummary,
@@ -87,7 +88,8 @@ export function useHistoricalTrends(
       }
       const url = `/analytics/trends?${queryParams.toString()}`;
       const points = await request<TrendPointContract[]>(url, { signal });
-      return normalizeHistoricalTrends(points, metric);
+      const normalized = normalizeHistoricalTrends(points, metric);
+      return downsampleTrendPoints(normalized, 730);
     },
     staleTime: 120000,
     gcTime: 15 * 60 * 1000,

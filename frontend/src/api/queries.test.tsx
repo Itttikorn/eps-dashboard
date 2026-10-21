@@ -127,5 +127,25 @@ describe('API Queries Hooks', () => {
       expect.objectContaining({ signal: expect.any(AbortSignal) })
     );
   });
+
+  it('downsamples historical trend points if points exceed 730', async () => {
+    const largePoints = Array.from({ length: 1000 }, (_, i) => ({
+      date: `2024-01-01T00:00:00Z`,
+      project_metrics: {
+        'PRJ-LARGE': { total_documents: i },
+      },
+    }));
+
+    vi.spyOn(client, 'request').mockResolvedValue(largePoints);
+
+    const { useHistoricalTrends } = await import('./queries');
+    const { result } = renderHook(
+      () => useHistoricalTrends(['PRJ-LARGE'], 'MAX', 'total_documents'),
+      { wrapper }
+    );
+
+    await waitFor(() => expect(result.current.isSuccess).toBe(true));
+    expect(result.current.data?.length).toBe(730);
+  });
 });
 
