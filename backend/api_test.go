@@ -198,3 +198,31 @@ func TestHealthEndpointResultContract(t *testing.T) {
 	}
 }
 
+func TestMount_NilDB_DegradedMode(t *testing.T) {
+	app := &Application{
+		Config: Config{},
+		DB:     nil, // Nil DB mode
+	}
+
+	handler := app.Mount()
+
+	// 1. /api/health should return 503 Service Unavailable
+	reqHealth := httptest.NewRequest(http.MethodGet, "/api/health", nil)
+	recHealth := httptest.NewRecorder()
+	handler.ServeHTTP(recHealth, reqHealth)
+
+	if recHealth.Code != http.StatusServiceUnavailable {
+		t.Errorf("health status = %d, want %d", recHealth.Code, http.StatusServiceUnavailable)
+	}
+
+	// 2. /api/v1/projects should safely return 503 without panic
+	reqProjects := httptest.NewRequest(http.MethodGet, "/api/v1/projects", nil)
+	recProjects := httptest.NewRecorder()
+	handler.ServeHTTP(recProjects, reqProjects)
+
+	if recProjects.Code != http.StatusServiceUnavailable {
+		t.Errorf("projects status = %d, want %d", recProjects.Code, http.StatusServiceUnavailable)
+	}
+}
+
+

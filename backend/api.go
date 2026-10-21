@@ -88,31 +88,47 @@ func (app *Application) Mount() http.Handler {
 
 	registerRoutes := func(api chi.Router) {
 		api.Use(middleware.Timeout(apiTimeout))
+		if app.DB == nil {
+			api.Use(func(next http.Handler) http.Handler {
+				return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+					if strings.HasSuffix(r.URL.Path, "/health") {
+						next.ServeHTTP(w, r)
+						return
+					}
+					utils.WriteJSON(w, http.StatusServiceUnavailable, utils.ServerErrorResponse())
+				})
+			})
+		}
 
 		api.Get("/health", func(w http.ResponseWriter, r *http.Request) {
 			dbStatus := "CONNECTED"
-			if app.DB != nil {
-				if sqlDB, err := app.DB.DB(); err != nil || sqlDB.PingContext(r.Context()) != nil {
-					dbStatus = "DISCONNECTED"
-				}
+			httpStatus := http.StatusOK
+			overallStatus := "healthy"
+			if app.DB == nil {
+				dbStatus = "DISCONNECTED"
+				httpStatus = http.StatusServiceUnavailable
+				overallStatus = "unhealthy"
+			} else if sqlDB, err := app.DB.DB(); err != nil || sqlDB.PingContext(r.Context()) != nil {
+				dbStatus = "DISCONNECTED"
+				httpStatus = http.StatusServiceUnavailable
+				overallStatus = "unhealthy"
 			}
 			now := time.Now().UTC().Format(time.RFC3339)
-			utils.WriteJSON(w, http.StatusOK, utils.SuccessResponse(map[string]string{
+			utils.WriteJSON(w, httpStatus, utils.SuccessResponse(map[string]string{
 				"service":   "UP",
 				"database":  dbStatus,
 				"timestamp": now,
-				"status":    "healthy", // backward compatibility
-				"time":      now,       // backward compatibility
+				"status":    overallStatus, // backward compatibility
+				"time":      now,           // backward compatibility
 			}))
 		})
 
-		var projectRepo project.ProjectRepository
-		var ingestRepo ingest.Repository
-		if app.DB != nil {
-			projectRepo = project.NewRepository(app.DB)
-			ingestRepo = ingest.NewRepository(app.DB)
+		if app.DB == nil {
+			return
 		}
 
+		projectRepo := project.NewRepository(app.DB)
+		ingestRepo := ingest.NewRepository(app.DB)
 		projectHandler := project.NewHandler(project.NewService(projectRepo))
 		ingestHandler := ingest.NewHandler(ingest.NewService(ingestRepo))
 
