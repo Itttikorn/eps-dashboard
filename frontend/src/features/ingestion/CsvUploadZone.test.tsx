@@ -1,8 +1,9 @@
 import React from 'react';
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { CsvUploadZone } from './CsvUploadZone';
+import * as client from '../../api/client';
 
 const createTestQueryClient = () =>
   new QueryClient({
@@ -22,7 +23,7 @@ describe('CsvUploadZone Component', () => {
     );
 
     expect(screen.getByTestId('csv-upload-zone')).toBeInTheDocument();
-    expect(screen.getByText(/Daily CSV Snapshot Ingestion Portal/i)).toBeInTheDocument();
+    expect(screen.getByText(/CSV Snapshot Ingestion/i)).toBeInTheDocument();
     expect(screen.getByTestId('dropzone-area')).toBeInTheDocument();
   });
 
@@ -56,5 +57,35 @@ describe('CsvUploadZone Component', () => {
     expect(screen.getByText('snapshot.csv')).toBeInTheDocument();
     expect(screen.getByTestId('submit-upload-btn')).toBeInTheDocument();
   });
+
+  it('displays success receipt with Deduplicated Rows on successful upload', async () => {
+    vi.spyOn(client, 'uploadFile').mockResolvedValue({
+      batch_id: 'batch-test-123',
+      total_rows: 50,
+      deltas_updated: 40,
+      skipped_unchanged: 10,
+      status: 'INGESTED',
+    });
+
+    const queryClient = createTestQueryClient();
+    render(
+      <QueryClientProvider client={queryClient}>
+        <CsvUploadZone />
+      </QueryClientProvider>
+    );
+
+    const input = screen.getByTestId('file-input');
+    const validCsv = new File(['id,name\n1,test'], 'snapshot.csv', { type: 'text/csv' });
+    fireEvent.change(input, { target: { files: [validCsv] } });
+
+    const submitBtn = screen.getByTestId('submit-upload-btn');
+    fireEvent.click(submitBtn);
+
+    expect(await screen.findByTestId('upload-success-receipt')).toBeInTheDocument();
+    expect(screen.getByText(/Deduplicated Rows:/i)).toBeInTheDocument();
+    expect(screen.getByText('10')).toBeInTheDocument();
+  });
 });
+
+
 

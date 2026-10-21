@@ -221,7 +221,7 @@ export const CsvUploadZone: React.FC<CsvUploadZoneProps> = ({ onUploadSuccess })
           <p className="text-[11px] text-emerald-800 dark:text-emerald-300">
             Batch ID: <strong className="font-mono">{successResult.batchId}</strong> • Total Rows:{' '}
             <strong className="tabular-nums">{successResult.totalRows}</strong> • Deltas Updated:{' '}
-            <strong className="tabular-nums">{successResult.deltasUpdated}</strong> • Skipped Unchanged:{' '}
+            <strong className="tabular-nums">{successResult.deltasUpdated}</strong> • Deduplicated Rows:{' '}
             <strong className="tabular-nums">{successResult.skippedUnchanged}</strong>
           </p>
         </div>
