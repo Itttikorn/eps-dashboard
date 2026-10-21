@@ -152,15 +152,15 @@ export const ProjectMatrixTable: React.FC<ProjectMatrixTableProps> = ({
         style={{ contain: 'layout paint' }}
         data-testid="project-matrix-container"
       >
-        <table className="w-full min-w-[1160px] text-left border-collapse text-xs">
+        <table className="w-full min-w-290 text-left border-collapse text-xs">
           {/* Two-Tier Table Headers */}
           <thead>
             {/* Tier 1: Group Super-Headers */}
             <tr className="border-b border-slate-200 dark:border-[#3c3c3c] font-bold text-xs uppercase tracking-wider text-center select-none">
-              <th className="py-2.5 px-4 text-left bg-slate-100 dark:bg-[#252526] text-slate-700 dark:text-slate-300 w-[240px]">
+              <th className="py-2.5 px-4 text-left bg-slate-100 dark:bg-[#252526] text-slate-700 dark:text-slate-300 w-60">
                 Project
               </th>
-              <th className="py-2.5 px-3 bg-[#2f6fce] text-white w-[130px]">
+              <th className="py-2.5 px-3 bg-[#2f6fce] text-white w-32.5">
                 ① Baseline
               </th>
               <th className="py-2.5 px-3 bg-[#12a4a0] text-white" colSpan={3}>
@@ -172,13 +172,13 @@ export const ProjectMatrixTable: React.FC<ProjectMatrixTableProps> = ({
               <th className="py-2.5 px-3 bg-[#26a65b] text-white" colSpan={3}>
                 ④ Change
               </th>
-              <th className="py-2.5 px-3 bg-[#8b5cf6] text-white w-[90px]">
+              <th className="py-2.5 px-3 bg-[#8b5cf6] text-white w-22.5">
                 ⑤ Complete
               </th>
-              <th className="py-2.5 px-3 bg-slate-800 text-white w-[95px] text-center">
+              <th className="py-2.5 px-3 bg-slate-800 text-white w-23.75 text-center">
                 Total
               </th>
-              <th className="py-2.5 px-3 bg-slate-700 text-white w-[110px]">
+              <th className="py-2.5 px-3 bg-slate-700 text-white w-27.5">
                 SLA Monitor
               </th>
             </tr>

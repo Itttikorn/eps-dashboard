@@ -90,7 +90,7 @@ export const SearchToolbar: React.FC<SearchToolbarProps> = ({
       {/* Top Row: Search Autocomplete & Sort Controls */}
       <div className="flex flex-wrap items-center justify-between gap-4">
         {/* Search Combobox with Autocomplete Popover */}
-        <div ref={containerRef} className="relative flex-1 min-w-[280px] max-w-lg">
+        <div ref={containerRef} className="relative flex-1 min-w-70 max-w-lg">
           <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none z-10" />
           <input
             id="searchInput"
@@ -200,7 +200,7 @@ export const SearchToolbar: React.FC<SearchToolbarProps> = ({
                                 : 'border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800'
                             }`}
                           >
-                            {isSelected && <Check className="w-3 h-3 stroke-[3]" />}
+                            {isSelected && <Check className="w-3 h-3 stroke-3" />}
                           </div>
 
                           <div className="min-w-0">
@@ -411,7 +411,7 @@ export const SearchToolbar: React.FC<SearchToolbarProps> = ({
                 className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-medium text-slate-800 dark:text-slate-200 shadow-2xs"
               >
                 <span className="text-[10px]">{healthDot}</span>
-                <span className="font-semibold truncate max-w-[160px]">
+                <span className="font-semibold truncate max-w-40">
                   {p?.projectName || id}
                 </span>
                 <span className="font-mono text-[10px] text-slate-500 dark:text-slate-400">

@@ -24,7 +24,7 @@ describe('HeaderNav Component', () => {
       </QueryClientProvider>
     );
 
-    expect(screen.getByText('Conzol Doc Tracker')).toBeInTheDocument();
+    expect(screen.getByText('ConZol Document Dashboard')).toBeInTheDocument();
     expect(screen.getByTestId('health-heartbeat')).toBeInTheDocument();
 
     const uploadBtn = screen.getByTestId('header-upload-btn');
