@@ -97,25 +97,46 @@ func StripBOM(r io.Reader) (io.Reader, error) {
 
 var trailingDoubleQuoteRegex = regexp.MustCompile(`([^,])""\s*,`)
 
+type sanitizingLineReader struct {
+	scanner *bufio.Scanner
+	buf     bytes.Buffer
+	err     error
+}
+
 // SanitizeCSVStream strips UTF-8 BOM if present and repairs common Conzol export anomalies,
-// such as unescaped trailing double-quotes before commas.
+// such as unescaped trailing double-quotes before commas, using a streaming line reader.
 func SanitizeCSVStream(r io.Reader) (io.Reader, error) {
 	cleanReader, err := StripBOM(r)
 	if err != nil {
 		return nil, err
 	}
+	sc := bufio.NewScanner(cleanReader)
+	// 64KB initial buffer, up to 4MB line length
+	sc.Buffer(make([]byte, 64*1024), 4*1024*1024)
+	return &sanitizingLineReader{scanner: sc}, nil
+}
 
-	content, err := io.ReadAll(cleanReader)
-	if err != nil {
-		return nil, err
+func (s *sanitizingLineReader) Read(p []byte) (int, error) {
+	if s.buf.Len() == 0 {
+		if s.err != nil {
+			return 0, s.err
+		}
+		if !s.scanner.Scan() {
+			if err := s.scanner.Err(); err != nil {
+				s.err = err
+				return 0, err
+			}
+			s.err = io.EOF
+			return 0, io.EOF
+		}
+		line := s.scanner.Bytes()
+		if bytes.Contains(line, []byte(`"",`)) || bytes.Contains(line, []byte(`"" ,`)) {
+			line = trailingDoubleQuoteRegex.ReplaceAll(line, []byte(`${1}",`))
+		}
+		s.buf.Write(line)
+		s.buf.WriteByte('\n')
 	}
-
-	if bytes.Contains(content, []byte(`"",`)) || bytes.Contains(content, []byte(`"" ,`)) {
-		sanitized := trailingDoubleQuoteRegex.ReplaceAll(content, []byte(`${1}",`))
-		return bytes.NewReader(sanitized), nil
-	}
-
-	return bytes.NewReader(content), nil
+	return s.buf.Read(p)
 }
 
 // StreamParseCSV reads CSV records sequentially from the reader, sanitizes values,

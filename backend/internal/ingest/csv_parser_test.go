@@ -2,6 +2,7 @@ package ingest
 
 import (
 	"bytes"
+	"io"
 	"os"
 	"strings"
 	"testing"
@@ -313,5 +314,33 @@ func TestParseActualDataDirectoryFiles(t *testing.T) {
 		})
 	}
 }
+
+func TestSanitizeCSVStream_Streaming(t *testing.T) {
+	rawInput := "\xef\xbb\xbfdoc_number,title,issue_date\n" +
+		`DOC-01,"Malformed"",2026-03-10` + "\n" +
+		`DOC-02,"Normal",2026-03-11` + "\n"
+
+	sanitizedReader, err := SanitizeCSVStream(strings.NewReader(rawInput))
+	if err != nil {
+		t.Fatalf("SanitizeCSVStream failed: %v", err)
+	}
+
+	sanitizedBytes, err := io.ReadAll(sanitizedReader)
+	if err != nil {
+		t.Fatalf("failed reading sanitized stream: %v", err)
+	}
+
+	out := string(sanitizedBytes)
+	if strings.HasPrefix(out, "\xef\xbb\xbf") {
+		t.Errorf("BOM was not stripped")
+	}
+	if strings.Contains(out, `"",`) {
+		t.Errorf("malformed trailing quote was not repaired: %s", out)
+	}
+	if !strings.Contains(out, `DOC-01,"Malformed",2026-03-10`) {
+		t.Errorf("repaired line not found in output: %s", out)
+	}
+}
+
 
 
