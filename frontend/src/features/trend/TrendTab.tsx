@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useMemo, useEffect } from 'react';
 import { TrendMetricType } from '../../api/types';
 import { TrendPreset } from '../../lib/trend';
 import { useHistoricalTrends, useProjectMatrix } from '../../api/queries';
@@ -12,17 +12,26 @@ export const TrendTab: React.FC = () => {
   const [preset, setPreset] = useState<TrendPreset>('90D');
   const [metric, setMetric] = useState<TrendMetricType>('total_documents');
   const [selectedProjectIds, setSelectedProjectIds] = useState<string[]>([]);
+  const hasAutoSelectedRef = useRef(false);
 
   // Fetch all known projects to populate selector
-  const { data: projects = [] } = useProjectMatrix();
-  const availableProjects = projects.map((p) => ({ id: p.projectId, name: p.projectName }));
+  const { data: projects } = useProjectMatrix();
+  const availableProjects = useMemo(
+    () => (projects ?? []).map((p) => ({ id: p.projectId, name: p.projectName })),
+    [projects]
+  );
+  const allKnownProjectIds = useMemo(
+    () => availableProjects.map((p) => p.id),
+    [availableProjects]
+  );
 
-  // Auto-select first 3 projects if none are selected and projects have loaded
-  React.useEffect(() => {
-    if (selectedProjectIds.length === 0 && availableProjects.length > 0) {
+  // Auto-select first 3 projects once when projects first load
+  useEffect(() => {
+    if (!hasAutoSelectedRef.current && availableProjects.length > 0) {
+      hasAutoSelectedRef.current = true;
       setSelectedProjectIds(availableProjects.slice(0, 3).map((p) => p.id));
     }
-  }, [availableProjects, selectedProjectIds.length]);
+  }, [availableProjects]);
 
   const {
     data: trendData = [],
@@ -67,7 +76,7 @@ export const TrendTab: React.FC = () => {
         <HistoricalTrendChart
           data={trendData}
           selectedProjectIds={selectedProjectIds}
-          allKnownProjectIds={availableProjects.map((p) => p.id)}
+          allKnownProjectIds={allKnownProjectIds}
           metricType={metric}
           isLoading={isLoading}
           isError={isError}
