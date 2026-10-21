@@ -51,3 +51,6 @@ aidlc/spaces/*/intents/*/.aidlc-*
 aidlc/diagnostics/
 .aidlc
 # END AI-DLC:gitignore
+
+.superpowers
+docs/superpowers
