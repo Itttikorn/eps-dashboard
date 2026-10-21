@@ -37,20 +37,23 @@ function disableTransitionsTemporarily(): () => void {
  *
  * @param isDark - whether dark mode should be enabled
  * @param disableTransition - whether to suppress transitions during the swap (default true)
+ * @param persist - whether to save choice to localStorage (default true)
  */
-export function applyTheme(isDark: boolean, disableTransition = true): void {
+export function applyTheme(isDark: boolean, disableTransition = true, persist = true): void {
   if (typeof document === 'undefined') return;
 
   const root = document.documentElement;
   const currentlyDark = root.classList.contains('dark');
 
-  // If already at desired state, synchronize localStorage and exit
+  // If already at desired state, synchronize localStorage if persisting and exit
   if (currentlyDark === isDark) {
-    try {
-      localStorage.setItem('eps_theme', isDark ? 'dark' : 'light');
-      localStorage.setItem('eps-theme', isDark ? 'dark' : 'light');
-    } catch {
-      // Ignore storage errors in restricted contexts
+    if (persist) {
+      try {
+        localStorage.setItem('eps_theme', isDark ? 'dark' : 'light');
+        localStorage.setItem('eps-theme', isDark ? 'dark' : 'light');
+      } catch {
+        // Ignore storage errors in restricted contexts
+      }
     }
     return;
   }
@@ -59,19 +62,23 @@ export function applyTheme(isDark: boolean, disableTransition = true): void {
 
   if (isDark) {
     root.classList.add('dark');
-    try {
-      localStorage.setItem('eps_theme', 'dark');
-      localStorage.setItem('eps-theme', 'dark');
-    } catch {
-      // Ignore
+    if (persist) {
+      try {
+        localStorage.setItem('eps_theme', 'dark');
+        localStorage.setItem('eps-theme', 'dark');
+      } catch {
+        // Ignore
+      }
     }
   } else {
     root.classList.remove('dark');
-    try {
-      localStorage.setItem('eps_theme', 'light');
-      localStorage.setItem('eps-theme', 'light');
-    } catch {
-      // Ignore
+    if (persist) {
+      try {
+        localStorage.setItem('eps_theme', 'light');
+        localStorage.setItem('eps-theme', 'light');
+      } catch {
+        // Ignore
+      }
     }
   }
 

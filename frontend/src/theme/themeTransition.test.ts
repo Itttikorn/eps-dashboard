@@ -66,4 +66,11 @@ describe('themeTransition utility (Option 1: Instantaneous sync)', () => {
     localStorage.setItem('eps_theme', 'light');
     expect(getInitialTheme()).toBe(false);
   });
+
+  it('does not write to localStorage when persist is false', () => {
+    localStorage.clear();
+    applyTheme(true, false, false);
+    expect(document.documentElement.classList.contains('dark')).toBe(true);
+    expect(localStorage.getItem('eps_theme')).toBeNull();
+  });
 });

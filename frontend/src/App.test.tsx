@@ -60,5 +60,17 @@ describe('App Root Component - Theme Management', () => {
 
     expect(document.documentElement.classList.contains('dark')).toBe(true);
   });
+
+  it('does not write to localStorage on initial mount when no preference is saved', () => {
+    const queryClient = createTestQueryClient();
+    render(
+      <QueryClientProvider client={queryClient}>
+        <App />
+      </QueryClientProvider>
+    );
+
+    expect(localStorage.getItem('eps_theme')).toBeNull();
+    expect(localStorage.getItem('eps-theme')).toBeNull();
+  });
 });
 

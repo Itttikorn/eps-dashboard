@@ -25,5 +25,16 @@ describe('ThemeToggle Component', () => {
     expect(localStorage.getItem('eps_theme')).toBe('dark');
     expect(handleThemeChange).toHaveBeenCalled();
   });
+
+  it('does not invoke applyTheme directly when in controlled mode', () => {
+    const handleThemeChange = vi.fn();
+    render(<ThemeToggle isDark={false} onThemeChange={handleThemeChange} />);
+    const btn = screen.getByTestId('theme-toggle-btn');
+
+    fireEvent.click(btn);
+    expect(handleThemeChange).toHaveBeenCalledWith(true);
+    expect(document.documentElement.classList.contains('dark')).toBe(false);
+    expect(localStorage.getItem('eps_theme')).toBeNull();
+  });
 });
 

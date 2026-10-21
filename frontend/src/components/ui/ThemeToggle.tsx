@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { Sun, Moon } from 'lucide-react';
 import { applyTheme, getInitialTheme } from '../../theme/themeTransition';
 
@@ -11,22 +11,16 @@ export const ThemeToggle: React.FC<ThemeToggleProps> = ({
   isDark: controlledDark,
   onThemeChange,
 }) => {
-  const [internalDark, setInternalDark] = useState<boolean>(getInitialTheme);
-
-  const isDark = controlledDark !== undefined ? controlledDark : internalDark;
-
-  useEffect(() => {
-    if (controlledDark !== undefined) {
-      setInternalDark(controlledDark);
-    }
-  }, [controlledDark]);
+  const [uncontrolledDark, setUncontrolledDark] = useState<boolean>(getInitialTheme);
+  const isControlled = controlledDark !== undefined;
+  const isDark = isControlled ? controlledDark : uncontrolledDark;
 
   const toggleTheme = () => {
     const nextDark = !isDark;
-    if (controlledDark === undefined) {
-      setInternalDark(nextDark);
+    if (!isControlled) {
+      setUncontrolledDark(nextDark);
+      applyTheme(nextDark, true, true);
     }
-    applyTheme(nextDark, true);
     onThemeChange?.(nextDark);
   };
 
@@ -43,4 +37,3 @@ export const ThemeToggle: React.FC<ThemeToggleProps> = ({
     </button>
   );
 };
-

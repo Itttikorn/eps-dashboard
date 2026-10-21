@@ -22,27 +22,34 @@ export const App: React.FC = () => {
   const [isDark, setIsDark] = useState<boolean>(getInitialTheme);
   const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
   const isFirstMount = useRef(true);
+  const hasUserExplicitChoice = useRef(
+    Boolean(localStorage.getItem('eps_theme') || localStorage.getItem('eps-theme'))
+  );
 
   useEffect(() => {
     if (isFirstMount.current) {
       isFirstMount.current = false;
-      applyTheme(isDark, false);
+      applyTheme(isDark, false, hasUserExplicitChoice.current);
       return;
     }
-    applyTheme(isDark, true);
+    applyTheme(isDark, true, hasUserExplicitChoice.current);
   }, [isDark]);
 
   useEffect(() => {
     const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
     const handleMediaChange = (e: MediaQueryListEvent) => {
-      const saved = localStorage.getItem('eps_theme') || localStorage.getItem('eps-theme');
-      if (!saved) {
+      if (!hasUserExplicitChoice.current) {
         setIsDark(e.matches);
       }
     };
     mediaQuery.addEventListener('change', handleMediaChange);
     return () => mediaQuery.removeEventListener('change', handleMediaChange);
   }, []);
+
+  const handleThemeChange = (nextDark: boolean) => {
+    hasUserExplicitChoice.current = true;
+    setIsDark(nextDark);
+  };
 
   useEffect(() => {
     const handleHashChange = () => {
@@ -68,7 +75,7 @@ export const App: React.FC = () => {
           onTabChange={handleTabChange}
           onOpenUploadModal={() => setIsUploadModalOpen(true)}
           isDark={isDark}
-          onThemeChange={setIsDark}
+          onThemeChange={handleThemeChange}
         >
           {activeTab === 'overview' && <OverviewTab />}
           {activeTab === 'trends' && <TrendTab />}
