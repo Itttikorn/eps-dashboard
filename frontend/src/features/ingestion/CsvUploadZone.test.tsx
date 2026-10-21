@@ -85,6 +85,35 @@ describe('CsvUploadZone Component', () => {
     expect(screen.getByText(/Deduplicated Rows:/i)).toBeInTheDocument();
     expect(screen.getByText('10')).toBeInTheDocument();
   });
+
+  it('resets file input value so selecting the same file triggers onChange again', () => {
+    const queryClient = createTestQueryClient();
+    render(
+      <QueryClientProvider client={queryClient}>
+        <CsvUploadZone />
+      </QueryClientProvider>
+    );
+
+    const input = screen.getByTestId('file-input') as HTMLInputElement;
+    const file = new File(['content'], 'test.csv', { type: 'text/csv' });
+    const valueSetterSpy = vi.spyOn(input, 'value', 'set');
+
+    fireEvent.change(input, { target: { files: [file] } });
+    expect(valueSetterSpy).toHaveBeenCalledWith('');
+    expect(input.value).toBe('');
+  });
+
+  it('displays 32 MB limit labels in UI', () => {
+    const queryClient = createTestQueryClient();
+    render(
+      <QueryClientProvider client={queryClient}>
+        <CsvUploadZone />
+      </QueryClientProvider>
+    );
+
+    expect(screen.getByText(/Max 32 MB/i)).toBeInTheDocument();
+    expect(screen.getByText(/Limit: 32 MB/i)).toBeInTheDocument();
+  });
 });
 
 

@@ -1,4 +1,4 @@
-export const MAX_UPLOAD_BYTES = 52428800; // 50 MB in bytes
+export const MAX_UPLOAD_BYTES = 32 * 1024 * 1024; // 32 MB in bytes (33,554,432)
 
 export const ALLOWED_CSV_MIME_TYPES = new Set([
   'text/csv',
@@ -34,12 +34,12 @@ export function validateCsvFile(file: File): FileValidationResult {
     };
   }
 
-  // Check size limit (<= 50MB)
+  // Check size limit (<= 32MB)
   if (file.size > MAX_UPLOAD_BYTES) {
     const sizeMb = (file.size / (1024 * 1024)).toFixed(1);
     return {
       valid: false,
-      error: `File size exceeds 50 MB limit (${sizeMb} MB). Please upload a smaller snapshot.`,
+      error: `File size exceeds 32 MB limit (${sizeMb} MB). Please upload a smaller snapshot.`,
     };
   }
 

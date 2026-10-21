@@ -56,6 +56,7 @@ export const CsvUploadZone: React.FC<CsvUploadZoneProps> = ({ onUploadSuccess })
       const file = e.target.files[0];
       if (file) processSelectedFile(file);
     }
+    e.target.value = '';
   };
 
   const processSelectedFile = (file: File) => {
@@ -110,7 +111,7 @@ export const CsvUploadZone: React.FC<CsvUploadZoneProps> = ({ onUploadSuccess })
           CSV Snapshot Ingestion
         </h3>
         <p className="text-xs text-slate-500 dark:text-slate-300 mt-0.5">
-          Upload ConZol report (.csv) (Max 50 MB)
+          Upload ConZol report (.csv) (Max 32 MB)
         </p>
       </div>
 
@@ -147,7 +148,7 @@ export const CsvUploadZone: React.FC<CsvUploadZoneProps> = ({ onUploadSuccess })
           or click anywhere to browse from your computer.
         </p>
         <span className="text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
-          Limit: 50 MB • Format: .CSV
+          Limit: 32 MB • Format: .CSV
         </span>
       </div>
 

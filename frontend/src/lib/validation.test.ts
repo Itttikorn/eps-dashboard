@@ -23,7 +23,7 @@ describe('Validation logic', () => {
     expect(result.error).toContain('Unsupported MIME type');
   });
 
-  it('enforces 50 MB boundary (52,428,800 vs 52,428,801 bytes)', () => {
+  it('enforces 32 MB boundary (33,554,432 vs 33,554,433 bytes)', () => {
     const validFile = new File([''], 'data.csv', { type: 'text/csv' });
     Object.defineProperty(validFile, 'size', { value: MAX_UPLOAD_BYTES });
     expect(validateCsvFile(validFile).valid).toBe(true);
@@ -32,7 +32,7 @@ describe('Validation logic', () => {
     Object.defineProperty(oversizedFile, 'size', { value: MAX_UPLOAD_BYTES + 1 });
     const overResult = validateCsvFile(oversizedFile);
     expect(overResult.valid).toBe(false);
-    expect(overResult.error).toContain('File size exceeds 50 MB limit');
+    expect(overResult.error).toContain('File size exceeds 32 MB limit');
   });
 });
 
