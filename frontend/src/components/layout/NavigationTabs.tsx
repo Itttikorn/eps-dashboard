@@ -15,7 +15,7 @@ export const NavigationTabs: React.FC<NavigationTabsProps> = ({
   const tabs = [
     {
       id: 'overview' as const,
-      label: '(1) QA/QC Comparative Overview',
+      label: '(1) Overview',
       icon: BarChart3,
       hash: '#view-overview',
     },
